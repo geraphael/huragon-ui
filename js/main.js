@@ -84,32 +84,72 @@ function renderSidebar() {
   if (!container) return;
   container.innerHTML = '';
 
+  // Load per-category collapse state from localStorage
+  let catStates = {};
+  try {
+    catStates = JSON.parse(localStorage.getItem('huragon_cat_states') || '{}');
+  } catch (_) { catStates = {}; }
+
   CATEGORIES.forEach(cat => {
-    const catBox = el('div', { className: 'nav-category' }, [
-      el('div', { className: 'category-title' }, [
-        el('span', { textContent: cat.name }),
-        el('span', { style: { fontSize: '0.65rem', opacity: '0.6' }, textContent: cat.tools.length })
-      ])
+    // Default: all categories expanded
+    const isCollapsed = catStates[cat.id] === true;
+
+    const catIconSvg = ICONS[cat.icon] || ICONS.sliders;
+
+    // Category header row (accordion toggle)
+    const chevronSpan = el('span', {
+      className: 'cat-chevron',
+      innerHTML: isCollapsed ? ICONS.chevronRight : ICONS.chevronDown
+    });
+
+    const titleRow = el('div', {
+      className: 'category-title' + (isCollapsed ? ' cat-collapsed' : ''),
+    }, [
+      el('span', { className: 'cat-title-icon', innerHTML: catIconSvg }),
+      el('span', { className: 'cat-title-text', textContent: cat.name }),
+      el('span', { className: 'cat-count', textContent: cat.tools.length }),
+      chevronSpan
     ]);
 
+    // Tools list container
+    const toolsList = el('div', {
+      className: 'nav-tools-list' + (isCollapsed ? ' nav-tools-hidden' : '')
+    });
+
     cat.tools.forEach(tool => {
-      const catIconSvg = ICONS[cat.icon] || ICONS.sliders;
+      const toolIconSvg = ICONS[tool.icon] || ICONS[cat.icon] || ICONS.sliders;
       const navItem = el('div', {
         className: 'nav-item',
         'data-tool-id': tool.id,
-        'data-tooltip': `${tool.name} · ${cat.name}`,
+        'data-tooltip': `${tool.name}`,
         onclick: () => {
           location.hash = `#${tool.id}`;
           qs('#sidebar').classList.remove('open');
         }
       }, [
-        el('span', { className: 'nav-item-icon', innerHTML: catIconSvg }),
+        el('span', { className: 'nav-item-icon', innerHTML: toolIconSvg }),
         el('span', { className: 'nav-text', textContent: tool.name })
       ]);
-
-      catBox.appendChild(navItem);
+      toolsList.appendChild(navItem);
     });
 
+    // Accordion toggle logic
+    titleRow.addEventListener('click', () => {
+      const sidebar = qs('#sidebar');
+      // Don't toggle accordion in collapsed rail mode
+      if (sidebar && sidebar.classList.contains('collapsed')) return;
+
+      const nowCollapsed = !toolsList.classList.contains('nav-tools-hidden');
+      toolsList.classList.toggle('nav-tools-hidden', nowCollapsed);
+      titleRow.classList.toggle('cat-collapsed', nowCollapsed);
+      chevronSpan.innerHTML = nowCollapsed ? ICONS.chevronRight : ICONS.chevronDown;
+
+      // Persist state
+      catStates[cat.id] = nowCollapsed;
+      localStorage.setItem('huragon_cat_states', JSON.stringify(catStates));
+    });
+
+    const catBox = el('div', { className: 'nav-category', 'data-cat-id': cat.id }, [titleRow, toolsList]);
     container.appendChild(catBox);
   });
 }

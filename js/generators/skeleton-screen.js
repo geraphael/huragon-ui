@@ -13,7 +13,8 @@ let config = {
   highlightColor: '#3f3f46',
   speed: 1.5,
   borderRadius: 8,
-  animationType: 'shimmer' // 'shimmer' or 'pulse'
+  animationType: 'shimmer', // 'shimmer' or 'pulse'
+  loaded: false // interactive reveal toggle
 };
 
 export function mount(container, onCodeChange) {
@@ -23,6 +24,19 @@ export function mount(container, onCodeChange) {
   previewStage.innerHTML = '';
 
   const centerStage = el('div', {
+    style: {
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
+      justifyContent: 'center',
+      gap: '16px',
+      padding: '24px'
+    }
+  });
+
+  const previewBox = el('div', {
     id: 'skeleton-preview-box',
     style: {
       width: '100%',
@@ -31,10 +45,46 @@ export function mount(container, onCodeChange) {
       background: 'var(--bg-card)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--radius-lg)',
-      boxShadow: 'var(--shadow-md)'
+      boxShadow: 'var(--shadow-md)',
+      transition: 'all 0.3s ease'
     }
   });
 
+  // Floating interactive reveal pill above the card
+  const toggleBar = el('div', {
+    style: {
+      display: 'inline-flex',
+      alignItems: 'center',
+      gap: '8px',
+      padding: '4px 10px',
+      borderRadius: '999px',
+      background: 'var(--bg-input)',
+      border: '1px solid var(--border)'
+    }
+  }, [
+    el('span', { style: { fontSize: '0.75rem', color: 'var(--text-muted)' }, textContent: 'State:' }),
+    el('button', {
+      className: `btn ${!config.loaded ? 'btn-primary' : 'btn-outline'}`,
+      style: { fontSize: '0.72rem', padding: '3px 10px', borderRadius: '999px' },
+      textContent: 'Skeleton Loading',
+      onclick: () => {
+        config.loaded = false;
+        update();
+      }
+    }),
+    el('button', {
+      className: `btn ${config.loaded ? 'btn-primary' : 'btn-outline'}`,
+      style: { fontSize: '0.72rem', padding: '3px 10px', borderRadius: '999px' },
+      textContent: 'Revealed Content',
+      onclick: () => {
+        config.loaded = true;
+        update();
+      }
+    })
+  ]);
+
+  centerStage.appendChild(toggleBar);
+  centerStage.appendChild(previewBox);
   previewStage.appendChild(centerStage);
 
   // Render controls
@@ -93,7 +143,8 @@ export function mount(container, onCodeChange) {
             highlightColor: '#3f3f46',
             speed: 1.5,
             borderRadius: 8,
-            animationType: 'shimmer'
+            animationType: 'shimmer',
+            loaded: false
           };
           mount(container, onCodeChange);
         }
@@ -142,7 +193,14 @@ export function mount(container, onCodeChange) {
   }
 
   function update() {
-    renderSkeletonPreview(centerStage);
+    // Re-sync toggle bar buttons
+    const btns = toggleBar.querySelectorAll('button');
+    if (btns.length === 2) {
+      btns[0].className = `btn ${!config.loaded ? 'btn-primary' : 'btn-outline'}`;
+      btns[1].className = `btn ${config.loaded ? 'btn-primary' : 'btn-outline'}`;
+    }
+
+    renderSkeletonPreview(previewBox);
     generateCode();
   }
 
@@ -201,7 +259,6 @@ export function mount(container, onCodeChange) {
 }
 
 function renderSkeletonPreview(container) {
-  // Inject style element for the live animation
   let styleEl = qs('#skeleton-live-style');
   if (!styleEl) {
     styleEl = document.createElement('style');
@@ -236,6 +293,58 @@ function renderSkeletonPreview(container) {
     `;
   }
 
+  if (config.loaded) {
+    // Render Revealed Real Content
+    if (config.type === 'card') {
+      container.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:16px;">
+          <div style="height:180px; width:100%; border-radius:${config.borderRadius}px; background:#18181b; border:1px solid #27272a; display:flex; align-items:center; justify-content:center; color:var(--text-dim); font-size:0.85rem;">
+            <span>Cover Graphic Preview</span>
+          </div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="font-size:1.05rem; font-weight:600; color:var(--text-main);">Production Ready UI Architecture</div>
+            <div style="font-size:0.825rem; color:var(--text-muted); line-height:1.45;">
+              Zero-dependency, high performance components built specifically for modern developer applications.
+            </div>
+          </div>
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
+            <button class="btn btn-primary" style="padding:5px 12px; font-size:0.75rem;">Explore Docs</button>
+            <span style="font-size:0.75rem; color:var(--text-dim);">3 min read</span>
+          </div>
+        </div>
+      `;
+    } else if (config.type === 'profile') {
+      container.innerHTML = `
+        <div style="display:flex; align-items:center; gap:16px;">
+          <div style="width:56px; height:56px; border-radius:50%; background:#27272a; border:2px solid #3f3f46; display:flex; align-items:center; justify-content:center; font-weight:600; color:var(--text-main); font-size:1.1rem; flex-shrink:0;">
+            JH
+          </div>
+          <div style="display:flex; flex-direction:column; gap:3px; width:100%;">
+            <div style="font-size:1rem; font-weight:600; color:var(--text-main);">Jordan Howard</div>
+            <div style="font-size:0.8rem; color:var(--text-dim);">Principal Systems Architect</div>
+          </div>
+        </div>
+        <div style="margin-top:16px; font-size:0.825rem; color:var(--text-muted); line-height:1.5;">
+          Building resilient distributed systems, edge runtimes, and developer tooling across the open web.
+        </div>
+      `;
+    } else {
+      container.innerHTML = `
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div style="font-size:1.15rem; font-weight:700; color:var(--text-main);">Distributed Consensus at Scale</div>
+          <p style="font-size:0.825rem; color:var(--text-muted); line-height:1.55; margin:0;">
+            Understanding the Raft consensus algorithm begins with the concept of replicated state machines. Each node in the cluster maintains an identical sequence of operational log entries.
+          </p>
+          <p style="font-size:0.825rem; color:var(--text-muted); line-height:1.55; margin:0;">
+            By ensuring leader election transitions smoothly across terms, cluster partitions can be tolerated with zero loss of persistent transactional guarantees.
+          </p>
+        </div>
+      `;
+    }
+    return;
+  }
+
+  // Render Skeleton Placeholders
   if (config.type === 'card') {
     container.innerHTML = `
       <div style="display:flex; flex-direction:column; gap:16px;">

@@ -138,23 +138,99 @@
 .sidebar-nav {
   flex: 1;
   overflow-y: auto;
-  padding: 10px 8px 24px;
+  padding: 8px 8px 24px;
+}
+
+/* Add subtle top border above each category except first */
+.nav-category + .nav-category {
+  margin-top: 4px;
+  padding-top: 4px;
+  border-top: 1px solid var(--border);
 }
 
 .nav-category {
-  margin-bottom: 14px;
+  margin-bottom: 2px;
 }
 
+/* Category accordion header */
 .category-title {
-  font-size: 0.68rem;
+  font-size: 0.72rem;
   font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
   color: var(--text-dim);
-  padding: 6px 10px;
+  padding: 5px 8px;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  gap: 7px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast);
+  user-select: none;
+  margin-bottom: 1px;
+}
+
+.category-title:hover {
+  background: var(--bg-hover);
+  color: var(--text-muted);
+}
+
+.cat-title-icon {
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.cat-title-text {
+  flex: 1;
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.cat-count {
+  font-size: 0.62rem;
+  padding: 1px 5px;
+  border-radius: 999px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  font-weight: 500;
+  flex-shrink: 0;
+  min-width: 18px;
+  text-align: center;
+}
+
+.cat-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+  flex-shrink: 0;
+  transition: transform 0.2s ease;
+}
+
+/* Collapsed accordion state */
+.category-title.cat-collapsed .cat-chevron {
+  transform: none;
+}
+
+/* Tools list container with smooth slide animation */
+.nav-tools-list {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 600px;
+  transition: max-height 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease;
+  opacity: 1;
+  margin-bottom: 6px;
+}
+
+.nav-tools-list.nav-tools-hidden {
+  max-height: 0;
+  opacity: 0;
+  margin-bottom: 0;
 }
 
 .nav-item {
@@ -249,15 +325,28 @@
   pointer-events: auto;
 }
 
-#sidebar.collapsed .category-title span {
+/* Collapsed rail: hide all accordion header children */
+#sidebar.collapsed .cat-title-icon,
+#sidebar.collapsed .cat-title-text,
+#sidebar.collapsed .cat-count,
+#sidebar.collapsed .cat-chevron {
   display: none;
 }
 
 #sidebar.collapsed .category-title {
   height: 1px;
   background: var(--border);
-  margin: 10px 10px 10px;
+  margin: 10px 10px;
   padding: 0;
+  cursor: default;
+  pointer-events: none;
+}
+
+/* In rail mode, always show all tools regardless of accordion state */
+#sidebar.collapsed .nav-tools-list.nav-tools-hidden {
+  max-height: 600px !important;
+  opacity: 1 !important;
+  margin-bottom: 0;
 }
 
 #sidebar.collapsed .nav-item {

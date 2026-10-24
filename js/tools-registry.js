@@ -1,120 +1,93 @@
-// All 47 tools registry across 10 categories - Clean, professional metadata without emojis
+// All 47 tools organized into 6 logical developer-workflow groups
+// Each tool has an individual `icon` field for sidebar display
 export const CATEGORIES = [
   {
-    id: 'gradients',
-    name: 'Gradients & Backgrounds',
-    icon: 'palette',
+    id: 'foundations',
+    name: 'Foundations',
+    icon: 'compass',
     tools: [
-      { id: 'mesh-gradient', name: 'Mesh Gradient', desc: 'Organic multi-point radial gradient generator' },
-      { id: 'gradient-builder', name: 'Linear & Radial Gradient', desc: 'Linear, radial, and conic gradient designer' },
-      { id: 'animated-gradient', name: 'Animated Gradient', desc: 'Looping hue-shifting keyframe gradients' },
-      { id: 'aurora-gradient', name: 'Aurora Borealis Glow', desc: 'Flowing multi-beam northern lights ambient glow' }
+      { id: 'color-palette',      name: 'Color Palette Studio',       icon: 'droplet',  desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
+      { id: 'typography-scale',   name: 'Type Scale System',          icon: 'type',     desc: 'Mathematical font scale generator with Google Fonts' },
+      { id: 'contrast-checker',   name: 'WCAG Contrast Checker',      icon: 'contrast', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
+      { id: 'spacing-calculator', name: 'Spacing System (8pt/4pt)',   icon: 'space',    desc: 'Design token spacing scale generator' },
+      { id: 'css-reset',          name: 'CSS Reset Generator',        icon: 'reset',    desc: 'Curated modern CSS resets with customizable rules' }
     ]
   },
   {
-    id: 'effects',
-    name: 'Effects & Shadows',
+    id: 'visual',
+    name: 'Visual Effects',
     icon: 'layers',
     tools: [
-      { id: 'glassmorphism', name: 'Glassmorphism', desc: 'Frosted glass UI with blur, opacity and specular border' },
-      { id: 'neumorphism', name: 'Neumorphism (Soft UI)', desc: 'Dual-shadow soft tactile UI generator' },
-      { id: 'box-shadow', name: 'Box Shadow Layers', desc: 'Multi-layer complex shadow builder' },
-      { id: 'css-filters', name: 'CSS Filters', desc: 'Visual filter & backdrop-filter chaining studio' },
-      { id: 'text-effects', name: 'Text Effects', desc: 'Gradients, neon glow, 3D emboss text effects' },
-      { id: 'transform-3d', name: '3D Transform & Tilt', desc: '3D perspective, rotation and interactive card tilt' }
+      { id: 'mesh-gradient',       name: 'Mesh Gradient',             icon: 'palette',  desc: 'Organic multi-point radial gradient generator' },
+      { id: 'gradient-builder',    name: 'Linear & Radial Gradient',  icon: 'palette',  desc: 'Linear, radial, and conic gradient designer' },
+      { id: 'animated-gradient',   name: 'Animated Gradient',         icon: 'activity', desc: 'Looping hue-shifting keyframe gradients' },
+      { id: 'aurora-gradient',     name: 'Aurora Borealis Glow',      icon: 'feather',  desc: 'Flowing multi-beam northern lights ambient glow' },
+      { id: 'glassmorphism',       name: 'Glassmorphism',             icon: 'layers',   desc: 'Frosted glass UI with blur, opacity and specular border' },
+      { id: 'neumorphism',         name: 'Neumorphism (Soft UI)',      icon: 'cpu',      desc: 'Dual-shadow soft tactile UI generator' },
+      { id: 'box-shadow',          name: 'Box Shadow Layers',         icon: 'layers',   desc: 'Multi-layer complex shadow builder' },
+      { id: 'css-filters',         name: 'CSS Filters',               icon: 'filter',   desc: 'Visual filter & backdrop-filter chaining studio' },
+      { id: 'background-patterns', name: 'CSS Background Patterns',   icon: 'pattern',  desc: 'Dots, grids, stripes, chevron and geometric textures' },
+      { id: 'noise-texture',       name: 'SVG Noise & Grain',         icon: 'noise',    desc: 'Subtle film grain and rough textures using SVG turbulence' }
     ]
   },
   {
     id: 'shapes',
-    name: 'Shapes & Dividers',
+    name: 'Shapes & Layout',
     icon: 'shapes',
     tools: [
-      { id: 'svg-wave', name: 'SVG Wave Divider', desc: 'Dynamic flowing SVG section dividers with animation' },
-      { id: 'svg-blob', name: 'SVG Blob Generator', desc: 'Organic fluid blob shapes with random seeds' },
-      { id: 'clip-path', name: 'Clip-Path Polygon', desc: 'Interactive visual polygon & shape clipper' },
-      { id: 'border-radius', name: 'Fancy Border Radius', desc: '8-value organic squircle border generator' }
-    ]
-  },
-  {
-    id: 'layout',
-    name: 'Layout Systems',
-    icon: 'grid',
-    tools: [
-      { id: 'grid-generator', name: 'CSS Grid Studio', desc: 'Visual track and grid-template builder' },
-      { id: 'flexbox-playground', name: 'Flexbox Playground', desc: 'Interactive flex alignment and direction tester' }
-    ]
-  },
-  {
-    id: 'responsive',
-    name: 'Responsive & Preview',
-    icon: 'desktop',
-    tools: [
-      { id: 'responsive-preview', name: 'Device Mockups', desc: 'Real-time Mobile, Tablet, Laptop frame previews' },
-      { id: 'media-query', name: 'Media Query Builder', desc: 'Responsive breakpoints and container query generator' },
-      { id: 'responsive-typography', name: 'Fluid Typography clamp()', desc: 'Fluid viewport-scaled font size calculator' }
+      { id: 'svg-wave',          name: 'SVG Wave Divider',      icon: 'wave',   desc: 'Dynamic flowing SVG section dividers with animation' },
+      { id: 'svg-blob',          name: 'SVG Blob Generator',    icon: 'shapes', desc: 'Organic fluid blob shapes with random seeds' },
+      { id: 'clip-path',         name: 'Clip-Path Polygon',     icon: 'shapes', desc: 'Interactive visual polygon & shape clipper' },
+      { id: 'border-radius',     name: 'Fancy Border Radius',   icon: 'shapes', desc: '8-value organic squircle border generator' },
+      { id: 'grid-generator',    name: 'CSS Grid Studio',       icon: 'grid',   desc: 'Visual track and grid-template builder' },
+      { id: 'flexbox-playground',name: 'Flexbox Playground',    icon: 'ratio',  desc: 'Interactive flex alignment and direction tester' }
     ]
   },
   {
     id: 'components',
-    name: 'UI Components',
+    name: 'Components',
     icon: 'box',
     tools: [
-      { id: 'button-generator', name: 'Button Studio', desc: 'Multi-state button generator with hover, active, focus & gradients' },
-      { id: 'card-designer', name: 'Card Designer', desc: 'Modern content, stats and product cards with hover lift' },
-      { id: 'navbar-builder', name: 'Navbar Generator', desc: 'Responsive header bars with glass effect and mobile nav' },
-      { id: 'form-input-styler', name: 'Input & Form Controls', desc: 'Modern inputs, focus rings and floating labels' },
-      { id: 'toggle-checkbox', name: 'Toggle & Checkbox', desc: 'Pure CSS iOS/Material toggle switches and custom checks' },
-      { id: 'tooltip-generator', name: 'CSS Tooltip Builder', desc: 'Pure CSS directional hover tooltips' },
-      { id: 'badge-tag', name: 'Badge & Status Tag', desc: 'Status pills, notification badges and tags' },
-      { id: 'avatar-stack', name: 'Avatar & Avatar Stack', desc: 'User avatars, status indicators and overlapping stacks' },
-      { id: 'table-styler', name: 'Data Table Styler', desc: 'Modern striped, bordered and sticky header tables' },
-      { id: 'divider-separator', name: 'Section Dividers', desc: 'Ornate and minimal CSS horizontal separators' }
+      { id: 'button-generator',  name: 'Button Studio',         icon: 'zap',     desc: 'Multi-state button generator with hover, active, focus & gradients' },
+      { id: 'card-designer',     name: 'Card Designer',         icon: 'box',     desc: 'Modern content, stats and product cards with hover lift' },
+      { id: 'navbar-builder',    name: 'Navbar Generator',      icon: 'navbar',  desc: 'Responsive header bars with glass effect and mobile nav' },
+      { id: 'form-input-styler', name: 'Input & Form Controls', icon: 'form',    desc: 'Modern inputs, focus rings and floating labels' },
+      { id: 'toggle-checkbox',   name: 'Toggle & Checkbox',     icon: 'toggle',  desc: 'Pure CSS iOS/Material toggle switches and custom checks' },
+      { id: 'tooltip-generator', name: 'CSS Tooltip Builder',   icon: 'tooltip', desc: 'Pure CSS directional hover tooltips' },
+      { id: 'badge-tag',         name: 'Badge & Status Tag',    icon: 'tag',     desc: 'Status pills, notification badges and tags' },
+      { id: 'avatar-stack',      name: 'Avatar & Stack',        icon: 'users',   desc: 'User avatars, status indicators and overlapping stacks' },
+      { id: 'table-styler',      name: 'Data Table Studio',     icon: 'table',   desc: 'Modern striped, bordered and sticky header tables' },
+      { id: 'divider-separator', name: 'Section Dividers',      icon: 'divider', desc: 'Ornate and minimal CSS horizontal separators' }
     ]
   },
   {
-    id: 'animations',
-    name: 'Animations & Loaders',
-    icon: 'zap',
+    id: 'motion',
+    name: 'Motion & Text',
+    icon: 'activity',
     tools: [
-      { id: 'loading-spinner', name: 'CSS Spinners & Loaders', desc: 'Pure CSS single-element spinners, bars and pulses' },
-      { id: 'skeleton-screen', name: 'Skeleton Loader', desc: 'Shimmering placeholder UI for asynchronous loading' },
-      { id: 'hover-effects', name: 'Hover Effects Library', desc: 'Scale, glow, rotate and border-draw hover micro-interactions' },
-      { id: 'keyframe-animator', name: 'Keyframe Timeline', desc: 'Multi-step visual timeline animation builder' },
-      { id: 'text-animations', name: 'Text Animations', desc: 'Typing effect, glitch, fade-in and rainbow text motion' }
+      { id: 'loading-spinner',   name: 'CSS Spinners & Loaders', icon: 'loader',    desc: 'Pure CSS single-element spinners, bars and pulses' },
+      { id: 'skeleton-screen',   name: 'Skeleton Loader',        icon: 'skeleton',  desc: 'Shimmering placeholder UI for asynchronous loading' },
+      { id: 'hover-effects',     name: 'Hover Effects Library',  icon: 'cursor',    desc: 'Scale, glow, rotate and border-draw hover micro-interactions' },
+      { id: 'keyframe-animator', name: 'Keyframe Timeline',      icon: 'film',      desc: 'Multi-step visual timeline animation builder' },
+      { id: 'text-animations',   name: 'Text Animations',        icon: 'text',      desc: 'Typing effect, glitch, fade-in and rainbow text motion' },
+      { id: 'text-effects',      name: 'Text Effects',           icon: 'neon',      desc: 'Gradients, neon glow, 3D emboss text effects' },
+      { id: 'underline-effects', name: 'Animated Underlines',    icon: 'underline', desc: 'Expand, sweep, gradient and playful link hover underlines' },
+      { id: 'transform-3d',      name: '3D Transform & Tilt',    icon: 'cube',      desc: '3D perspective, rotation and interactive card tilt' }
     ]
   },
   {
-    id: 'patterns',
-    name: 'Patterns & Textures',
-    icon: 'texture',
+    id: 'tools',
+    name: 'Dev Tools',
+    icon: 'tool',
     tools: [
-      { id: 'background-patterns', name: 'CSS Background Patterns', desc: 'Dots, grids, stripes, chevron and geometric textures' },
-      { id: 'noise-texture', name: 'SVG Noise & Grain', desc: 'Subtle film grain and rough textures using SVG turbulence' },
-      { id: 'underline-effects', name: 'Animated Underlines', desc: 'Expand, sweep, gradient and playful link hover underlines' }
-    ]
-  },
-  {
-    id: 'color',
-    name: 'Color & Typography',
-    icon: 'droplet',
-    tools: [
-      { id: 'color-palette', name: 'Color Palette Studio', desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
-      { id: 'contrast-checker', name: 'WCAG Contrast Checker', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
-      { id: 'typography-scale', name: 'Type Scale System', desc: 'Mathematical font scale generator with Google Fonts' }
-    ]
-  },
-  {
-    id: 'utilities',
-    name: 'CSS Utilities',
-    icon: 'sliders',
-    tools: [
-      { id: 'scrollbar-styler', name: 'Scrollbar Styler', desc: 'WebKit & Firefox custom scrollbars' },
-      { id: 'easing-editor', name: 'Cubic-Bezier Easing', desc: 'Draggable physics curve editor with live comparison' },
-      { id: 'transition-builder', name: 'Transition Builder', desc: 'Multi-property CSS transition timing builder' },
-      { id: 'color-converter', name: 'Color Format Converter', desc: 'HEX, RGB, HSL, OKLCH, and CMYK instant conversion' },
-      { id: 'spacing-calculator', name: 'Spacing System (8pt/4pt)', desc: 'Design token spacing scale generator' },
-      { id: 'aspect-ratio', name: 'Aspect Ratio Calculator', desc: '16:9, 4:3, 1:1 responsive container ratio generator' },
-      { id: 'css-reset', name: 'CSS Reset Generator', desc: 'Curated modern CSS resets with customizable rules' }
+      { id: 'color-converter',       name: 'Color Format Converter',    icon: 'swap',      desc: 'HEX, RGB, HSL, OKLCH, and CMYK instant conversion' },
+      { id: 'easing-editor',         name: 'Cubic-Bezier Easing',       icon: 'bezier',    desc: 'Draggable physics curve editor with live comparison' },
+      { id: 'transition-builder',    name: 'Transition Builder',         icon: 'transition',desc: 'Multi-property CSS transition timing builder' },
+      { id: 'scrollbar-styler',      name: 'Scrollbar Styler',          icon: 'scroll',    desc: 'WebKit & Firefox custom scrollbars' },
+      { id: 'aspect-ratio',          name: 'Aspect Ratio Calculator',   icon: 'ratio',     desc: '16:9, 4:3, 1:1 responsive container ratio generator' },
+      { id: 'media-query',           name: 'Media Query Builder',       icon: 'desktop',   desc: 'Responsive breakpoints and container query generator' },
+      { id: 'responsive-preview',    name: 'Device Mockups',            icon: 'tablet',    desc: 'Real-time Mobile, Tablet, Laptop frame previews' },
+      { id: 'responsive-typography', name: 'Fluid Typography clamp()',  icon: 'type',      desc: 'Fluid viewport-scaled font size calculator' }
     ]
   }
 ];
