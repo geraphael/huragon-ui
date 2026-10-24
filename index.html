@@ -135,6 +135,17 @@
         <div id="stage-wrapper" class="stage-wrapper">
           <!-- Floating Stage Controls Bar -->
           <div class="stage-floating-toolbar" id="stage-toolbar">
+            <div class="stage-view-segmented" id="stage-view-segmented">
+              <button class="stage-tool-btn active" data-stage-view="preview" title="Interactive Visual Canvas">
+                <span class="icon-wrap" id="stage-view-preview-icon"></span>
+                <span>Preview</span>
+              </button>
+              <button class="stage-tool-btn" data-stage-view="code" title="Full Syntax-Highlighted Code Editor">
+                <span class="icon-wrap" id="stage-view-code-icon"></span>
+                <span>Code</span>
+              </button>
+            </div>
+            <div class="stage-toolbar-sep"></div>
             <div class="stage-bg-toggles" id="stage-bg-toggles">
               <button class="stage-tool-btn active" data-bg="matrix" title="Astra Dot Matrix Canvas"><span>Matrix</span></button>
               <button class="stage-tool-btn" data-bg="grid" title="Wireframe Grid Canvas"><span>Grid</span></button>
@@ -158,6 +169,30 @@
           <section id="preview-stage" class="bg-dot-matrix">
             <!-- Tool preview rendered dynamically -->
           </section>
+
+          <!-- Full-Bleed Center Stage Code Inspector (Toggled by "Code" button or expand) -->
+          <div id="stage-code-view" class="stage-code-view" style="display:none;">
+            <div class="stage-code-header">
+              <div class="stage-code-tabs">
+                <button class="stage-code-tab active" data-tab="css">CSS Variables</button>
+                <button class="stage-code-tab" data-tab="tailwind">Tailwind / HTML</button>
+                <button class="stage-code-tab" data-tab="react">React / JSX</button>
+              </div>
+              <div class="stage-code-actions">
+                <button class="btn btn-outline" id="stage-code-download-btn" title="Download Code File">
+                  <span id="stage-code-download-icon"></span>
+                  <span>Download</span>
+                </button>
+                <button class="btn btn-primary" id="stage-code-copy-btn" title="Copy Code (⌘C)">
+                  <span id="stage-code-copy-icon"></span>
+                  <span>Copy</span>
+                </button>
+              </div>
+            </div>
+            <div class="stage-code-container">
+              <pre class="stage-code-pre"><code id="stage-code-content">/* Generating code... */</code></pre>
+            </div>
+          </div>
         </div>
 
         <!-- Right: Control Sliders & Code Output -->
@@ -175,6 +210,9 @@
                 <button class="code-tab" data-tab="react">React / JSX</button>
               </div>
               <div class="code-actions">
+                <button class="btn-ghost btn-icon" id="code-expand-btn" title="Expand Full Code Inspector" style="padding:4px 6px;">
+                  <span id="code-expand-icon"></span>
+                </button>
                 <button class="btn btn-primary" id="copy-code-btn" style="padding:4px 10px; font-size:0.75rem;">
                   <span>Copy</span>
                 </button>
@@ -184,6 +222,22 @@
           </div>
         </aside>
       </div>
+
+      <!-- Mobile Bottom Navigation Bar (Visible on mobile <= 768px) -->
+      <nav class="mobile-bottom-nav" id="mobile-bottom-nav">
+        <button class="mobile-nav-btn active" data-mobile-tab="preview">
+          <span class="mobile-nav-icon" id="mob-preview-icon"></span>
+          <span class="mobile-nav-label">Preview</span>
+        </button>
+        <button class="mobile-nav-btn" data-mobile-tab="controls">
+          <span class="mobile-nav-icon" id="mob-controls-icon"></span>
+          <span class="mobile-nav-label">Controls</span>
+        </button>
+        <button class="mobile-nav-btn" data-mobile-tab="code">
+          <span class="mobile-nav-icon" id="mob-code-icon"></span>
+          <span class="mobile-nav-label">Code</span>
+        </button>
+      </nav>
     </main>
 
     <!-- Global Command Palette Modal (⌘K Dialog) -->
@@ -210,41 +264,187 @@
 
     <!-- Marketing / Showcase Landing Page (Overlay) -->
     <div id="landing-page-overlay" class="landing-view" style="display:none;">
-      <header style="padding:16px 28px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
-        <div class="brand-badge">
+      <!-- Landing Header -->
+      <header class="landing-header">
+        <div class="brand-badge" style="cursor:pointer;" id="landing-brand-home">
           <img src="assets/favicon.svg" alt="Huragon UI" />
           <span class="brand-name">huragon/ui</span>
+          <span class="version-tag">v1.2</span>
         </div>
-        <div style="display:flex; gap:10px;">
-          <button class="btn btn-primary" id="close-landing-btn">Open Dashboard →</button>
+        <div class="landing-header-actions">
+          <button class="btn btn-outline btn-icon" id="landing-theme-toggle" title="Toggle Theme">
+            <span id="landing-theme-icon"></span>
+          </button>
+          <a href="https://github.com/geraphael/huragon-ui" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="text-decoration:none;">
+            <span id="landing-github-icon"></span>
+            <span>GitHub</span>
+          </a>
+          <button class="btn btn-primary" id="close-landing-btn" style="font-weight:600;">
+            <span>Launch Studio</span>
+            <span id="landing-enter-icon"></span>
+          </button>
         </div>
       </header>
 
+      <!-- Hero Section -->
       <section class="landing-hero">
+        <div class="landing-hero-glow"></div>
         <div class="hero-content">
           <div class="hero-pill">
-            <span>Production-grade CSS design tooling</span>
+            <span class="hero-pill-dot"></span>
+            <span>HeroUI & shadcn/ui Inspired · 52 Generative Tools & Page Blocks</span>
           </div>
+
           <h1 class="hero-title">
-            The CSS Design Studio for Modern Builders
+            Design High-Craft Web Interfaces with Mathematical Precision
           </h1>
+
           <p class="hero-subtitle">
-            Create complex mesh gradients, clean frosted surfaces, multi-layer shadows, SVG dividers, and UI components with zero framework overhead.
+            The open-source generative design studio for frontend engineers. Create fluid typography, physics easing curves, responsive navbars, SVG section dividers, and production application blocks. Pure vanilla ES Modules — zero build step, zero dependencies, copy-paste CSS, Tailwind & React.
           </p>
+
           <div class="hero-cta-group">
-            <button class="btn btn-primary btn-hero" id="hero-start-btn">Start Designing</button>
-            <a href="https://github.com/geraphael/huragon-ui" target="_blank" class="btn btn-outline btn-hero">View Repository</a>
+            <button class="btn btn-primary btn-hero" id="hero-start-btn">
+              <span>Launch Studio</span>
+              <kbd class="kbd" style="font-size:0.65rem; padding:1px 5px; margin-left:6px; opacity:0.8;">⌘K</kbd>
+            </button>
+            <button class="btn btn-outline btn-hero" id="hero-blocks-btn">
+              <span>Explore Page Blocks ↓</span>
+            </button>
+            <a href="https://github.com/geraphael/huragon-ui" target="_blank" class="btn btn-ghost btn-hero">
+              <span>Source Code</span>
+            </a>
+          </div>
+
+          <!-- Interactive Live Hero Showcase Deck (Live Preview in Landing Page) -->
+          <div class="hero-showcase-deck" id="hero-showcase-deck">
+            <div class="hero-showcase-bar">
+              <div class="hero-showcase-tabs">
+                <button class="hero-deck-tab active" data-deck="blocks">Analytics Block</button>
+                <button class="hero-deck-tab" data-deck="nav">Dynamic Island Nav</button>
+                <button class="hero-deck-tab" data-deck="components">Buttons & Chips</button>
+                <button class="hero-deck-tab" data-deck="code">Generated Code</button>
+              </div>
+              <div class="hero-showcase-meta">
+                <span class="live-pulse"></span>
+                <span>Live Interactive Specimen</span>
+              </div>
+            </div>
+            <div class="hero-showcase-body" id="hero-deck-body">
+              <!-- Dynamically populated via main.js -->
+            </div>
           </div>
         </div>
       </section>
 
+      <!-- Key Engineering Metrics Bar -->
+      <section class="landing-stats-bar">
+        <div class="stats-container">
+          <div class="stat-item">
+            <div class="stat-num">52+</div>
+            <div class="stat-label">Generative Tools & Studios</div>
+          </div>
+          <div class="stat-sep"></div>
+          <div class="stat-item">
+            <div class="stat-num">0 KB</div>
+            <div class="stat-label">Runtime Dependencies</div>
+          </div>
+          <div class="stat-sep"></div>
+          <div class="stat-item">
+            <div class="stat-num">100%</div>
+            <div class="stat-label">Vanilla ES Modules</div>
+          </div>
+          <div class="stat-sep"></div>
+          <div class="stat-item">
+            <div class="stat-num">3-Way</div>
+            <div class="stat-label">CSS · Tailwind · React</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Featured Page Blocks Showcase Section -->
+      <section class="landing-blocks-showcase" id="landing-blocks-section">
+        <div class="features-header">
+          <div class="section-badge">Production-Grade Blocks</div>
+          <h2 class="features-title">shadcn/ui & HeroUI Application Blocks</h2>
+          <p class="features-subtitle">Pre-assembled, accessible UI blocks ready for production workflows.</p>
+        </div>
+
+        <div class="landing-blocks-grid">
+          <div class="landing-block-card" data-block-tool="blocks-studio">
+            <div class="block-card-header">
+              <span class="block-tag">Dashboard</span>
+              <h4 class="block-title">Analytics Overview Block</h4>
+            </div>
+            <p class="block-desc">Revenue cards ($45,231.89 +20.1%), SVG area velocity trend chart, and recent transaction list.</p>
+            <div class="block-action">
+              <span>Inspect Block</span>
+              <span class="arrow-icon">→</span>
+            </div>
+          </div>
+
+          <div class="landing-block-card" data-block-tool="navbar-builder">
+            <div class="block-card-header">
+              <span class="block-tag">Navigation</span>
+              <h4 class="block-title">Dynamic Island & Header Bars</h4>
+            </div>
+            <p class="block-desc">Floating pill capsule, SaaS enterprise header with profile dropdown, and mobile navigation drawer.</p>
+            <div class="block-action">
+              <span>Inspect Block</span>
+              <span class="arrow-icon">→</span>
+            </div>
+          </div>
+
+          <div class="landing-block-card" data-block-tool="blocks-studio">
+            <div class="block-card-header">
+              <span class="block-tag">Auth</span>
+              <h4 class="block-title">Authentication & Identity Card</h4>
+            </div>
+            <p class="block-desc">GitHub and Google OAuth login, email/password validation, and terms agreement notices.</p>
+            <div class="block-action">
+              <span>Inspect Block</span>
+              <span class="arrow-icon">→</span>
+            </div>
+          </div>
+
+          <div class="landing-block-card" data-block-tool="blocks-studio">
+            <div class="block-card-header">
+              <span class="block-tag">Pricing</span>
+              <h4 class="block-title">Tier Comparison & Billing Switch</h4>
+            </div>
+            <p class="block-desc">Monthly / Annually toggle (Save 20%), 3 tiers ($0, $29, $99), feature checklists and CTA.</p>
+            <div class="block-action">
+              <span>Inspect Block</span>
+              <span class="arrow-icon">→</span>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tool Categories Grid (All 52 Tools) -->
       <section class="landing-features">
         <div class="features-header">
+          <div class="section-badge">Full Generator Suite</div>
           <h2 class="features-title">Modular Generative Toolkit</h2>
-          <p class="features-subtitle">Pure vanilla ES Modules. Fast, lightweight, zero build-step required.</p>
+          <p class="features-subtitle">All 52 generators organized by developer workflow stages. Click any tool to launch.</p>
         </div>
         <div class="categories-showcase-grid" id="landing-categories-grid">
           <!-- Filled dynamically via main.js -->
+        </div>
+      </section>
+
+      <!-- Bottom Call To Action Banner -->
+      <section class="landing-cta-banner">
+        <div class="cta-banner-box">
+          <h3 class="cta-title">Start Designing Modern Interfaces in Seconds</h3>
+          <p class="cta-subtitle">Free, open-source, and private. Zero tracking, zero account required.</p>
+          <div style="display:flex; justify-content:center; gap:12px; margin-top:20px; flex-wrap:wrap;">
+            <button class="btn btn-primary btn-hero" id="cta-launch-btn">Open Huragon Studio</button>
+            <a href="https://github.com/geraphael/huragon-ui" target="_blank" class="btn btn-outline btn-hero">Star on GitHub</a>
+          </div>
+          <div class="cta-shortcut-hint">
+            <span>Pro-tip: Press</span> <kbd class="kbd">⌘K</kbd> <span>anywhere to jump to any tool instantly</span>
+          </div>
         </div>
       </section>
     </div>

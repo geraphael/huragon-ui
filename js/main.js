@@ -21,6 +21,9 @@ document.addEventListener('DOMContentLoaded', () => {
   initCommandPalette();
   initRouting();
   bindGlobalEvents();
+  initMobileNav();
+  initStageCodeView();
+  initLandingPage();
   initPWA();
 });
 
@@ -50,6 +53,9 @@ function applyTheme(theme) {
     if (themeIcon) themeIcon.innerHTML = ICONS.moon;
     localStorage.setItem('huragon_theme', 'dark');
   }
+  // Sync landing page theme icon if visible
+  const landingThemeIcon = qs('#landing-theme-icon');
+  if (landingThemeIcon) landingThemeIcon.innerHTML = theme === 'dark' ? ICONS.moon : ICONS.sun;
   window.dispatchEvent(new CustomEvent('huragon:theme-change', { detail: { theme } }));
 }
 
@@ -331,6 +337,9 @@ function renderCurrentCode() {
     rawCode = getReactCodeSnippet();
   }
   codeBody.innerHTML = `<code>${highlightCSS(rawCode)}</code>`;
+  // Keep full-bleed code view in sync
+  const stageCodeContent = qs('#stage-code-content');
+  if (stageCodeContent) stageCodeContent.innerHTML = highlightCSS(rawCode);
 }
 
 function initCommandPalette() {
@@ -547,14 +556,424 @@ function bindGlobalEvents() {
 
   const ghHeaderIcon = qs('#github-header-icon');
   if (ghHeaderIcon) ghHeaderIcon.innerHTML = ICONS.github;
+}
 
-  const mobileToggle = qs('#mobile-toggle-btn');
-  if (mobileToggle) {
-    mobileToggle.innerHTML = ICONS.menu;
-    mobileToggle.addEventListener('click', () => {
-      qs('#sidebar').classList.toggle('open');
+// ─── Mobile Bottom Navigation ────────────────────────────────────────────────
+function initMobileNav() {
+  // Set icons
+  const mobPreviewIcon = qs('#mob-preview-icon');
+  const mobControlsIcon = qs('#mob-controls-icon');
+  const mobCodeIcon = qs('#mob-code-icon');
+  if (mobPreviewIcon) mobPreviewIcon.innerHTML = ICONS.eye;
+  if (mobControlsIcon) mobControlsIcon.innerHTML = ICONS.sliders;
+  if (mobCodeIcon) mobCodeIcon.innerHTML = ICONS.code;
+
+  // Set initial tab state on mobile
+  function setMobileTab(tab) {
+    document.body.classList.remove('mob-tab-preview', 'mob-tab-controls', 'mob-tab-code');
+    document.body.classList.add(`mob-tab-${tab}`);
+    // Update active button
+    const navBtns = qsa('.mobile-nav-btn');
+    navBtns.forEach(btn => {
+      btn.classList.toggle('active', btn.dataset.mobileTab === tab);
     });
   }
+
+  const navBtns = qsa('.mobile-nav-btn');
+  navBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      setMobileTab(btn.dataset.mobileTab);
+    });
+  });
+
+  // Set preview as default on mobile
+  if (window.innerWidth <= 768) {
+    setMobileTab('preview');
+  }
+
+  // Sidebar backdrop for mobile
+  const sidebar = qs('#sidebar');
+  const mobileToggle = qs('#mobile-toggle-btn');
+
+  // Create backdrop element once
+  let backdrop = qs('#sidebar-backdrop');
+  if (!backdrop) {
+    backdrop = el('div', {
+      id: 'sidebar-backdrop',
+      style: 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:400; backdrop-filter:blur(2px);'
+    });
+    document.body.appendChild(backdrop);
+  }
+
+  function openSidebar() {
+    if (sidebar) sidebar.classList.add('open');
+    backdrop.style.display = 'block';
+    setTimeout(() => { backdrop.style.opacity = '1'; }, 10);
+  }
+
+  function closeSidebarMobile() {
+    if (sidebar) sidebar.classList.remove('open');
+    backdrop.style.opacity = '0';
+    setTimeout(() => { backdrop.style.display = 'none'; }, 200);
+  }
+
+  backdrop.style.transition = 'opacity 0.2s ease';
+  backdrop.style.opacity = '0';
+
+  if (mobileToggle) {
+    // Replace existing listener by cloning
+    const newToggle = mobileToggle.cloneNode(true);
+    newToggle.innerHTML = ICONS.menu;
+    mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
+    newToggle.addEventListener('click', () => {
+      if (sidebar && sidebar.classList.contains('open')) {
+        closeSidebarMobile();
+      } else {
+        openSidebar();
+      }
+    });
+  }
+
+  backdrop.addEventListener('click', closeSidebarMobile);
+
+  // Also close sidebar on nav item click (mobile)
+  document.addEventListener('click', (e) => {
+    const navItem = e.target.closest('.nav-item');
+    if (navItem && window.innerWidth <= 768) {
+      closeSidebarMobile();
+    }
+  });
+}
+
+// ─── Full-Bleed Stage Code View ───────────────────────────────────────────────
+function initStageCodeView() {
+  // Set icons
+  const previewIcon = qs('#stage-view-preview-icon');
+  const codeViewIcon = qs('#stage-view-code-icon');
+  const copyIcon = qs('#stage-code-copy-icon');
+  const dlIcon = qs('#stage-code-download-icon');
+  const expandIcon = qs('#code-expand-icon');
+
+  if (previewIcon) previewIcon.innerHTML = ICONS.eye;
+  if (codeViewIcon) codeViewIcon.innerHTML = ICONS.code;
+  if (copyIcon) copyIcon.innerHTML = ICONS.copy;
+  if (dlIcon) dlIcon.innerHTML = ICONS.download;
+  if (expandIcon) expandIcon.innerHTML = ICONS.maximize;
+
+  const stageCodeView = qs('#stage-code-view');
+  const previewStage = qs('#preview-stage');
+
+  // Stage view segmented toggle (Preview / Code)
+  const segBtns = qsa('#stage-view-segmented .stage-tool-btn');
+  segBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      segBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const view = btn.dataset.stageView;
+      if (view === 'code') {
+        if (stageCodeView) stageCodeView.style.display = 'flex';
+        if (previewStage) previewStage.style.display = 'none';
+        syncStageCodeContent();
+      } else {
+        if (stageCodeView) stageCodeView.style.display = 'none';
+        if (previewStage) previewStage.style.display = '';
+      }
+    });
+  });
+
+  // Stage code tabs (CSS / Tailwind / React)
+  const stageCodeTabs = qsa('.stage-code-tab');
+  stageCodeTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      stageCodeTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      state.codeTab = tab.dataset.tab;
+      syncStageCodeContent();
+      renderCurrentCode(); // keep docked panel in sync too
+    });
+  });
+
+  // Copy from full-bleed view
+  const copyBtn = qs('#stage-code-copy-btn');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => {
+      let codeText = latestCode.css;
+      if (state.codeTab === 'tailwind') {
+        codeText = latestCode.tailwind || latestCode.css;
+      } else if (state.codeTab === 'react') {
+        codeText = getReactCodeSnippet();
+      }
+      copyToClipboard(codeText);
+    });
+  }
+
+  // Download from full-bleed view
+  const dlBtn = qs('#stage-code-download-btn');
+  if (dlBtn) {
+    dlBtn.addEventListener('click', () => {
+      let codeText = latestCode.css;
+      let ext = 'css';
+      let mime = 'text/css';
+      if (state.codeTab === 'tailwind') {
+        codeText = latestCode.tailwind || latestCode.css;
+        ext = 'html';
+        mime = 'text/html';
+      } else if (state.codeTab === 'react') {
+        codeText = getReactCodeSnippet();
+        ext = 'jsx';
+        mime = 'text/javascript';
+      }
+      const blob = new Blob([codeText], { type: mime });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `huragon-component.${ext}`;
+      a.click();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  // Expand icon in docked code panel -> open full-bleed view
+  const expandBtn = qs('#code-expand-btn');
+  if (expandBtn) {
+    expandBtn.addEventListener('click', () => {
+      if (stageCodeView) stageCodeView.style.display = 'flex';
+      if (previewStage) previewStage.style.display = 'none';
+      // Sync segmented toggle active state
+      segBtns.forEach(b => b.classList.toggle('active', b.dataset.stageView === 'code'));
+      syncStageCodeContent();
+    });
+  }
+}
+
+// Sync the stage-code-content element with current code
+function syncStageCodeContent() {
+  const stageCodeContent = qs('#stage-code-content');
+  if (!stageCodeContent) return;
+  let rawCode = latestCode.css;
+  if (state.codeTab === 'tailwind') {
+    rawCode = latestCode.tailwind || latestCode.css;
+  } else if (state.codeTab === 'react') {
+    rawCode = getReactCodeSnippet();
+  }
+  stageCodeContent.innerHTML = highlightCSS(rawCode);
+}
+
+// ─── Landing Page Wiring ──────────────────────────────────────────────────────
+function initLandingPage() {
+  // Icons
+  const ghIcon = qs('#landing-github-icon');
+  const enterIcon = qs('#landing-enter-icon');
+  const themeIcon = qs('#landing-theme-icon');
+
+  if (ghIcon) ghIcon.innerHTML = ICONS.github;
+  if (enterIcon) enterIcon.innerHTML = ICONS.arrowUpRight;
+  if (themeIcon) {
+    const isDark = document.body.classList.contains('theme-dark');
+    themeIcon.innerHTML = isDark ? ICONS.moon : ICONS.sun;
+  }
+
+  // Landing brand -> close (go back to studio if already used, otherwise stays)
+  const brandHome = qs('#landing-brand-home');
+  if (brandHome) {
+    brandHome.addEventListener('click', () => {
+      // If the overlay is being shown as the landing (first-visit style), just
+      // close it if the user has previously used the studio.
+      const overlay = qs('#landing-page-overlay');
+      if (overlay) overlay.style.display = 'none';
+    });
+  }
+
+  // Landing theme toggle (independent from workspace theme btn)
+  const landingThemeToggle = qs('#landing-theme-toggle');
+  if (landingThemeToggle) {
+    landingThemeToggle.addEventListener('click', () => {
+      const nextTheme = document.body.classList.contains('theme-light') ? 'dark' : 'light';
+      applyTheme(nextTheme);
+      // Update landing theme icon
+      const icon = qs('#landing-theme-icon');
+      if (icon) icon.innerHTML = nextTheme === 'dark' ? ICONS.moon : ICONS.sun;
+    });
+  }
+
+  // CTA Launch button
+  const ctaLaunchBtn = qs('#cta-launch-btn');
+  if (ctaLaunchBtn) ctaLaunchBtn.addEventListener('click', closeLanding);
+
+  // "Explore Blocks" smooth scroll
+  const heroBlocksBtn = qs('#hero-blocks-btn');
+  if (heroBlocksBtn) {
+    heroBlocksBtn.addEventListener('click', () => {
+      const section = qs('#landing-blocks-section');
+      if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  }
+
+  // Landing block cards -> close landing + navigate to tool
+  const blockCards = qsa('.landing-block-card[data-block-tool]');
+  blockCards.forEach(card => {
+    card.style.cursor = 'pointer';
+    card.addEventListener('click', () => {
+      closeLanding();
+      const toolId = card.dataset.blockTool;
+      if (toolId) location.hash = `#${toolId}`;
+    });
+  });
+
+  // Hero showcase deck tabs
+  const deckTabs = qsa('.hero-deck-tab');
+  const deckBody = qs('#hero-deck-body');
+
+  const DECK_CONTENT = {
+    blocks: buildDeckBlocks(),
+    nav: buildDeckNav(),
+    components: buildDeckComponents(),
+    code: buildDeckCode()
+  };
+
+  function switchDeck(deckKey) {
+    if (!deckBody) return;
+    deckBody.style.opacity = '0';
+    setTimeout(() => {
+      deckBody.innerHTML = DECK_CONTENT[deckKey] || '';
+      deckBody.style.opacity = '1';
+    }, 140);
+  }
+
+  deckTabs.forEach(tab => {
+    tab.addEventListener('click', () => {
+      deckTabs.forEach(t => t.classList.remove('active'));
+      tab.classList.add('active');
+      switchDeck(tab.dataset.deck);
+    });
+  });
+
+  // Populate initial deck
+  if (deckBody) {
+    deckBody.style.transition = 'opacity 0.14s ease';
+    switchDeck('blocks');
+  }
+}
+
+// ─── Hero Deck Specimen Builders ─────────────────────────────────────────────
+
+function buildDeckBlocks() {
+  return `
+    <div style="display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin-bottom:14px;">
+      <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
+        <div style="font-size:0.68rem; color:var(--text-dim); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">Total Revenue</div>
+        <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">$45,231</div>
+        <div style="font-size:0.72rem; color:#22c55e; margin-top:3px;">+20.1% from last month</div>
+      </div>
+      <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
+        <div style="font-size:0.68rem; color:var(--text-dim); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">New Orders</div>
+        <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">+2,350</div>
+        <div style="font-size:0.72rem; color:#22c55e; margin-top:3px;">+180.1% from last month</div>
+      </div>
+      <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
+        <div style="font-size:0.68rem; color:var(--text-dim); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">Active Users</div>
+        <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">+12,234</div>
+        <div style="font-size:0.72rem; color:#22c55e; margin-top:3px;">+19% from last month</div>
+      </div>
+    </div>
+    <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
+      <div style="font-size:0.75rem; font-weight:600; color:var(--text-secondary); margin-bottom:10px;">Revenue Velocity</div>
+      <svg viewBox="0 0 400 80" style="width:100%; height:60px;" preserveAspectRatio="none">
+        <defs>
+          <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="var(--text-primary)" stop-opacity="0.18"/>
+            <stop offset="100%" stop-color="var(--text-primary)" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        <path d="M0,65 C40,55 70,30 110,28 C150,26 180,50 220,42 C260,34 290,10 340,8 C360,7 380,12 400,10 L400,80 L0,80 Z" fill="url(#areaGrad)"/>
+        <path d="M0,65 C40,55 70,30 110,28 C150,26 180,50 220,42 C260,34 290,10 340,8 C360,7 380,12 400,10" fill="none" stroke="var(--text-primary)" stroke-width="1.5" stroke-linejoin="round"/>
+      </svg>
+    </div>`;
+}
+
+function buildDeckNav() {
+  return `
+    <div style="display:flex; flex-direction:column; gap:10px; align-items:center;">
+      <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:9999px; padding:10px 20px; display:inline-flex; align-items:center; gap:20px; width:auto; backdrop-filter:blur(8px);">
+        <span style="font-size:0.8rem; font-weight:700; color:var(--text-primary);">huragon/ui</span>
+        <div style="display:flex; gap:16px;">
+          <span style="font-size:0.75rem; color:var(--text-secondary); cursor:pointer;">Docs</span>
+          <span style="font-size:0.75rem; color:var(--text-secondary); cursor:pointer;">Components</span>
+          <span style="font-size:0.75rem; color:var(--text-secondary); cursor:pointer;">Blocks</span>
+          <span style="font-size:0.75rem; color:var(--text-secondary); cursor:pointer;">GitHub</span>
+        </div>
+        <button style="background:var(--text-primary); color:var(--bg-primary); border:none; border-radius:9999px; padding:5px 14px; font-size:0.72rem; font-weight:600; cursor:pointer;">Get Started</button>
+      </div>
+      <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:10px 18px; display:flex; align-items:center; justify-content:space-between; width:100%; box-sizing:border-box;">
+        <div style="display:flex; align-items:center; gap:10px;">
+          <div style="width:26px; height:26px; background:var(--surface-2); border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:0.7rem; font-weight:700; color:var(--text-primary);">H</div>
+          <span style="font-size:0.8rem; font-weight:600; color:var(--text-primary);">SaaS Enterprise Header</span>
+        </div>
+        <div style="display:flex; gap:10px; align-items:center;">
+          <span style="font-size:0.72rem; color:var(--text-dim);">Pricing</span>
+          <span style="font-size:0.72rem; color:var(--text-dim);">Blog</span>
+          <div style="width:26px; height:26px; background:var(--surface-2); border-radius:9999px; display:flex; align-items:center; justify-content:center; font-size:0.65rem; color:var(--text-primary); font-weight:600;">JD</div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildDeckComponents() {
+  return `
+    <div style="display:flex; flex-direction:column; gap:12px;">
+      <div style="display:flex; gap:8px; flex-wrap:wrap; align-items:center;">
+        <button style="background:var(--text-primary); color:var(--bg-primary); border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:600; cursor:pointer;">Primary</button>
+        <button style="background:transparent; color:var(--text-primary); border:1px solid var(--border); border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:500; cursor:pointer;">Outline</button>
+        <button style="background:transparent; color:var(--text-secondary); border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; cursor:pointer;">Ghost</button>
+        <button style="background:#ef4444; color:#fff; border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:600; cursor:pointer;">Danger</button>
+        <button style="background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border); border-radius:7px; padding:7px 16px; font-size:0.75rem; cursor:pointer;" disabled>Disabled</button>
+      </div>
+      <div style="display:flex; gap:7px; flex-wrap:wrap; align-items:center;">
+        <span style="background:var(--surface-2); border:1px solid var(--border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--text-secondary);">Design System</span>
+        <span style="background:#22c55e22; border:1px solid #22c55e44; border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:#22c55e;">Active</span>
+        <span style="background:#ef444422; border:1px solid #ef444444; border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:#ef4444;">Error</span>
+        <span style="background:#f59e0b22; border:1px solid #f59e0b44; border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:#f59e0b;">Pending</span>
+        <span style="background:var(--surface-2); border:1px solid var(--border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--text-dim);">Archived</span>
+      </div>
+      <div style="display:flex; gap:8px;">
+        <div style="flex:1; background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
+          <div style="font-size:0.68rem; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.04em;">Email</div>
+          <div style="font-size:0.8rem; color:var(--text-secondary);">hello@huragon.dev</div>
+        </div>
+        <div style="flex:1; background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
+          <div style="font-size:0.68rem; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.04em;">Plan</div>
+          <div style="display:flex; align-items:center; gap:5px;"><span style="width:7px;height:7px;background:#22c55e;border-radius:50%;display:inline-block;"></span><span style="font-size:0.8rem; color:var(--text-secondary);">Pro · $29/mo</span></div>
+        </div>
+      </div>
+    </div>`;
+}
+
+function buildDeckCode() {
+  const snippet = `:root {
+  --gradient-start: #09090b;
+  --gradient-end:   #18181b;
+  --accent:         #a1a1aa;
+  --radius:         12px;
+}
+
+.card {
+  background: linear-gradient(
+    135deg,
+    var(--gradient-start),
+    var(--gradient-end)
+  );
+  border-radius: var(--radius);
+  border: 1px solid #27272a;
+  padding: 24px;
+}`;
+  return `<pre style="margin:0; font-family:var(--font-mono, 'JetBrains Mono', monospace); font-size:0.72rem; line-height:1.7; color:var(--text-secondary); overflow:auto; padding:4px 0;"><code>${snippet
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/(--[\w-]+)/g, '<span style="color:#60a5fa;">$1</span>')
+    .replace(/(:[\s]+)(#[0-9a-fA-F]{3,8}|[\d.]+(?:px|rem|deg|%)?)/g, '$1<span style="color:#a3e635;">$2</span>')
+    .replace(/\b(root|card)\b(?=[\s{])/g, '<span style="color:#e879f9;">$&</span>')
+  }</code></pre>`;
 }
 
 let deferredPWAInstallPrompt = null;
