@@ -1,5 +1,7 @@
 # Project-specific / local ignore
 HURAGON_UI_PLAN.md
+INSPIRATIONS/
+INSPIRATION/
 
 # OS & Editor files
 .DS_Store

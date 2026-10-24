@@ -1,6 +1,6 @@
 /* Base Typography & Styling */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family: var(--font-sans, 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif);
   background-color: var(--bg-app);
   color: var(--text-main);
   overflow-x: hidden;
@@ -9,7 +9,7 @@ body {
 }
 
 code, pre, kbd {
-  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-family: var(--font-mono, 'JetBrains Mono', 'Fira Code', monospace);
   font-size: 0.825rem;
 }
 
@@ -95,4 +95,39 @@ body.theme-light .bg-grid-pattern {
 }
 .token-string {
   color: #34d399;
+}
+
+
+/* Global Keyframes (used by interactive generator components) */
+@keyframes rippleAnim {
+  from { transform: scale(0); opacity: 1; }
+  to { transform: scale(4); opacity: 0; }
+}
+
+@keyframes btnSpin {
+  to { transform: rotate(360deg); }
+}
+
+@keyframes slideDown {
+  from { opacity: 0; transform: translateY(-6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Force-state overrides for Stage State Tester */
+.state-force-hover *:not(button):not(a) {
+  transition-duration: 0s !important;
+}
+
+.state-force-hover .nav-item,
+.state-force-hover .ui-card,
+.state-force-hover .glass-card {
+  background: var(--bg-hover);
+  border-color: var(--border-strong);
+}
+
+.state-force-focus input,
+.state-force-focus textarea,
+.state-force-focus select {
+  border-color: var(--border-focus) !important;
+  box-shadow: 0 0 0 2px var(--accent-subtle) !important;
 }

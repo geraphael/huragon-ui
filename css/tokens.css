@@ -54,6 +54,10 @@
   --transition-fast: 0.12s ease;
   --transition-normal: 0.2s var(--ease-smooth);
 
+  /* Typography stacks */
+  --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-mono: 'JetBrains Mono', 'Fira Code', monospace;
+
   /* Layout dimensions */
   --sidebar-width: 270px;
   --header-height: 56px;

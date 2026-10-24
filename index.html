@@ -29,12 +29,17 @@
   <div id="app">
     <!-- Sidebar Navigation -->
     <aside id="sidebar">
+      <!-- Collapse toggle on border edge -->
+      <button id="sidebar-collapse-btn" class="sidebar-boundary-toggle" title="Toggle Sidebar rail" aria-label="Toggle rail mode">
+        <span id="sidebar-toggle-icon"></span>
+      </button>
+
       <div class="sidebar-header">
-        <div class="brand-badge" style="cursor: pointer;" id="brand-home-btn">
+        <div class="brand-badge" style="cursor: pointer;" id="brand-home-btn" title="Huragon Studio Home">
           <img src="assets/favicon.svg" alt="Huragon UI" />
           <span class="brand-name">huragon/ui</span>
         </div>
-        <span class="version-tag">v1.0</span>
+        <span class="version-tag">v1.2</span>
       </div>
 
       <div class="sidebar-search-box">
@@ -54,21 +59,43 @@
     <main id="workspace">
       <!-- Top Navigation & Controls Bar -->
       <header class="top-bar">
-        <div style="display:flex; align-items:center; gap:12px;">
+        <div class="top-bar-left">
           <button class="mobile-nav-toggle btn-ghost btn-icon" id="mobile-toggle-btn" aria-label="Toggle menu"></button>
-          <div class="tool-info">
-            <h1 class="tool-title" id="current-tool-title">Mesh Gradient</h1>
-            <span class="tool-desc" id="current-tool-desc">Organic multi-point radial gradient generator</span>
-          </div>
+          
+          <!-- Dynamic Interactive Breadcrumbs -->
+          <nav class="breadcrumb-trail" id="breadcrumb-trail" aria-label="Breadcrumbs">
+            <span class="bc-segment bc-brand" id="bc-brand-btn" title="Open Overview">huragon</span>
+            <span class="bc-sep">/</span>
+            <span class="bc-segment bc-cat" id="bc-cat-label">Gradients</span>
+            <span class="bc-sep">/</span>
+            <span class="bc-segment bc-active" id="bc-tool-label">Mesh Gradient</span>
+          </nav>
+
+          <span class="status-pill" id="stage-runtime-tag">
+            <span class="status-dot"></span>
+            <span>Pure CSS</span>
+          </span>
         </div>
 
         <div class="top-actions">
           <!-- Responsive Device Viewport Switcher -->
           <div class="device-preview-bar">
-            <button class="device-btn active" data-device="desktop" title="Full Canvas Desktop"><span>Full</span></button>
-            <button class="device-btn" data-device="laptop" title="Laptop 980px"><span>Laptop</span></button>
-            <button class="device-btn" data-device="tablet" title="Tablet 768px"><span>Tablet</span></button>
-            <button class="device-btn" data-device="mobile" title="Mobile 375px"><span>Mobile</span></button>
+            <button class="device-btn active" data-device="desktop" title="Full Canvas Desktop">
+              <span class="device-icon" data-icon="desktop"></span>
+              <span>Full</span>
+            </button>
+            <button class="device-btn" data-device="laptop" title="Laptop 980px">
+              <span class="device-icon" data-icon="laptop"></span>
+              <span>Laptop</span>
+            </button>
+            <button class="device-btn" data-device="tablet" title="Tablet 768px">
+              <span class="device-icon" data-icon="tablet"></span>
+              <span>Tablet</span>
+            </button>
+            <button class="device-btn" data-device="mobile" title="Mobile 375px">
+              <span class="device-icon" data-icon="mobile"></span>
+              <span>Mobile</span>
+            </button>
           </div>
 
           <!-- PWA Install Button (shown when installable) -->
@@ -78,17 +105,18 @@
           </button>
 
           <!-- Theme Toggle -->
-          <button class="btn btn-outline btn-icon" id="theme-toggle-btn" title="Toggle Theme">
+          <button class="btn btn-outline btn-icon" id="theme-toggle-btn" title="Toggle Dark/Light Theme">
             <span id="theme-icon" style="display:flex;align-items:center;justify-content:center;"></span>
           </button>
 
           <!-- Home landing toggle -->
-          <button class="btn btn-outline" id="view-landing-btn">
+          <button class="btn btn-outline" id="view-landing-btn" title="Show Library Overview">
             <span>Overview</span>
           </button>
 
           <!-- Public GitHub Repo Link -->
-          <a href="https://github.com/geraphael/huragon-ui" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="text-decoration:none;">
+          <a href="https://github.com/geraphael/huragon-ui" target="_blank" rel="noopener noreferrer" class="btn btn-outline" style="text-decoration:none;" title="View Source on GitHub">
+            <span id="github-header-icon" style="display:flex;align-items:center;"></span>
             <span>GitHub</span>
           </a>
         </div>
@@ -96,10 +124,34 @@
 
       <!-- Center Stage Split (Live Preview & Controls Column) -->
       <div class="workspace-content">
-        <!-- Left: Live Preview Canvas Area -->
-        <section id="preview-stage" class="bg-grid-pattern">
-          <!-- Tool preview rendered dynamically -->
-        </section>
+        <!-- Left: Live Preview Canvas Stage Wrapper -->
+        <div id="stage-wrapper" class="stage-wrapper">
+          <!-- Floating Stage Controls Bar -->
+          <div class="stage-floating-toolbar" id="stage-toolbar">
+            <div class="stage-bg-toggles" id="stage-bg-toggles">
+              <button class="stage-tool-btn active" data-bg="matrix" title="Astra Dot Matrix Canvas"><span>Matrix</span></button>
+              <button class="stage-tool-btn" data-bg="grid" title="Wireframe Grid Canvas"><span>Grid</span></button>
+              <button class="stage-tool-btn" data-bg="dark" title="Solid Dark Canvas"><span>Dark</span></button>
+              <button class="stage-tool-btn" data-bg="light" title="Solid Light Canvas"><span>Light</span></button>
+              <button class="stage-tool-btn" data-bg="checker" title="Transparency Checker"><span>Checker</span></button>
+            </div>
+            <div class="stage-toolbar-sep"></div>
+            <div class="stage-state-tester" id="stage-state-tester">
+              <button class="stage-tool-btn active" data-state="normal" title="Normal Interactive State"><span>Normal</span></button>
+              <button class="stage-tool-btn" data-state="hover" title="Force Hover Preview"><span>Hover</span></button>
+              <button class="stage-tool-btn" data-state="focus" title="Force Focus Preview"><span>Focus</span></button>
+            </div>
+            <div class="stage-toolbar-sep"></div>
+            <button class="stage-tool-btn btn-icon" id="stage-fullscreen-btn" title="Maximize Stage Preview">
+              <span id="fullscreen-icon"></span>
+            </button>
+          </div>
+
+          <!-- Dynamic Stage Canvas Target -->
+          <section id="preview-stage" class="bg-dot-matrix">
+            <!-- Tool preview rendered dynamically -->
+          </section>
+        </div>
 
         <!-- Right: Control Sliders & Code Output -->
         <aside id="controls-stage">
@@ -115,7 +167,7 @@
                 <button class="code-tab" data-tab="tailwind">Tailwind / HTML</button>
               </div>
               <div class="code-actions">
-                <button class="btn btn-primary" id="copy-code-btn" style="padding:3px 8px; font-size:0.75rem;">
+                <button class="btn btn-primary" id="copy-code-btn" style="padding:4px 10px; font-size:0.75rem;">
                   <span>Copy</span>
                 </button>
               </div>

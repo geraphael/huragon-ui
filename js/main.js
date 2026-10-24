@@ -1,6 +1,6 @@
 // Main Entry Point
 import { qs, qsa, el } from './utils/dom.js';
-import { CATEGORIES } from './tools-registry.js';
+import { CATEGORIES, getToolMeta } from './tools-registry.js';
 import { navigateTo } from './router.js';
 import { copyToClipboard } from './clipboard.js';
 import { highlightCSS } from './highlight.js';
@@ -11,9 +11,11 @@ let latestCode = { css: '', tailwind: '' };
 
 document.addEventListener('DOMContentLoaded', () => {
   initTheme();
+  initSidebar();
   renderSidebar();
   renderLandingCategories();
   initDeviceSwitcher();
+  initStageToolbar();
   initCodeTabs();
   initSearch();
   initRouting();
@@ -49,6 +51,34 @@ function applyTheme(theme) {
   }
 }
 
+function initSidebar() {
+  const sidebar = qs('#sidebar');
+  const toggleBtn = qs('#sidebar-collapse-btn');
+  const toggleIcon = qs('#sidebar-toggle-icon');
+
+  const isCollapsed = localStorage.getItem('huragon_sidebar_collapsed') === 'true';
+  if (isCollapsed && sidebar) {
+    sidebar.classList.add('collapsed');
+  }
+
+  updateSidebarToggleIcon();
+
+  if (toggleBtn && sidebar) {
+    toggleBtn.addEventListener('click', () => {
+      sidebar.classList.toggle('collapsed');
+      const collapsed = sidebar.classList.contains('collapsed');
+      localStorage.setItem('huragon_sidebar_collapsed', collapsed);
+      updateSidebarToggleIcon();
+    });
+  }
+
+  function updateSidebarToggleIcon() {
+    if (!toggleIcon) return;
+    const collapsed = sidebar ? sidebar.classList.contains('collapsed') : false;
+    toggleIcon.innerHTML = collapsed ? ICONS.chevronRight : ICONS.chevronLeft;
+  }
+}
+
 function renderSidebar() {
   const container = qs('#sidebar-nav-container');
   if (!container) return;
@@ -63,16 +93,18 @@ function renderSidebar() {
     ]);
 
     cat.tools.forEach(tool => {
+      const catIconSvg = ICONS[cat.icon] || ICONS.sliders;
       const navItem = el('div', {
         className: 'nav-item',
         'data-tool-id': tool.id,
+        'data-tooltip': `${tool.name} · ${cat.name}`,
         onclick: () => {
           location.hash = `#${tool.id}`;
           qs('#sidebar').classList.remove('open');
         }
       }, [
-        el('span', { className: 'nav-dot' }),
-        el('span', { textContent: tool.name })
+        el('span', { className: 'nav-item-icon', innerHTML: catIconSvg }),
+        el('span', { className: 'nav-text', textContent: tool.name })
       ]);
 
       catBox.appendChild(navItem);
@@ -80,6 +112,17 @@ function renderSidebar() {
 
     container.appendChild(catBox);
   });
+}
+
+function updateBreadcrumbs(toolId) {
+  const meta = getToolMeta(toolId);
+  const catLabel = qs('#bc-cat-label');
+  const toolLabel = qs('#bc-tool-label');
+  if (!meta) return;
+
+  const currentCategory = CATEGORIES.find(c => c.tools.some(t => t.id === toolId));
+  if (catLabel && currentCategory) catLabel.textContent = currentCategory.name;
+  if (toolLabel) toolLabel.textContent = meta.name;
 }
 
 function renderLandingCategories() {
@@ -108,6 +151,12 @@ function initDeviceSwitcher() {
   const previewStage = qs('#preview-stage');
 
   buttons.forEach(btn => {
+    const iconSpan = btn.querySelector('.device-icon');
+    const iconKey = iconSpan ? iconSpan.dataset.icon : null;
+    if (iconSpan && iconKey && ICONS[iconKey]) {
+      iconSpan.innerHTML = ICONS[iconKey];
+    }
+
     btn.addEventListener('click', () => {
       buttons.forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
@@ -120,6 +169,72 @@ function initDeviceSwitcher() {
       }
     });
   });
+}
+
+function initStageToolbar() {
+  const previewStage = qs('#preview-stage');
+  const stageWrapper = qs('#stage-wrapper');
+
+  // Background toggles
+  const bgBtns = qsa('#stage-bg-toggles .stage-tool-btn');
+  const savedBg = localStorage.getItem('huragon_stage_bg') || 'matrix';
+  applyStageBg(savedBg);
+
+  bgBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      const bg = btn.dataset.bg;
+      applyStageBg(bg);
+      localStorage.setItem('huragon_stage_bg', bg);
+    });
+  });
+
+  function applyStageBg(bg) {
+    if (!previewStage) return;
+    previewStage.classList.remove('bg-dot-matrix', 'bg-grid-wireframe', 'bg-solid-dark', 'bg-solid-light', 'bg-checker');
+    bgBtns.forEach(b => b.classList.toggle('active', b.dataset.bg === bg));
+
+    if (bg === 'matrix') previewStage.classList.add('bg-dot-matrix');
+    else if (bg === 'grid') previewStage.classList.add('bg-grid-wireframe');
+    else if (bg === 'dark') previewStage.classList.add('bg-solid-dark');
+    else if (bg === 'light') previewStage.classList.add('bg-solid-light');
+    else if (bg === 'checker') previewStage.classList.add('bg-checker');
+  }
+
+  // State tester toggles
+  const stateBtns = qsa('#stage-state-tester .stage-tool-btn');
+  stateBtns.forEach(btn => {
+    btn.addEventListener('click', () => {
+      stateBtns.forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      const testState = btn.dataset.state;
+      if (previewStage) {
+        previewStage.classList.remove('state-force-hover', 'state-force-focus');
+        if (testState !== 'normal') {
+          previewStage.classList.add(`state-force-${testState}`);
+        }
+      }
+    });
+  });
+
+  // Stage Fullscreen toggle
+  const fsBtn = qs('#stage-fullscreen-btn');
+  const fsIcon = qs('#fullscreen-icon');
+  if (fsIcon) fsIcon.innerHTML = ICONS.maximize;
+
+  if (fsBtn && stageWrapper) {
+    fsBtn.addEventListener('click', () => {
+      stageWrapper.classList.toggle('stage-fullscreen');
+      const isFs = stageWrapper.classList.contains('stage-fullscreen');
+      if (fsIcon) fsIcon.innerHTML = isFs ? ICONS.minimize : ICONS.maximize;
+    });
+
+    window.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape' && stageWrapper.classList.contains('stage-fullscreen')) {
+        stageWrapper.classList.remove('stage-fullscreen');
+        if (fsIcon) fsIcon.innerHTML = ICONS.maximize;
+      }
+    });
+  }
 }
 
 function initCodeTabs() {
@@ -182,6 +297,13 @@ function initSearch() {
   window.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
+      const sidebar = qs('#sidebar');
+      if (sidebar && sidebar.classList.contains('collapsed')) {
+        sidebar.classList.remove('collapsed');
+        localStorage.setItem('huragon_sidebar_collapsed', 'false');
+        const toggleIcon = qs('#sidebar-toggle-icon');
+        if (toggleIcon) toggleIcon.innerHTML = ICONS.chevronLeft;
+      }
       searchInput.focus();
     }
   });
@@ -191,10 +313,12 @@ function initRouting() {
   window.addEventListener('hashchange', () => {
     const route = location.hash.replace('#', '') || 'mesh-gradient';
     navigateTo(route, onCodeChange);
+    updateBreadcrumbs(route);
   });
 
   const initialRoute = location.hash.replace('#', '') || 'mesh-gradient';
   navigateTo(initialRoute, onCodeChange);
+  updateBreadcrumbs(initialRoute);
 }
 
 function openLanding() {
@@ -211,6 +335,9 @@ function bindGlobalEvents() {
   const brandBtn = qs('#brand-home-btn');
   if (brandBtn) brandBtn.addEventListener('click', openLanding);
 
+  const bcBrandBtn = qs('#bc-brand-btn');
+  if (bcBrandBtn) bcBrandBtn.addEventListener('click', openLanding);
+
   const viewLandingBtn = qs('#view-landing-btn');
   if (viewLandingBtn) viewLandingBtn.addEventListener('click', openLanding);
 
@@ -219,6 +346,9 @@ function bindGlobalEvents() {
 
   const heroStartBtn = qs('#hero-start-btn');
   if (heroStartBtn) heroStartBtn.addEventListener('click', closeLanding);
+
+  const ghHeaderIcon = qs('#github-header-icon');
+  if (ghHeaderIcon) ghHeaderIcon.innerHTML = ICONS.github;
 
   const mobileToggle = qs('#mobile-toggle-btn');
   if (mobileToggle) {
@@ -232,7 +362,6 @@ function bindGlobalEvents() {
 let deferredPWAInstallPrompt = null;
 
 function initPWA() {
-  // Register Service Worker
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
       navigator.serviceWorker.register('./sw.js')
@@ -245,7 +374,6 @@ function initPWA() {
     });
   }
 
-  // Handle BeforeInstallPrompt event
   const installBtn = qs('#pwa-install-btn');
   const installIcon = qs('#pwa-install-icon');
   if (installIcon) installIcon.innerHTML = ICONS.download;

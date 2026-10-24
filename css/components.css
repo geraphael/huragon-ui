@@ -40,6 +40,7 @@
 
 .btn-ghost {
   color: var(--text-muted);
+  background: transparent;
 }
 .btn-ghost:hover {
   color: var(--text-main);
@@ -187,6 +188,166 @@ input:checked + .slider-toggle {
 input:checked + .slider-toggle::before {
   transform: translateX(16px);
   background-color: var(--bg-app);
+}
+
+/* Segmented Controls (Inspiration: Astra & Tavola & SaaS Dashboards) */
+.segmented-pill-bar {
+  display: inline-flex;
+  align-items: center;
+  padding: 3px;
+  background: var(--bg-input);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  position: relative;
+  user-select: none;
+}
+
+.segmented-pill-btn {
+  padding: 4px 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 999px;
+  transition: all 0.15s ease;
+  position: relative;
+  z-index: 2;
+  white-space: nowrap;
+}
+
+.segmented-pill-btn:hover {
+  color: var(--text-main);
+}
+
+.segmented-pill-btn.active {
+  color: var(--bg-app);
+  background: var(--text-main);
+  font-weight: 600;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+/* Notched floating label input */
+.notched-input-box {
+  position: relative;
+  width: 100%;
+}
+
+.notched-input-field {
+  width: 100%;
+  padding: 12px 14px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  color: var(--text-main);
+  font-size: 0.85rem;
+  outline: none;
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.notched-input-field:focus {
+  border-color: var(--text-main);
+  box-shadow: 0 0 0 2px var(--accent-subtle);
+}
+
+.notched-input-label {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: transparent;
+  color: var(--text-dim);
+  font-size: 0.85rem;
+  pointer-events: none;
+  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+  padding: 0 4px;
+}
+
+.notched-input-field:focus ~ .notched-input-label,
+.notched-input-field:not(:placeholder-shown) ~ .notched-input-label {
+  top: 0;
+  font-size: 0.7rem;
+  color: var(--text-main);
+  background: var(--bg-card);
+  font-weight: 500;
+}
+
+/* Split Action Button */
+.split-button-container {
+  display: inline-flex;
+  position: relative;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--border-strong);
+  background: var(--bg-card);
+}
+
+.split-button-main {
+  padding: 6px 12px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-main);
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  border-right: 1px solid var(--border);
+  transition: background var(--transition-fast);
+}
+
+.split-button-main:hover {
+  background: var(--bg-hover);
+}
+
+.split-button-arrow {
+  padding: 6px 8px;
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background var(--transition-fast), color var(--transition-fast);
+}
+
+.split-button-arrow:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
+}
+
+.split-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  right: 0;
+  background: var(--bg-card);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-lg);
+  min-width: 200px;
+  z-index: 100;
+  overflow: hidden;
+  animation: dropIn 0.12s ease-out;
+}
+
+@keyframes dropIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.split-dropdown-item {
+  padding: 8px 12px;
+  font-size: 0.775rem;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.split-dropdown-item:hover {
+  background: var(--bg-hover);
+  color: var(--text-main);
 }
 
 /* Toast */

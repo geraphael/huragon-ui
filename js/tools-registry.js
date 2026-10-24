@@ -3,6 +3,7 @@ export const CATEGORIES = [
   {
     id: 'gradients',
     name: 'Gradients & Backgrounds',
+    icon: 'palette',
     tools: [
       { id: 'mesh-gradient', name: 'Mesh Gradient', desc: 'Organic multi-point radial gradient generator' },
       { id: 'gradient-builder', name: 'Linear & Radial Gradient', desc: 'Linear, radial, and conic gradient designer' },
@@ -13,6 +14,7 @@ export const CATEGORIES = [
   {
     id: 'effects',
     name: 'Effects & Shadows',
+    icon: 'layers',
     tools: [
       { id: 'glassmorphism', name: 'Glassmorphism', desc: 'Frosted glass UI with blur, opacity and specular border' },
       { id: 'neumorphism', name: 'Neumorphism (Soft UI)', desc: 'Dual-shadow soft tactile UI generator' },
@@ -25,6 +27,7 @@ export const CATEGORIES = [
   {
     id: 'shapes',
     name: 'Shapes & Dividers',
+    icon: 'shapes',
     tools: [
       { id: 'svg-wave', name: 'SVG Wave Divider', desc: 'Dynamic flowing SVG section dividers with animation' },
       { id: 'svg-blob', name: 'SVG Blob Generator', desc: 'Organic fluid blob shapes with random seeds' },
@@ -35,6 +38,7 @@ export const CATEGORIES = [
   {
     id: 'layout',
     name: 'Layout Systems',
+    icon: 'grid',
     tools: [
       { id: 'grid-generator', name: 'CSS Grid Studio', desc: 'Visual track and grid-template builder' },
       { id: 'flexbox-playground', name: 'Flexbox Playground', desc: 'Interactive flex alignment and direction tester' }
@@ -43,6 +47,7 @@ export const CATEGORIES = [
   {
     id: 'responsive',
     name: 'Responsive & Preview',
+    icon: 'desktop',
     tools: [
       { id: 'responsive-preview', name: 'Device Mockups', desc: 'Real-time Mobile, Tablet, Laptop frame previews' },
       { id: 'media-query', name: 'Media Query Builder', desc: 'Responsive breakpoints and container query generator' },
@@ -52,6 +57,7 @@ export const CATEGORIES = [
   {
     id: 'components',
     name: 'UI Components',
+    icon: 'box',
     tools: [
       { id: 'button-generator', name: 'Button Studio', desc: 'Multi-state button generator with hover, active, focus & gradients' },
       { id: 'card-designer', name: 'Card Designer', desc: 'Modern content, stats and product cards with hover lift' },
@@ -68,6 +74,7 @@ export const CATEGORIES = [
   {
     id: 'animations',
     name: 'Animations & Loaders',
+    icon: 'zap',
     tools: [
       { id: 'loading-spinner', name: 'CSS Spinners & Loaders', desc: 'Pure CSS single-element spinners, bars and pulses' },
       { id: 'skeleton-screen', name: 'Skeleton Loader', desc: 'Shimmering placeholder UI for asynchronous loading' },
@@ -79,6 +86,7 @@ export const CATEGORIES = [
   {
     id: 'patterns',
     name: 'Patterns & Textures',
+    icon: 'texture',
     tools: [
       { id: 'background-patterns', name: 'CSS Background Patterns', desc: 'Dots, grids, stripes, chevron and geometric textures' },
       { id: 'noise-texture', name: 'SVG Noise & Grain', desc: 'Subtle film grain and rough textures using SVG turbulence' },
@@ -88,6 +96,7 @@ export const CATEGORIES = [
   {
     id: 'color',
     name: 'Color & Typography',
+    icon: 'droplet',
     tools: [
       { id: 'color-palette', name: 'Color Palette Studio', desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
       { id: 'contrast-checker', name: 'WCAG Contrast Checker', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
@@ -97,6 +106,7 @@ export const CATEGORIES = [
   {
     id: 'utilities',
     name: 'CSS Utilities',
+    icon: 'sliders',
     tools: [
       { id: 'scrollbar-styler', name: 'Scrollbar Styler', desc: 'WebKit & Firefox custom scrollbars' },
       { id: 'easing-editor', name: 'Cubic-Bezier Easing', desc: 'Draggable physics curve editor with live comparison' },

@@ -1,5 +1,5 @@
-// Huragon/ui Service Worker - v2.0.0 (All 47 Tools)
-const CACHE_NAME = 'huragon-ui-v2';
+// Huragon/ui Service Worker - v3.0.0 (Polished Interactive UI)
+const CACHE_NAME = 'huragon-ui-v3';
 
 const STATIC_PRECACHE = [
   './',

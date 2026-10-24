@@ -141,9 +141,9 @@ export function mount(container, onCodeChange) {
       <div style="width:100%; height:100%; position:relative; overflow-y:auto; display:flex; flex-direction:column; ${containerStyle}">
         <!-- Navbar -->
         <header style="width:100%; z-index:10; ${navStyle} transition:all 0.2s ease;">
-          <div style="max-width:1120px; margin:0 auto; padding:${config.paddingY}px 24px; display:flex; align-items:center; justify-content:space-between;">
+          <div style="max-width:1120px; margin:0 auto; padding:${config.paddingY}px 24px; display:flex; align-items:center; justify-content:space-between; position:relative;">
             <!-- Brand -->
-            <div style="display:flex; align-items:center; gap:10px;">
+            <div style="display:flex; align-items:center; gap:10px; cursor:pointer;">
               <div style="width:28px; height:28px; border-radius:6px; background:#ffffff; color:#09090b; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">
                 A
               </div>
@@ -151,11 +151,31 @@ export function mount(container, onCodeChange) {
             </div>
 
             <!-- Links -->
-            <nav style="display:flex; align-items:center; gap:20px; font-size:0.85rem; color:var(--text-muted);">
-              <span style="cursor:pointer; color:var(--text-main); font-weight:500;">Features</span>
-              <span style="cursor:pointer;">Solutions</span>
-              <span style="cursor:pointer;">Changelog</span>
-              <span style="cursor:pointer;">Pricing</span>
+            <nav style="display:flex; align-items:center; gap:16px; font-size:0.85rem; color:var(--text-muted);">
+              <span style="cursor:pointer; color:var(--text-main); font-weight:500; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">Features</span>
+              <div style="position:relative;">
+                <span id="nav-dropdown-trigger" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">
+                  <span>Solutions</span>
+                  ${ICONS.chevronDown}
+                </span>
+                <div id="nav-dropdown-popup" style="display:none; position:absolute; top:calc(100% + 8px); left:0; min-width:220px; background:var(--bg-card); border:1px solid var(--border-strong); border-radius:8px; box-shadow:var(--shadow-lg); padding:6px; z-index:50;">
+                  <div style="padding:8px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                      <div style="font-weight:600;">Edge Computing</div>
+                      <div style="font-size:0.7rem; color:var(--text-dim);">Global fast compute</div>
+                    </div>
+                    ${ICONS.arrowUpRight}
+                  </div>
+                  <div style="padding:8px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
+                    <div>
+                      <div style="font-weight:600;">Telemetry Hub</div>
+                      <div style="font-size:0.7rem; color:var(--text-dim);">Realtime metrics</div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+              <span style="cursor:pointer; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">Changelog</span>
+              <span style="cursor:pointer; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">Pricing</span>
             </nav>
 
             <!-- Actions -->
@@ -178,6 +198,18 @@ export function mount(container, onCodeChange) {
         </div>
       </div>
     `;
+
+    const dropTrigger = target.querySelector('#nav-dropdown-trigger');
+    const dropPopup = target.querySelector('#nav-dropdown-popup');
+    if (dropTrigger && dropPopup) {
+      dropTrigger.onclick = (e) => {
+        e.stopPropagation();
+        dropPopup.style.display = dropPopup.style.display === 'none' ? 'block' : 'none';
+      };
+      document.addEventListener('click', () => {
+        if (dropPopup) dropPopup.style.display = 'none';
+      });
+    }
   }
 
   function generateCode() {
