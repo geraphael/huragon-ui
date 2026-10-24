@@ -1,24 +1,63 @@
-// Lightweight client-side CSS syntax highlighter
+// Professional, non-corrupting syntax tokenizers for CSS & HTML
 export function highlightCSS(code) {
   if (!code) return '';
-  
-  // Escape HTML characters
-  let safe = code
+
+  const lines = code.split('\n');
+  const highlightedLines = lines.map(line => {
+    // If comment line
+    if (line.trim().startsWith('/*') && line.trim().endsWith('*/')) {
+      return `<span class="token-comment">${escapeHtml(line)}</span>`;
+    }
+
+    // Escape HTML first
+    let l = escapeHtml(line);
+
+    // Rule: Selector block opening
+    if (l.includes('{') && !l.includes(':')) {
+      return l.replace(/([^{]+)\{/, '<span class="token-selector">$1</span>{');
+    }
+
+    // Property-value line
+    if (l.includes(':') && !l.trim().startsWith('&lt;!--')) {
+      const colonIndex = l.indexOf(':');
+      const prop = l.slice(0, colonIndex);
+      const val = l.slice(colonIndex + 1);
+
+      let coloredVal = val
+        // Functions: rgba(), blur(), radial-gradient, etc.
+        .replace(/\b([a-z\-]+)\(/g, '<span class="token-func">$1</span>(')
+        // Numbers & units
+        .replace(/(\b\d+(\.\d+)?(px|%|rem|em|deg|s|ms|fr|vw|vh)?\b)/g, '<span class="token-number">$1</span>')
+        // Hex colors
+        .replace(/(#[0-9a-fA-F]{3,8}\b)/g, '<span class="token-color">$1</span>');
+
+      return `<span class="token-prop">${prop}</span>:<span class="token-value">${coloredVal}</span>`;
+    }
+
+    // HTML comments
+    if (l.trim().startsWith('&lt;!--') && l.trim().endsWith('--&gt;')) {
+      return `<span class="token-comment">${l}</span>`;
+    }
+
+    // HTML tags in snippets
+    if (l.includes('&lt;') && l.includes('&gt;')) {
+      return l
+        .replace(/(&lt;\/?[a-z0-9\-]+)/gi, '<span class="token-tag">$1</span>')
+        .replace(/([a-z\-]+)=&quot;/gi, '<span class="token-attr">$1</span>=&quot;')
+        .replace(/(&quot;[^&]*&quot;)/gi, '<span class="token-string">$1</span>');
+    }
+
+    return l;
+  });
+
+  return highlightedLines.join('\n');
+}
+
+function escapeHtml(str) {
+  return str
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;');
-
-  return safe
-    // Comments
-    .replace(/(\/\*[\s\S]*?\*\/)/g, '<span style="color:#64748b;font-style:italic;">$1</span>')
-    // Selectors
-    .replace(/(^|[\n\r\}])\s*([.#a-zA-Z0-9_\-\:\[\]=",\s>+~]+)\s*\{/g, '$1<span style="color:#f43f5e;font-weight:600;">$2</span> {')
-    // CSS properties
-    .replace(/([\w\-]+)\s*:/g, '<span style="color:#38bdf8;">$1</span>:')
-    // Functions like rgba(), blur(), radial-gradient()
-    .replace(/([a-zA-Z\-]+)\(/g, '<span style="color:#c084fc;">$1</span>(')
-    // Numbers and units
-    .replace(/(\b\d+(\.\d+)?(px|%|rem|em|deg|s|ms|fr|vw|vh|vmin|vmax)?\b)/g, '<span style="color:#fbbf24;">$1</span>')
-    // Hex colors
-    .replace(/(#[0-9a-fA-F]{3,8})/g, '<span style="color:#4ade80;">$1</span>');
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#039;');
 }

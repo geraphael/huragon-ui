@@ -1,5 +1,5 @@
-// Notification toast system
 import { el, qs } from '../utils/dom.js';
+import { ICONS } from '../utils/icons.js';
 
 let container = null;
 
@@ -14,10 +14,10 @@ function getContainer() {
   return container;
 }
 
-export function showToast(message, icon = '✅', duration = 2400) {
+export function showToast(message, iconSvg = ICONS.check, duration = 2000) {
   const cont = getContainer();
   const toast = el('div', { className: 'toast' }, [
-    el('span', { textContent: icon }),
+    el('span', { style: { display: 'flex', alignItems: 'center' }, innerHTML: iconSvg }),
     el('span', { textContent: message })
   ]);
 
@@ -27,6 +27,6 @@ export function showToast(message, icon = '✅', duration = 2400) {
     toast.classList.add('hide');
     setTimeout(() => {
       toast.remove();
-    }, 260);
+    }, 180);
   }, duration);
 }

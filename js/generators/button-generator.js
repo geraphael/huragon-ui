@@ -3,28 +3,18 @@ import { el, qs } from '../utils/dom.js';
 
 export const meta = {
   id: 'button-generator',
-  name: 'Button Studio',
-  icon: '🔘'
+  name: 'Button Studio'
 };
 
 let config = {
-  text: 'Explore Huragon',
-  fontSize: 15,
-  fontWeight: 600,
-  paddingX: 24,
-  paddingY: 12,
-  borderRadius: 12,
-  variant: 'gradient', // gradient, solid, glass, outline, neon
-  bgColor1: '#8b5cf6',
-  bgColor2: '#ec4899',
-  textColor: '#ffffff',
-  borderColor: '#ffffff',
-  borderWidth: 1,
-  shadowDepth: 18,
-  shadowColor: '#8b5cf6',
-  shadowOpacity: 0.4,
-  hoverScale: 1.04,
-  hasIcon: true
+  text: 'Get Started',
+  fontSize: 14,
+  fontWeight: 500,
+  paddingX: 16,
+  paddingY: 8,
+  borderRadius: 8,
+  variant: 'primary', // primary, secondary, outline, ghost
+  hoverScale: 1.02
 };
 
 export function mount(container, onCodeChange) {
@@ -41,7 +31,7 @@ export function mount(container, onCodeChange) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '24px',
+      gap: '20px',
       padding: '40px'
     }
   });
@@ -50,7 +40,7 @@ export function mount(container, onCodeChange) {
     style: {
       display: 'flex',
       alignItems: 'center',
-      gap: '16px'
+      gap: '14px'
     }
   });
 
@@ -60,123 +50,105 @@ export function mount(container, onCodeChange) {
       cursor: 'pointer',
       display: 'inline-flex',
       alignItems: 'center',
-      gap: '8px',
+      justifyContent: 'center',
       userSelect: 'none',
-      transition: 'all 0.2s cubic-bezier(0.16, 1, 0.3, 1)'
+      transition: 'all 0.15s ease'
     }
   });
 
   buttonWrapper.appendChild(btn);
   centerStage.appendChild(buttonWrapper);
 
-  // States display (Normal, Hover, Active)
   const stateLabels = el('div', {
     style: {
       display: 'flex',
       gap: '20px',
-      fontSize: '0.8rem',
+      fontSize: '0.75rem',
       color: 'var(--text-dim)'
     },
-    innerHTML: '<span>💡 Hover & Click the preview button to test physical states</span>'
+    innerHTML: '<span>Interactive state preview: Hover & Click button above</span>'
   });
   centerStage.appendChild(stateLabels);
 
   previewStage.appendChild(centerStage);
 
   function applyButtonStyles() {
-    btn.innerHTML = `${config.hasIcon ? '✨ ' : ''}<span>${config.text}</span>`;
+    btn.textContent = config.text;
     btn.style.fontSize = `${config.fontSize}px`;
     btn.style.fontWeight = config.fontWeight;
     btn.style.padding = `${config.paddingY}px ${config.paddingX}px`;
     btn.style.borderRadius = `${config.borderRadius}px`;
-    btn.style.color = config.textColor;
 
     let bgStyle = '';
-    let borderStyle = 'none';
-    let shadowStyle = '';
+    let textColor = '';
+    let borderStyle = '1px solid transparent';
+    let shadowStyle = 'none';
 
-    if (config.variant === 'gradient') {
-      bgStyle = `linear-gradient(135deg, ${config.bgColor1} 0%, ${config.bgColor2} 100%)`;
-      shadowStyle = `0 8px ${config.shadowDepth}px 0 ${hexToRgba(config.shadowColor, config.shadowOpacity)}`;
-    } else if (config.variant === 'solid') {
-      bgStyle = config.bgColor1;
-      shadowStyle = `0 6px ${config.shadowDepth}px 0 ${hexToRgba(config.shadowColor, config.shadowOpacity)}`;
+    if (config.variant === 'primary') {
+      bgStyle = 'var(--text-main)';
+      textColor = 'var(--bg-app)';
+      borderStyle = '1px solid var(--text-main)';
+      shadowStyle = '0 1px 2px rgba(0, 0, 0, 0.2)';
+    } else if (config.variant === 'secondary') {
+      bgStyle = 'var(--bg-card)';
+      textColor = 'var(--text-main)';
+      borderStyle = '1px solid var(--border)';
     } else if (config.variant === 'outline') {
       bgStyle = 'transparent';
-      borderStyle = `${config.borderWidth}px solid ${config.borderColor}`;
-      shadowStyle = 'none';
-    } else if (config.variant === 'glass') {
-      bgStyle = 'rgba(255, 255, 255, 0.12)';
-      borderStyle = '1px solid rgba(255, 255, 255, 0.25)';
-      btn.style.backdropFilter = 'blur(12px)';
-      btn.style.webkitBackdropFilter = 'blur(12px)';
-      shadowStyle = '0 8px 32px 0 rgba(0, 0, 0, 0.3)';
-    } else if (config.variant === 'neon') {
-      bgStyle = '#0a0a14';
-      borderStyle = `2px solid ${config.bgColor1}`;
-      shadowStyle = `0 0 20px ${hexToRgba(config.bgColor1, 0.6)}, inset 0 0 10px ${hexToRgba(config.bgColor1, 0.3)}`;
+      textColor = 'var(--text-main)';
+      borderStyle = '1px solid var(--border-strong)';
+    } else if (config.variant === 'ghost') {
+      bgStyle = 'transparent';
+      textColor = 'var(--text-muted)';
+      borderStyle = '1px solid transparent';
     }
 
     btn.style.background = bgStyle;
+    btn.style.color = textColor;
     btn.style.border = borderStyle;
     btn.style.boxShadow = shadowStyle;
 
-    // Hover listeners
     btn.onmouseenter = () => {
-      btn.style.transform = `scale(${config.hoverScale}) translateY(-2px)`;
-      btn.style.filter = 'brightness(1.1)';
+      btn.style.transform = `scale(${config.hoverScale})`;
+      if (config.variant === 'ghost') btn.style.background = 'var(--bg-hover)';
     };
     btn.onmouseleave = () => {
-      btn.style.transform = 'scale(1) translateY(0)';
-      btn.style.filter = 'none';
+      btn.style.transform = 'scale(1)';
+      if (config.variant === 'ghost') btn.style.background = 'transparent';
     };
     btn.onmousedown = () => {
-      btn.style.transform = 'scale(0.97)';
+      btn.style.transform = 'scale(0.98)';
     };
     btn.onmouseup = () => {
-      btn.style.transform = `scale(${config.hoverScale}) translateY(-2px)`;
+      btn.style.transform = `scale(${config.hoverScale})`;
     };
 
-    updateCode(bgStyle, borderStyle, shadowStyle);
+    updateCode();
   }
 
-  function hexToRgba(hex, a) {
-    const clean = hex.replace('#', '');
-    const r = parseInt(clean.substring(0, 2), 16) || 0;
-    const g = parseInt(clean.substring(2, 4), 16) || 0;
-    const b = parseInt(clean.substring(4, 6), 16) || 0;
-    return `rgba(${r}, ${g}, ${b}, ${a})`;
-  }
-
-  function updateCode(bgStyle, borderStyle, shadowStyle) {
+  function updateCode() {
     const css = `/* Huragon/ui — Button Component */
-.btn-huragon {
+.ui-button {
   display: inline-flex;
   align-items: center;
   justify-content: center;
   padding: ${config.paddingY}px ${config.paddingX}px;
   font-size: ${config.fontSize}px;
   font-weight: ${config.fontWeight};
-  color: ${config.textColor};
-  background: ${bgStyle};
-  border: ${borderStyle};
   border-radius: ${config.borderRadius}px;
-  box-shadow: ${shadowStyle};
   cursor: pointer;
-  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: all 0.15s ease;
 }
 
-.btn-huragon:hover {
-  transform: scale(${config.hoverScale}) translateY(-2px);
-  filter: brightness(1.1);
+.ui-button:hover {
+  transform: scale(${config.hoverScale});
 }
 
-.btn-huragon:active {
-  transform: scale(0.97);
+.ui-button:active {
+  transform: scale(0.98);
 }`;
 
-    const tailwind = `<!-- Tailwind Button -->
-<button class="inline-flex items-center justify-center px-[${config.paddingX}px] py-[${config.paddingY}px] text-[${config.fontSize}px] font-[${config.fontWeight}] text-white rounded-[${config.borderRadius}px] transition-all hover:scale-105 active:scale-95 shadow-lg">
+    const tailwind = `<button class="inline-flex items-center justify-center px-[${config.paddingX}px] py-[${config.paddingY}px] text-[${config.fontSize}px] font-[${config.fontWeight}] rounded-[${config.borderRadius}px] transition-all hover:scale-[${config.hoverScale}] active:scale-95">
   ${config.text}
 </button>`;
 
@@ -187,9 +159,8 @@ export function mount(container, onCodeChange) {
     controlsStage.innerHTML = '';
 
     const sec = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: '<span>🔘</span> Button Style & Geometry' }),
+      el('div', { className: 'section-title', textContent: 'Button Configuration' }),
 
-      // Text input
       el('div', { className: 'control-group' }, [
         el('div', { className: 'control-label-row' }, [
           el('span', { className: 'control-label', textContent: 'Button Label' })
@@ -199,11 +170,12 @@ export function mount(container, onCodeChange) {
           value: config.text,
           style: {
             width: '100%',
-            padding: '8px 12px',
+            padding: '7px 10px',
             background: 'var(--bg-input)',
             border: '1px solid var(--border)',
             borderRadius: 'var(--radius-sm)',
-            color: '#fff'
+            color: 'var(--text-main)',
+            fontSize: '0.8rem'
           },
           oninput: (e) => {
             config.text = e.target.value;
@@ -212,16 +184,15 @@ export function mount(container, onCodeChange) {
         })
       ]),
 
-      // Variants
       el('div', { className: 'control-group' }, [
         el('div', { className: 'control-label-row' }, [
           el('span', { className: 'control-label', textContent: 'Style Variant' })
         ]),
-        el('div', { style: { display: 'flex', gap: '6px', flexWrap: 'wrap' } }, [
-          'gradient', 'solid', 'glass', 'outline', 'neon'
+        el('div', { style: { display: 'flex', gap: '6px' } }, [
+          'primary', 'secondary', 'outline', 'ghost'
         ].map(v => el('button', {
           className: `btn ${config.variant === v ? 'btn-primary' : 'btn-outline'}`,
-          style: { padding: '5px 10px', fontSize: '0.75rem', textTransform: 'capitalize' },
+          style: { flex: '1', padding: '5px 8px', fontSize: '0.72rem', textTransform: 'capitalize' },
           textContent: v,
           onclick: () => {
             config.variant = v;
@@ -231,48 +202,10 @@ export function mount(container, onCodeChange) {
         })))
       ]),
 
-      createSlider('Border Radius', config.borderRadius, 0, 40, (v) => { config.borderRadius = v; applyButtonStyles(); }, 'px'),
-      createSlider('Horizontal Padding', config.paddingX, 8, 48, (v) => { config.paddingX = v; applyButtonStyles(); }, 'px'),
-      createSlider('Vertical Padding', config.paddingY, 6, 28, (v) => { config.paddingY = v; applyButtonStyles(); }, 'px'),
-      createSlider('Font Size', config.fontSize, 12, 24, (v) => { config.fontSize = v; applyButtonStyles(); }, 'px'),
-
-      // Color pickers
-      el('div', { className: 'control-group' }, [
-        el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Primary Accent Color' }),
-          el('span', { className: 'control-value', textContent: config.bgColor1 })
-        ]),
-        el('div', { className: 'color-picker-wrapper' }, [
-          el('input', {
-            type: 'color',
-            value: config.bgColor1,
-            oninput: (e) => {
-              config.bgColor1 = e.target.value;
-              config.shadowColor = e.target.value;
-              applyButtonStyles();
-            }
-          }),
-          el('span', { className: 'color-hex-text', textContent: config.bgColor1 })
-        ])
-      ]),
-
-      config.variant === 'gradient' ? el('div', { className: 'control-group' }, [
-        el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Gradient Secondary Color' }),
-          el('span', { className: 'control-value', textContent: config.bgColor2 })
-        ]),
-        el('div', { className: 'color-picker-wrapper' }, [
-          el('input', {
-            type: 'color',
-            value: config.bgColor2,
-            oninput: (e) => {
-              config.bgColor2 = e.target.value;
-              applyButtonStyles();
-            }
-          }),
-          el('span', { className: 'color-hex-text', textContent: config.bgColor2 })
-        ])
-      ]) : null
+      createSlider('Border Radius', config.borderRadius, 0, 32, (v) => { config.borderRadius = v; applyButtonStyles(); }, 'px'),
+      createSlider('Horizontal Padding', config.paddingX, 8, 40, (v) => { config.paddingX = v; applyButtonStyles(); }, 'px'),
+      createSlider('Vertical Padding', config.paddingY, 4, 20, (v) => { config.paddingY = v; applyButtonStyles(); }, 'px'),
+      createSlider('Font Size', config.fontSize, 12, 18, (v) => { config.fontSize = v; applyButtonStyles(); }, 'px')
     ]);
 
     controlsStage.appendChild(sec);

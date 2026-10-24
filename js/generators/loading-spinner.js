@@ -3,15 +3,14 @@ import { el, qs } from '../utils/dom.js';
 
 export const meta = {
   id: 'loading-spinner',
-  name: 'CSS Spinners & Loaders',
-  icon: '🔄'
+  name: 'CSS Spinners & Loaders'
 };
 
 let config = {
-  spinnerType: 'dual-ring', // dual-ring, pulse, dots, bar, orbit
-  color: '#8b5cf6',
-  size: 54,
-  speed: 1.2
+  spinnerType: 'dual-ring', // dual-ring, pulse, dots
+  color: '#ffffff',
+  size: 42,
+  speed: 1.0
 };
 
 export function mount(container, onCodeChange) {
@@ -28,7 +27,7 @@ export function mount(container, onCodeChange) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      gap: '32px'
+      gap: '24px'
     }
   });
 
@@ -54,7 +53,7 @@ export function mount(container, onCodeChange) {
   height: ${config.size * 0.8}px;
   margin: ${config.size * 0.1}px;
   border-radius: 50%;
-  border: 4px solid ${config.color};
+  border: 2px solid ${config.color};
   border-color: ${config.color} transparent ${config.color} transparent;
   animation: dualRingSpin ${config.speed}s linear infinite;
 }
@@ -68,7 +67,7 @@ export function mount(container, onCodeChange) {
   width: ${config.size}px;
   height: ${config.size}px;
   background-color: ${config.color};
-  border-radius: 100%;
+  border-radius: 50%;
   animation: pulseScale ${config.speed}s infinite ease-in-out;
 }
 @keyframes pulseScale {
@@ -80,11 +79,11 @@ export function mount(container, onCodeChange) {
       cssSnippet = `.loader-dots {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 6px;
 }
 .loader-dots span {
-  width: ${config.size / 3.5}px;
-  height: ${config.size / 3.5}px;
+  width: ${config.size / 4}px;
+  height: ${config.size / 4}px;
   background-color: ${config.color};
   border-radius: 50%;
   display: inline-block;
@@ -113,19 +112,16 @@ ${cssSnippet}`;
     controlsStage.innerHTML = '';
 
     const sec = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: '<span>🔄</span> Spinner Styles' }),
+      el('div', { className: 'section-title', textContent: 'Loader Type' }),
 
       el('div', { className: 'control-group' }, [
-        el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Animation Variant' })
-        ]),
         el('div', { style: { display: 'flex', gap: '6px' } }, [
           { id: 'dual-ring', name: 'Dual Ring' },
-          { id: 'pulse', name: 'Pulse Wave' },
-          { id: 'dots', name: 'Bouncing Dots' }
+          { id: 'pulse', name: 'Pulse' },
+          { id: 'dots', name: 'Dots' }
         ].map(s => el('button', {
           className: `btn ${config.spinnerType === s.id ? 'btn-primary' : 'btn-outline'}`,
-          style: { flex: '1', fontSize: '0.75rem', padding: '6px' },
+          style: { flex: '1', fontSize: '0.72rem', padding: '5px' },
           textContent: s.name,
           onclick: () => {
             config.spinnerType = s.id;
@@ -135,27 +131,8 @@ ${cssSnippet}`;
         })))
       ]),
 
-      createSlider('Size', config.size, 24, 120, (v) => { config.size = v; renderSpinner(); }, 'px'),
-      createSlider('Animation Duration', config.speed, 0.4, 3, (v) => { config.speed = v; renderSpinner(); }, 's', 0.1),
-
-      // Color picker
-      el('div', { className: 'control-group' }, [
-        el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Spinner Hue' }),
-          el('span', { className: 'control-value', textContent: config.color })
-        ]),
-        el('div', { className: 'color-picker-wrapper' }, [
-          el('input', {
-            type: 'color',
-            value: config.color,
-            oninput: (e) => {
-              config.color = e.target.value;
-              renderSpinner();
-            }
-          }),
-          el('span', { className: 'color-hex-text', textContent: config.color })
-        ])
-      ])
+      createSlider('Size', config.size, 20, 80, (v) => { config.size = v; renderSpinner(); }, 'px'),
+      createSlider('Duration', config.speed, 0.4, 2.5, (v) => { config.speed = v; renderSpinner(); }, 's', 0.1)
     ]);
 
     controlsStage.appendChild(sec);

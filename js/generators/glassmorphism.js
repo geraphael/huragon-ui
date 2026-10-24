@@ -3,28 +3,25 @@ import { el, qs } from '../utils/dom.js';
 
 export const meta = {
   id: 'glassmorphism',
-  name: 'Glassmorphism',
-  icon: '🪟'
+  name: 'Glassmorphism'
 };
 
 let config = {
   blur: 16,
-  opacity: 0.15,
-  saturation: 140,
-  borderOpacity: 0.25,
-  borderRadius: 20,
+  opacity: 0.12,
+  saturation: 130,
+  borderOpacity: 0.18,
+  borderRadius: 16,
   shadowBlur: 24,
   shadowOpacity: 0.35,
   glassColor: '#ffffff',
-  borderColor: '#ffffff',
-  cardType: 'profile' // profile, stat, credit
+  borderColor: '#ffffff'
 };
 
 export function mount(container, onCodeChange) {
   const previewStage = qs('#preview-stage');
   const controlsStage = qs('#controls-scroll');
 
-  // Preview stage background: vibrant mesh backdrop so glass stands out
   previewStage.innerHTML = '';
   
   const backdrop = el('div', {
@@ -37,48 +34,47 @@ export function mount(container, onCodeChange) {
       borderRadius: 'var(--radius-md)',
       position: 'relative',
       overflow: 'hidden',
-      background: 'linear-gradient(135deg, #4f46e5 0%, #7c3aed 40%, #ec4899 80%, #06b6d4 100%)',
+      background: 'linear-gradient(135deg, #18181b 0%, #27272a 50%, #3f3f46 100%)',
       padding: '24px'
     }
   });
 
-  // Background floating geometric shapes to showcase the blur effect
+  // Soft subtle geometric spheres
   const shape1 = el('div', {
     style: {
       position: 'absolute',
-      width: '180px',
-      height: '180px',
+      width: '200px',
+      height: '200px',
       borderRadius: '50%',
-      background: '#ec4899',
-      top: '15%',
+      background: 'linear-gradient(135deg, #52525b, #71717a)',
+      top: '20%',
       left: '20%',
-      filter: 'blur(10px)',
-      opacity: '0.8'
+      opacity: '0.6',
+      filter: 'blur(30px)'
     }
   });
   const shape2 = el('div', {
     style: {
       position: 'absolute',
-      width: '220px',
-      height: '220px',
+      width: '240px',
+      height: '240px',
       borderRadius: '50%',
-      background: '#06b6d4',
+      background: 'linear-gradient(135deg, #3f3f46, #27272a)',
       bottom: '15%',
       right: '20%',
-      filter: 'blur(10px)',
-      opacity: '0.85'
+      opacity: '0.8',
+      filter: 'blur(40px)'
     }
   });
   backdrop.appendChild(shape1);
   backdrop.appendChild(shape2);
 
-  // The actual Glassmorphism Card
   const glassCard = el('div', {
     id: 'interactive-glass-card',
     style: {
-      width: '340px',
+      width: '320px',
       maxWidth: '100%',
-      padding: '28px',
+      padding: '24px',
       position: 'relative',
       zIndex: '5',
       color: '#ffffff'
@@ -105,43 +101,42 @@ export function mount(container, onCodeChange) {
     glassCard.style.webkitBackdropFilter = `blur(${config.blur}px) saturate(${config.saturation}%)`;
     glassCard.style.border = `1px solid rgba(${br}, ${bg}, ${bb}, ${config.borderOpacity})`;
     glassCard.style.borderRadius = `${config.borderRadius}px`;
-    glassCard.style.boxShadow = `0 12px ${config.shadowBlur}px 0 rgba(0, 0, 0, ${config.shadowOpacity})`;
+    glassCard.style.boxShadow = `0 8px ${config.shadowBlur}px 0 rgba(0, 0, 0, ${config.shadowOpacity})`;
 
     updateCode(r, g, b, br, bg, bb);
   }
 
   function renderCardContent(target) {
     target.innerHTML = `
-      <div style="display:flex; align-items:center; gap:16px; margin-bottom:20px;">
-        <div style="width:54px; height:54px; border-radius:50%; background:linear-gradient(135deg, #f43f5e, #fbbf24); display:flex; align-items:center; justify-content:center; font-size:1.4rem; box-shadow:0 4px 12px rgba(0,0,0,0.25);">✨</div>
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:16px;">
         <div>
-          <h4 style="margin:0; font-size:1.15rem; font-weight:700;">Huragon Card</h4>
-          <p style="margin:0; font-size:0.8rem; opacity:0.8;">@huragon_ui · Verified</p>
+          <h4 style="margin:0; font-size:1.05rem; font-weight:600; color:#fff;">Glass Surface</h4>
+          <p style="margin:0; font-size:0.75rem; color:#a1a1aa;">Component Preview</p>
         </div>
+        <span style="font-size:0.7rem; padding:2px 8px; border-radius:999px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); color:#fff;">Active</span>
       </div>
-      <p style="font-size:0.9rem; line-height:1.5; margin-bottom:20px; opacity:0.95;">
-        Frosted glass creates visual depth and elegance. Designed for high-end web applications and modern operating systems.
+      <p style="font-size:0.825rem; line-height:1.5; margin-bottom:20px; color:#d4d4d8;">
+        Subtle blur and specular lighting yield refined optical elevation without visual clutter.
       </p>
-      <div style="display:flex; gap:10px;">
-        <button style="flex:1; padding:10px; border-radius:10px; background:rgba(255,255,255,0.2); border:1px solid rgba(255,255,255,0.3); color:#fff; font-weight:600; font-size:0.85rem; cursor:pointer;">Explore</button>
-        <button style="flex:1; padding:10px; border-radius:10px; background:#fff; color:#0f172a; border:none; font-weight:600; font-size:0.85rem; cursor:pointer;">Follow</button>
+      <div style="display:flex; gap:8px;">
+        <button style="flex:1; padding:8px 12px; border-radius:8px; background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:500; font-size:0.8rem; cursor:pointer;">Cancel</button>
+        <button style="flex:1; padding:8px 12px; border-radius:8px; background:#fff; color:#09090b; border:none; font-weight:500; font-size:0.8rem; cursor:pointer;">Confirm</button>
       </div>
     `;
   }
 
   function updateCode(r, g, b, br, bg, bb) {
     const css = `/* Huragon/ui — Glassmorphism */
-.glass-container {
+.glass-surface {
   background: rgba(${r}, ${g}, ${b}, ${config.opacity});
   backdrop-filter: blur(${config.blur}px) saturate(${config.saturation}%);
   -webkit-backdrop-filter: blur(${config.blur}px) saturate(${config.saturation}%);
   border: 1px solid rgba(${br}, ${bg}, ${bb}, ${config.borderOpacity});
   border-radius: ${config.borderRadius}px;
-  box-shadow: 0 12px ${config.shadowBlur}px 0 rgba(0, 0, 0, ${config.shadowOpacity});
+  box-shadow: 0 8px ${config.shadowBlur}px 0 rgba(0, 0, 0, ${config.shadowOpacity});
 }`;
 
-    const tailwind = `/* Tailwind CSS */
-<div class="backdrop-blur-[${config.blur}px] backdrop-saturate-[${config.saturation}%] bg-white/[${config.opacity}] border border-white/[${config.borderOpacity}] rounded-[${config.borderRadius}px] shadow-[0_12px_${config.shadowBlur}px_rgba(0,0,0,${config.shadowOpacity})]">
+    const tailwind = `<div class="backdrop-blur-[${config.blur}px] bg-white/[${config.opacity}] border border-white/[${config.borderOpacity}] rounded-[${config.borderRadius}px] shadow-lg">
   <!-- Content -->
 </div>`;
 
@@ -152,17 +147,17 @@ export function mount(container, onCodeChange) {
     controlsStage.innerHTML = '';
 
     const controlsData = [
-      { key: 'blur', label: 'Blur Intensity', min: 0, max: 40, unit: 'px' },
-      { key: 'opacity', label: 'Background Opacity', min: 0, max: 1, step: 0.02, unit: '' },
-      { key: 'saturation', label: 'Saturation Boost', min: 100, max: 200, unit: '%' },
-      { key: 'borderOpacity', label: 'Border Opacity', min: 0, max: 1, step: 0.05, unit: '' },
-      { key: 'borderRadius', label: 'Border Radius', min: 0, max: 48, unit: 'px' },
-      { key: 'shadowBlur', label: 'Shadow Depth', min: 0, max: 60, unit: 'px' },
+      { key: 'blur', label: 'Blur', min: 0, max: 40, unit: 'px' },
+      { key: 'opacity', label: 'Surface Opacity', min: 0, max: 1, step: 0.02, unit: '' },
+      { key: 'saturation', label: 'Saturation', min: 100, max: 200, unit: '%' },
+      { key: 'borderOpacity', label: 'Border Opacity', min: 0, max: 1, step: 0.02, unit: '' },
+      { key: 'borderRadius', label: 'Radius', min: 0, max: 40, unit: 'px' },
+      { key: 'shadowBlur', label: 'Shadow Blur', min: 0, max: 60, unit: 'px' },
       { key: 'shadowOpacity', label: 'Shadow Opacity', min: 0, max: 1, step: 0.05, unit: '' }
     ];
 
     const secSliders = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: '<span>🎚️</span> Glass Properties' })
+      el('div', { className: 'section-title', textContent: 'Glass Parameters' })
     ]);
 
     controlsData.forEach(item => {
@@ -187,30 +182,7 @@ export function mount(container, onCodeChange) {
       secSliders.appendChild(row);
     });
 
-    // Color controls
-    const secColors = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: '<span>🎨</span> Color & Tone' }),
-      el('div', { className: 'control-group' }, [
-        el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Glass Color Tint' }),
-          el('span', { className: 'control-value', textContent: config.glassColor })
-        ]),
-        el('div', { className: 'color-picker-wrapper' }, [
-          el('input', {
-            type: 'color',
-            value: config.glassColor,
-            oninput: (e) => {
-              config.glassColor = e.target.value;
-              applyGlassStyles();
-            }
-          }),
-          el('span', { className: 'color-hex-text', textContent: config.glassColor })
-        ])
-      ])
-    ]);
-
     controlsStage.appendChild(secSliders);
-    controlsStage.appendChild(secColors);
   }
 
   renderControls();

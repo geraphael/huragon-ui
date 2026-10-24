@@ -4,17 +4,15 @@ import { lightenDarkenColor } from '../utils/color.js';
 
 export const meta = {
   id: 'neumorphism',
-  name: 'Neumorphism (Soft UI)',
-  icon: '🪨'
+  name: 'Neumorphism (Soft UI)'
 };
 
 let config = {
-  size: 200,
-  radius: 36,
-  distance: 18,
-  blur: 36,
-  intensity: 0.15,
-  bgColor: '#e0e5ec',
+  size: 180,
+  radius: 28,
+  distance: 14,
+  blur: 28,
+  bgColor: '#1c1c22',
   shape: 'flat' // flat, concave, convex, pressed
 };
 
@@ -44,12 +42,11 @@ export function mount(container, onCodeChange) {
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
-      fontSize: '2rem',
       cursor: 'pointer',
       userSelect: 'none',
-      transition: 'all 0.2s ease'
+      transition: 'all 0.15s ease'
     },
-    innerHTML: '<span>⚡</span>'
+    innerHTML: '<div style="width:16px; height:16px; border-radius:50%; background:var(--text-muted); opacity:0.4;"></div>'
   });
 
   centerStage.appendChild(softBox);
@@ -61,9 +58,8 @@ export function mount(container, onCodeChange) {
     softBox.style.height = `${config.size}px`;
     softBox.style.borderRadius = `${config.radius}px`;
 
-    // Compute light and dark shadow colors
-    const darkShadowColor = lightenDarkenColor(config.bgColor, -35);
-    const lightShadowColor = lightenDarkenColor(config.bgColor, 35);
+    const darkShadowColor = lightenDarkenColor(config.bgColor, -25);
+    const lightShadowColor = lightenDarkenColor(config.bgColor, 25);
 
     let bgStyle = config.bgColor;
     let shadowStyle = '';
@@ -73,10 +69,10 @@ export function mount(container, onCodeChange) {
     } else if (config.shape === 'pressed') {
       shadowStyle = `inset ${config.distance}px ${config.distance}px ${config.blur}px ${darkShadowColor}, inset -${config.distance}px -${config.distance}px ${config.blur}px ${lightShadowColor}`;
     } else if (config.shape === 'convex') {
-      bgStyle = `linear-gradient(145deg, ${lightenDarkenColor(config.bgColor, 12)}, ${lightenDarkenColor(config.bgColor, -12)})`;
+      bgStyle = `linear-gradient(145deg, ${lightenDarkenColor(config.bgColor, 8)}, ${lightenDarkenColor(config.bgColor, -8)})`;
       shadowStyle = `${config.distance}px ${config.distance}px ${config.blur}px ${darkShadowColor}, -${config.distance}px -${config.distance}px ${config.blur}px ${lightShadowColor}`;
     } else if (config.shape === 'concave') {
-      bgStyle = `linear-gradient(145deg, ${lightenDarkenColor(config.bgColor, -12)}, ${lightenDarkenColor(config.bgColor, 12)})`;
+      bgStyle = `linear-gradient(145deg, ${lightenDarkenColor(config.bgColor, -8)}, ${lightenDarkenColor(config.bgColor, 8)})`;
       shadowStyle = `${config.distance}px ${config.distance}px ${config.blur}px ${darkShadowColor}, -${config.distance}px -${config.distance}px ${lightShadowColor}`;
     }
 
@@ -97,9 +93,8 @@ export function mount(container, onCodeChange) {
     controlsStage.innerHTML = '';
 
     const sec = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: '<span>🎚️</span> Soft UI Geometry' }),
+      el('div', { className: 'section-title', textContent: 'Soft UI Geometry' }),
 
-      // Shape buttons
       el('div', { className: 'control-group' }, [
         el('div', { className: 'control-label-row' }, [
           el('span', { className: 'control-label', textContent: 'Shape Type' })
@@ -108,7 +103,7 @@ export function mount(container, onCodeChange) {
           'flat', 'concave', 'convex', 'pressed'
         ].map(s => el('button', {
           className: `btn ${config.shape === s ? 'btn-primary' : 'btn-outline'}`,
-          style: { flex: '1', padding: '6px 4px', fontSize: '0.75rem', textTransform: 'capitalize' },
+          style: { flex: '1', padding: '5px 4px', fontSize: '0.72rem', textTransform: 'capitalize' },
           textContent: s,
           onclick: () => {
             config.shape = s;
@@ -118,15 +113,14 @@ export function mount(container, onCodeChange) {
         })))
       ]),
 
-      createSlider('Size', config.size, 100, 320, (v) => { config.size = v; applyNeumorphism(); }, 'px'),
-      createSlider('Radius', config.radius, 0, 100, (v) => { config.radius = v; applyNeumorphism(); }, 'px'),
-      createSlider('Distance', config.distance, 5, 50, (v) => { config.distance = v; applyNeumorphism(); }, 'px'),
-      createSlider('Blur', config.blur, 10, 80, (v) => { config.blur = v; applyNeumorphism(); }, 'px'),
+      createSlider('Size', config.size, 100, 280, (v) => { config.size = v; applyNeumorphism(); }, 'px'),
+      createSlider('Radius', config.radius, 0, 80, (v) => { config.radius = v; applyNeumorphism(); }, 'px'),
+      createSlider('Distance', config.distance, 4, 36, (v) => { config.distance = v; applyNeumorphism(); }, 'px'),
+      createSlider('Blur', config.blur, 8, 60, (v) => { config.blur = v; applyNeumorphism(); }, 'px'),
 
-      // Color picker
       el('div', { className: 'control-group' }, [
         el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Base Monochromatic Color' }),
+          el('span', { className: 'control-label', textContent: 'Surface Color' }),
           el('span', { className: 'control-value', textContent: config.bgColor })
         ]),
         el('div', { className: 'color-picker-wrapper' }, [
@@ -140,23 +134,7 @@ export function mount(container, onCodeChange) {
           }),
           el('span', { className: 'color-hex-text', textContent: config.bgColor })
         ])
-      ]),
-
-      // Preset colors
-      el('div', { style: { display: 'flex', gap: '8px', marginTop: '12px' } }, [
-        { name: 'Light Slate', hex: '#e0e5ec' },
-        { name: 'Warm Cream', hex: '#f0ece1' },
-        { name: 'Dark Surface', hex: '#262930' }
-      ].map(p => el('button', {
-        className: 'btn btn-outline',
-        style: { flex: '1', fontSize: '0.75rem', padding: '6px' },
-        textContent: p.name,
-        onclick: () => {
-          config.bgColor = p.hex;
-          renderControls();
-          applyNeumorphism();
-        }
-      })))
+      ])
     ]);
 
     controlsStage.appendChild(sec);

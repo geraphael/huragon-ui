@@ -1,11 +1,10 @@
-// All 47 tools registry across 10 categories
+// All 47 tools registry across 10 categories - Clean, professional metadata without emojis
 export const CATEGORIES = [
   {
     id: 'gradients',
     name: 'Gradients & Backgrounds',
-    icon: '🌈',
     tools: [
-      { id: 'mesh-gradient', name: 'Mesh Gradient', desc: 'Organic multi-point radial gradient generator', badge: 'Popular' },
+      { id: 'mesh-gradient', name: 'Mesh Gradient', desc: 'Organic multi-point radial gradient generator' },
       { id: 'gradient-builder', name: 'Linear & Radial Gradient', desc: 'Linear, radial, and conic gradient designer' },
       { id: 'animated-gradient', name: 'Animated Gradient', desc: 'Looping hue-shifting keyframe gradients' }
     ]
@@ -13,9 +12,8 @@ export const CATEGORIES = [
   {
     id: 'effects',
     name: 'Effects & Shadows',
-    icon: '🪟',
     tools: [
-      { id: 'glassmorphism', name: 'Glassmorphism', desc: 'Frosted glass UI with blur, opacity and specular border', badge: 'Hot' },
+      { id: 'glassmorphism', name: 'Glassmorphism', desc: 'Frosted glass UI with blur, opacity and specular border' },
       { id: 'neumorphism', name: 'Neumorphism (Soft UI)', desc: 'Dual-shadow soft tactile UI generator' },
       { id: 'box-shadow', name: 'Box Shadow Layers', desc: 'Multi-layer complex shadow builder' },
       { id: 'css-filters', name: 'CSS Filters', desc: 'Visual filter & backdrop-filter chaining studio' },
@@ -26,9 +24,8 @@ export const CATEGORIES = [
   {
     id: 'shapes',
     name: 'Shapes & Dividers',
-    icon: '🌊',
     tools: [
-      { id: 'svg-wave', name: 'SVG Wave Divider', desc: 'Dynamic flowing SVG section dividers with animation', badge: 'Popular' },
+      { id: 'svg-wave', name: 'SVG Wave Divider', desc: 'Dynamic flowing SVG section dividers with animation' },
       { id: 'svg-blob', name: 'SVG Blob Generator', desc: 'Organic fluid blob shapes with random seeds' },
       { id: 'clip-path', name: 'Clip-Path Polygon', desc: 'Interactive visual polygon & shape clipper' },
       { id: 'border-radius', name: 'Fancy Border Radius', desc: '8-value organic squircle border generator' }
@@ -37,7 +34,6 @@ export const CATEGORIES = [
   {
     id: 'layout',
     name: 'Layout Systems',
-    icon: '📐',
     tools: [
       { id: 'grid-generator', name: 'CSS Grid Studio', desc: 'Visual track and grid-template builder' },
       { id: 'flexbox-playground', name: 'Flexbox Playground', desc: 'Interactive flex alignment and direction tester' }
@@ -46,9 +42,8 @@ export const CATEGORIES = [
   {
     id: 'responsive',
     name: 'Responsive & Preview',
-    icon: '📱',
     tools: [
-      { id: 'responsive-preview', name: 'Device Mockups', desc: 'Real-time Mobile, Tablet, Laptop frame previews', badge: 'New' },
+      { id: 'responsive-preview', name: 'Device Mockups', desc: 'Real-time Mobile, Tablet, Laptop frame previews' },
       { id: 'media-query', name: 'Media Query Builder', desc: 'Responsive breakpoints and container query generator' },
       { id: 'responsive-typography', name: 'Fluid Typography clamp()', desc: 'Fluid viewport-scaled font size calculator' }
     ]
@@ -56,9 +51,8 @@ export const CATEGORIES = [
   {
     id: 'components',
     name: 'UI Components',
-    icon: '🧩',
     tools: [
-      { id: 'button-generator', name: 'Button Studio', desc: 'Multi-state button generator with hover, active, focus & gradients', badge: 'Essential' },
+      { id: 'button-generator', name: 'Button Studio', desc: 'Multi-state button generator with hover, active, focus & gradients' },
       { id: 'card-designer', name: 'Card Designer', desc: 'Modern content, stats and product cards with hover lift' },
       { id: 'navbar-builder', name: 'Navbar Generator', desc: 'Responsive header bars with glass effect and mobile nav' },
       { id: 'form-input-styler', name: 'Input & Form Controls', desc: 'Modern inputs, focus rings and floating labels' },
@@ -73,9 +67,8 @@ export const CATEGORIES = [
   {
     id: 'animations',
     name: 'Animations & Loaders',
-    icon: '🎬',
     tools: [
-      { id: 'loading-spinner', name: 'CSS Spinners & Loaders', desc: 'Pure CSS single-element spinners, bars and pulses', badge: 'Popular' },
+      { id: 'loading-spinner', name: 'CSS Spinners & Loaders', desc: 'Pure CSS single-element spinners, bars and pulses' },
       { id: 'skeleton-screen', name: 'Skeleton Loader', desc: 'Shimmering placeholder UI for asynchronous loading' },
       { id: 'hover-effects', name: 'Hover Effects Library', desc: 'Scale, glow, rotate and border-draw hover micro-interactions' },
       { id: 'keyframe-animator', name: 'Keyframe Timeline', desc: 'Multi-step visual timeline animation builder' },
@@ -85,7 +78,6 @@ export const CATEGORIES = [
   {
     id: 'patterns',
     name: 'Patterns & Textures',
-    icon: '🎯',
     tools: [
       { id: 'background-patterns', name: 'CSS Background Patterns', desc: 'Dots, grids, stripes, chevron and geometric textures' },
       { id: 'noise-texture', name: 'SVG Noise & Grain', desc: 'Subtle film grain and rough textures using SVG turbulence' },
@@ -95,7 +87,6 @@ export const CATEGORIES = [
   {
     id: 'color',
     name: 'Color & Typography',
-    icon: '🎨',
     tools: [
       { id: 'color-palette', name: 'Color Palette Studio', desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
       { id: 'contrast-checker', name: 'WCAG Contrast Checker', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
@@ -105,7 +96,6 @@ export const CATEGORIES = [
   {
     id: 'utilities',
     name: 'CSS Utilities',
-    icon: '🔧',
     tools: [
       { id: 'scrollbar-styler', name: 'Scrollbar Styler', desc: 'WebKit & Firefox custom scrollbars' },
       { id: 'easing-editor', name: 'Cubic-Bezier Easing', desc: 'Draggable physics curve editor with live comparison' },

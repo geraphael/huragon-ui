@@ -5,6 +5,7 @@ import { navigateTo } from './router.js';
 import { copyToClipboard } from './clipboard.js';
 import { highlightCSS } from './highlight.js';
 import { state } from './state.js';
+import { ICONS } from './utils/icons.js';
 
 let latestCode = { css: '', tailwind: '' };
 
@@ -24,7 +25,6 @@ function initTheme() {
   applyTheme(savedTheme);
 
   const themeBtn = qs('#theme-toggle-btn');
-  const themeIcon = qs('#theme-icon');
   if (themeBtn) {
     themeBtn.addEventListener('click', () => {
       const nextTheme = document.body.classList.contains('theme-light') ? 'dark' : 'light';
@@ -34,17 +34,16 @@ function initTheme() {
 }
 
 function applyTheme(theme) {
+  const themeIcon = qs('#theme-icon');
   if (theme === 'light') {
     document.body.classList.remove('theme-dark');
     document.body.classList.add('theme-light');
-    const icon = qs('#theme-icon');
-    if (icon) icon.textContent = '☀️';
+    if (themeIcon) themeIcon.innerHTML = ICONS.sun;
     localStorage.setItem('huragon_theme', 'light');
   } else {
     document.body.classList.remove('theme-light');
     document.body.classList.add('theme-dark');
-    const icon = qs('#theme-icon');
-    if (icon) icon.textContent = '🌙';
+    if (themeIcon) themeIcon.innerHTML = ICONS.moon;
     localStorage.setItem('huragon_theme', 'dark');
   }
 }
@@ -57,8 +56,8 @@ function renderSidebar() {
   CATEGORIES.forEach(cat => {
     const catBox = el('div', { className: 'nav-category' }, [
       el('div', { className: 'category-title' }, [
-        el('span', { textContent: `${cat.icon} ${cat.name}` }),
-        el('span', { style: { fontSize: '0.65rem', opacity: '0.7' }, textContent: cat.tools.length })
+        el('span', { textContent: cat.name }),
+        el('span', { style: { fontSize: '0.65rem', opacity: '0.6' }, textContent: cat.tools.length })
       ])
     ]);
 
@@ -68,13 +67,11 @@ function renderSidebar() {
         'data-tool-id': tool.id,
         onclick: () => {
           location.hash = `#${tool.id}`;
-          // Close sidebar on mobile
           qs('#sidebar').classList.remove('open');
         }
       }, [
-        el('span', { className: 'nav-item-icon', textContent: cat.icon }),
-        el('span', { textContent: tool.name }),
-        tool.badge ? el('span', { className: 'nav-item-badge', textContent: tool.badge }) : null
+        el('span', { className: 'nav-dot' }),
+        el('span', { textContent: tool.name })
       ]);
 
       catBox.appendChild(navItem);
@@ -97,7 +94,6 @@ function renderLandingCategories() {
         location.hash = `#${cat.tools[0].id}`;
       }
     }, [
-      el('div', { className: 'card-icon-bubble', textContent: cat.icon }),
       el('h3', { className: 'feature-card-title', textContent: cat.name }),
       el('p', { className: 'feature-card-desc', textContent: `${cat.tools.length} dedicated design tools & layout generators.` }),
       el('div', { className: 'feature-tool-tags' }, cat.tools.slice(0, 3).map(t => el('span', { className: 'tool-tag', textContent: t.name })))
@@ -116,7 +112,6 @@ function initDeviceSwitcher() {
       btn.classList.add('active');
       const dev = btn.dataset.device;
 
-      // Reset existing device frames
       previewStage.classList.remove('device-frame-mobile', 'device-frame-tablet', 'device-frame-laptop', 'device-frame-desktop');
 
       if (dev !== 'desktop') {
@@ -139,6 +134,7 @@ function initCodeTabs() {
 
   const copyBtn = qs('#copy-code-btn');
   if (copyBtn) {
+    copyBtn.innerHTML = `${ICONS.copy} <span>Copy</span>`;
     copyBtn.addEventListener('click', () => {
       const codeText = state.codeTab === 'tailwind' && latestCode.tailwind
         ? latestCode.tailwind
@@ -166,6 +162,9 @@ function initSearch() {
   const searchInput = qs('#tool-search-input');
   if (!searchInput) return;
 
+  const searchIcon = qs('.search-icon');
+  if (searchIcon) searchIcon.innerHTML = ICONS.search;
+
   searchInput.addEventListener('input', (e) => {
     const q = e.target.value.toLowerCase().trim();
     const navItems = qsa('.nav-item');
@@ -179,7 +178,6 @@ function initSearch() {
     });
   });
 
-  // Shortcut ⌘K / Ctrl+K focus search
   window.addEventListener('keydown', (e) => {
     if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
       e.preventDefault();
@@ -223,6 +221,7 @@ function bindGlobalEvents() {
 
   const mobileToggle = qs('#mobile-toggle-btn');
   if (mobileToggle) {
+    mobileToggle.innerHTML = ICONS.menu;
     mobileToggle.addEventListener('click', () => {
       qs('#sidebar').classList.toggle('open');
     });

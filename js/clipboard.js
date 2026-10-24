@@ -1,13 +1,12 @@
-// Clipboard helper with toast feedback
 import { showToast } from './components/toast.js';
+import { ICONS } from './utils/icons.js';
 
-export async function copyToClipboard(text, customMessage = 'Copied to clipboard!') {
+export async function copyToClipboard(text, customMessage = 'Copied to clipboard') {
   if (!text) return;
   try {
     if (navigator.clipboard && window.isSecureContext) {
       await navigator.clipboard.writeText(text);
     } else {
-      // Fallback for older environments
       const textArea = document.createElement('textarea');
       textArea.value = text;
       textArea.style.position = 'fixed';
@@ -19,9 +18,9 @@ export async function copyToClipboard(text, customMessage = 'Copied to clipboard
       document.execCommand('copy');
       textArea.remove();
     }
-    showToast(customMessage, '📋');
+    showToast(customMessage, ICONS.check);
   } catch (err) {
     console.error('Failed to copy: ', err);
-    showToast('Failed to copy text', '⚠️');
+    showToast('Failed to copy text', ICONS.close);
   }
 }

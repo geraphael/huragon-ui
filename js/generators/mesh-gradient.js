@@ -1,23 +1,23 @@
 // Tool 1: Mesh Gradient Generator
 import { el, qs } from '../utils/dom.js';
 import { randomHex } from '../utils/color.js';
+import { ICONS } from '../utils/icons.js';
 
 export const meta = {
   id: 'mesh-gradient',
-  name: 'Mesh Gradient',
-  icon: '🌈'
+  name: 'Mesh Gradient'
 };
 
 const defaultStops = [
-  { x: 15, y: 20, color: '#8b5cf6', radius: 45 },
-  { x: 80, y: 25, color: '#ec4899', radius: 50 },
-  { x: 30, y: 75, color: '#3b82f6', radius: 45 },
-  { x: 85, y: 80, color: '#06b6d4', radius: 55 },
-  { x: 50, y: 50, color: '#10b981', radius: 40 }
+  { x: 18, y: 22, color: '#3b82f6', radius: 48 },
+  { x: 78, y: 24, color: '#6366f1', radius: 52 },
+  { x: 28, y: 72, color: '#0ea5e9', radius: 46 },
+  { x: 82, y: 78, color: '#8b5cf6', radius: 50 },
+  { x: 50, y: 50, color: '#06b6d4', radius: 44 }
 ];
 
 let stops = [...defaultStops];
-let bgColor = '#090915';
+let bgColor = '#09090b';
 let isDragging = false;
 let activeStopIndex = -1;
 
@@ -25,7 +25,6 @@ export function mount(container, onCodeChange) {
   const previewStage = qs('#preview-stage');
   const controlsStage = qs('#controls-scroll');
 
-  // Preview Canvas Area
   previewStage.innerHTML = '';
   const canvasWrapper = el('div', {
     style: {
@@ -34,7 +33,7 @@ export function mount(container, onCodeChange) {
       position: 'relative',
       borderRadius: 'var(--radius-md)',
       overflow: 'hidden',
-      boxShadow: 'var(--shadow-md)',
+      border: '1px solid var(--border)',
       cursor: 'crosshair',
       userSelect: 'none'
     }
@@ -50,7 +49,6 @@ export function mount(container, onCodeChange) {
   canvasWrapper.appendChild(canvas);
   previewStage.appendChild(canvasWrapper);
 
-  // Resize canvas according to display resolution
   function resizeCanvas() {
     const rect = canvasWrapper.getBoundingClientRect();
     if (rect.width > 0 && rect.height > 0) {
@@ -60,7 +58,6 @@ export function mount(container, onCodeChange) {
     }
   }
 
-  // Render on canvas
   function render() {
     const ctx = canvas.getContext('2d');
     const w = canvas.width;
@@ -86,15 +83,13 @@ export function mount(container, onCodeChange) {
       ctx.fill();
       ctx.restore();
 
-      // Draw indicator handle
+      // Clean handle indicator
       ctx.save();
       ctx.beginPath();
-      ctx.arc(cx, cy, idx === activeStopIndex ? 10 * window.devicePixelRatio : 7 * window.devicePixelRatio, 0, Math.PI * 2);
+      ctx.arc(cx, cy, idx === activeStopIndex ? 8 * window.devicePixelRatio : 5 * window.devicePixelRatio, 0, Math.PI * 2);
       ctx.fillStyle = stop.color;
       ctx.strokeStyle = '#ffffff';
-      ctx.lineWidth = 2.5 * window.devicePixelRatio;
-      ctx.shadowColor = 'rgba(0,0,0,0.5)';
-      ctx.shadowBlur = 8;
+      ctx.lineWidth = 2 * window.devicePixelRatio;
       ctx.fill();
       ctx.stroke();
       ctx.restore();
@@ -103,13 +98,11 @@ export function mount(container, onCodeChange) {
     updateCode();
   }
 
-  // Pointer drag events on canvas
   canvasWrapper.addEventListener('mousedown', (e) => {
     const rect = canvasWrapper.getBoundingClientRect();
     const x = ((e.clientX - rect.left) / rect.width) * 100;
     const y = ((e.clientY - rect.top) / rect.height) * 100;
 
-    // Check hit
     let hitIndex = -1;
     stops.forEach((st, idx) => {
       const dx = st.x - x;
@@ -123,7 +116,6 @@ export function mount(container, onCodeChange) {
       activeStopIndex = hitIndex;
       isDragging = true;
     } else if (stops.length < 8) {
-      // Add new point on click
       stops.push({ x: Math.round(x), y: Math.round(y), color: randomHex(), radius: 45 });
       activeStopIndex = stops.length - 1;
       isDragging = true;
@@ -146,15 +138,14 @@ export function mount(container, onCodeChange) {
     isDragging = false;
   });
 
-  // Controls
   function renderControls() {
     controlsStage.innerHTML = '';
 
     const secGlobal = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: '<span>⚙️</span> Global Settings' }),
+      el('div', { className: 'section-title', textContent: 'Canvas Settings' }),
       el('div', { className: 'control-group' }, [
         el('div', { className: 'control-label-row' }, [
-          el('span', { className: 'control-label', textContent: 'Base Background Color' }),
+          el('span', { className: 'control-label', textContent: 'Base Background' }),
           el('span', { className: 'control-value', textContent: bgColor })
         ]),
         el('div', { className: 'color-picker-wrapper' }, [
@@ -172,7 +163,8 @@ export function mount(container, onCodeChange) {
       el('div', { style: { display: 'flex', gap: '8px', marginTop: '12px' } }, [
         el('button', {
           className: 'btn btn-primary',
-          innerHTML: '🎲 Randomize Colors',
+          style: { flex: '1' },
+          innerHTML: `${ICONS.shuffle} <span>Randomize</span>`,
           onclick: () => {
             stops.forEach(st => st.color = randomHex());
             render();
@@ -181,7 +173,8 @@ export function mount(container, onCodeChange) {
         }),
         el('button', {
           className: 'btn btn-outline',
-          innerHTML: '🔄 Reset',
+          style: { flex: '1' },
+          innerHTML: `${ICONS.refresh} <span>Reset</span>`,
           onclick: () => {
             stops = JSON.parse(JSON.stringify(defaultStops));
             activeStopIndex = 0;
@@ -193,18 +186,17 @@ export function mount(container, onCodeChange) {
     ]);
     controlsStage.appendChild(secGlobal);
 
-    // Color points list
     const secStops = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', innerHTML: `<span>📍</span> Color Points (${stops.length}/8)` })
+      el('div', { className: 'section-title', textContent: `Color Points (${stops.length}/8)` })
     ]);
 
     stops.forEach((st, idx) => {
       const row = el('div', {
         className: 'glass-card',
         style: {
-          padding: '12px',
-          marginBottom: '10px',
-          borderColor: idx === activeStopIndex ? 'var(--accent)' : 'var(--border)'
+          padding: '10px 12px',
+          marginBottom: '8px',
+          borderColor: idx === activeStopIndex ? 'var(--text-muted)' : 'var(--border)'
         }
       }, [
         el('div', { style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' } }, [
@@ -217,11 +209,11 @@ export function mount(container, onCodeChange) {
                 render();
               }
             }),
-            el('span', { style: { fontSize: '0.8rem', fontWeight: '600' }, textContent: `Point #${idx + 1}` })
+            el('span', { style: { fontSize: '0.785rem', fontWeight: '500' }, textContent: `Point ${idx + 1}` })
           ]),
           stops.length > 2 ? el('button', {
             className: 'btn btn-ghost btn-icon',
-            innerHTML: '✕',
+            innerHTML: ICONS.close,
             title: 'Remove point',
             onclick: () => {
               stops.splice(idx, 1);
@@ -231,9 +223,9 @@ export function mount(container, onCodeChange) {
             }
           }) : null
         ]),
-        el('div', { className: 'control-group', style: { marginBottom: '6px' } }, [
+        el('div', { className: 'control-group', style: { marginBottom: '0' } }, [
           el('div', { className: 'control-label-row' }, [
-            el('span', { className: 'control-label', textContent: 'Spread Size' }),
+            el('span', { className: 'control-label', textContent: 'Spread' }),
             el('span', { className: 'control-value', textContent: `${st.radius}%` })
           ]),
           el('input', {
@@ -267,7 +259,7 @@ ${radialLayers};
   background-size: 100% 100%;
 }`;
 
-    const tailwindCode = `/* In your Tailwind config / CSS layer */
+    const tailwindCode = `/* In globals.css */
 .bg-mesh-custom {
   background-color: ${bgColor};
   background-image:
@@ -279,5 +271,5 @@ ${radialLayers};
 
   renderControls();
   window.addEventListener('resize', resizeCanvas);
-  setTimeout(resizeCanvas, 50);
+  setTimeout(resizeCanvas, 40);
 }
