@@ -6,6 +6,7 @@ const generatorsMap = {
   // Gradients
   'mesh-gradient': () => import('./generators/mesh-gradient.js'),
   'gradient-builder': () => import('./generators/gradient-builder.js'),
+  'animated-gradient': () => import('./generators/animated-gradient.js'),
 
   // Effects & Shadows
   'glassmorphism': () => import('./generators/glassmorphism.js'),
@@ -17,27 +18,45 @@ const generatorsMap = {
 
   // Shapes
   'svg-wave': () => import('./generators/svg-wave.js'),
+  'svg-blob': () => import('./generators/svg-blob.js'),
   'clip-path': () => import('./generators/clip-path.js'),
   'border-radius': () => import('./generators/border-radius.js'),
 
   // Layout
+  'grid-generator': () => import('./generators/grid-generator.js'),
   'flexbox-playground': () => import('./generators/flexbox-playground.js'),
+
+  // Responsive
+  'responsive-typography': () => import('./generators/responsive-typography.js'),
 
   // Components
   'button-generator': () => import('./generators/button-generator.js'),
   'card-designer': () => import('./generators/card-designer.js'),
+  'navbar-builder': () => import('./generators/navbar-builder.js'),
+  'form-input-styler': () => import('./generators/form-input-styler.js'),
   'toggle-checkbox': () => import('./generators/toggle-checkbox.js'),
   'tooltip-generator': () => import('./generators/tooltip-generator.js'),
   'badge-tag': () => import('./generators/badge-tag.js'),
+  'avatar-stack': () => import('./generators/avatar-stack.js'),
+  'table-styler': () => import('./generators/table-styler.js'),
+  'divider-separator': () => import('./generators/divider-separator.js'),
 
   // Animations & Loaders
   'loading-spinner': () => import('./generators/loading-spinner.js'),
+  'skeleton-screen': () => import('./generators/skeleton-screen.js'),
+  'hover-effects': () => import('./generators/hover-effects.js'),
+
+  // Color & Accessibility
+  'color-palette': () => import('./generators/color-palette.js'),
+  'contrast-checker': () => import('./generators/contrast-checker.js'),
 
   // Patterns
   'background-patterns': () => import('./generators/background-patterns.js'),
 
   // Utilities
-  'scrollbar-styler': () => import('./generators/scrollbar-styler.js')
+  'scrollbar-styler': () => import('./generators/scrollbar-styler.js'),
+  'easing-editor': () => import('./generators/easing-editor.js'),
+  'color-converter': () => import('./generators/color-converter.js')
 };
 
 export async function navigateTo(toolId, onCodeUpdate) {

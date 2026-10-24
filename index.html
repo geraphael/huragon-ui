@@ -5,7 +5,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Huragon/ui — Design Studio</title>
   <meta name="description" content="Minimalist, professional CSS generator studio for web developers and designers." />
+  <meta name="theme-color" content="#09090b" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="huragon/ui" />
+  <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="icon" type="image/png" sizes="192x192" href="assets/icons/icon-192.png" />
+  <link rel="apple-touch-icon" href="assets/icons/apple-touch-icon.png" />
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -62,6 +70,12 @@
             <button class="device-btn" data-device="tablet" title="Tablet 768px"><span>Tablet</span></button>
             <button class="device-btn" data-device="mobile" title="Mobile 375px"><span>Mobile</span></button>
           </div>
+
+          <!-- PWA Install Button (shown when installable) -->
+          <button class="btn btn-outline" id="pwa-install-btn" style="display:none;" title="Install Huragon UI as Progressive Web App">
+            <span id="pwa-install-icon" style="display:flex;align-items:center;"></span>
+            <span>Install</span>
+          </button>
 
           <!-- Theme Toggle -->
           <button class="btn btn-outline btn-icon" id="theme-toggle-btn" title="Toggle Theme">

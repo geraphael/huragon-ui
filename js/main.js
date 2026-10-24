@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initSearch();
   initRouting();
   bindGlobalEvents();
+  initPWA();
 });
 
 function initTheme() {
@@ -226,4 +227,51 @@ function bindGlobalEvents() {
       qs('#sidebar').classList.toggle('open');
     });
   }
+}
+
+let deferredPWAInstallPrompt = null;
+
+function initPWA() {
+  // Register Service Worker
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js')
+        .then((reg) => {
+          console.log('[PWA] ServiceWorker registered with scope:', reg.scope);
+        })
+        .catch((err) => {
+          console.warn('[PWA] ServiceWorker registration failed:', err);
+        });
+    });
+  }
+
+  // Handle BeforeInstallPrompt event
+  const installBtn = qs('#pwa-install-btn');
+  const installIcon = qs('#pwa-install-icon');
+  if (installIcon) installIcon.innerHTML = ICONS.download;
+
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPWAInstallPrompt = e;
+    if (installBtn) {
+      installBtn.style.display = 'inline-flex';
+    }
+  });
+
+  if (installBtn) {
+    installBtn.addEventListener('click', async () => {
+      if (!deferredPWAInstallPrompt) return;
+      deferredPWAInstallPrompt.prompt();
+      const { outcome } = await deferredPWAInstallPrompt.userChoice;
+      console.log('[PWA] User response to install prompt:', outcome);
+      deferredPWAInstallPrompt = null;
+      installBtn.style.display = 'none';
+    });
+  }
+
+  window.addEventListener('appinstalled', () => {
+    console.log('[PWA] Huragon/ui installed successfully');
+    deferredPWAInstallPrompt = null;
+    if (installBtn) installBtn.style.display = 'none';
+  });
 }
