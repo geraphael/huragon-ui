@@ -78,6 +78,13 @@
         </div>
 
         <div class="top-actions">
+          <!-- Command Palette Trigger Button (HeroUI / shadcn style) -->
+          <button class="top-cmd-trigger" id="top-cmd-btn" title="Open Command Palette (⌘K)">
+            <span id="top-cmd-search-icon" style="display:flex; align-items:center; color:var(--text-dim);"></span>
+            <span class="top-cmd-placeholder">Search components...</span>
+            <kbd class="kbd" style="font-size:0.65rem; padding:1px 5px;">⌘K</kbd>
+          </button>
+
           <!-- Responsive Device Viewport Switcher -->
           <div class="device-preview-bar">
             <button class="device-btn active" data-device="desktop" title="Full Canvas Desktop">
@@ -165,6 +172,7 @@
               <div class="code-tabs">
                 <button class="code-tab active" data-tab="css">CSS</button>
                 <button class="code-tab" data-tab="tailwind">Tailwind / HTML</button>
+                <button class="code-tab" data-tab="react">React / JSX</button>
               </div>
               <div class="code-actions">
                 <button class="btn btn-primary" id="copy-code-btn" style="padding:4px 10px; font-size:0.75rem;">
@@ -177,6 +185,28 @@
         </aside>
       </div>
     </main>
+
+    <!-- Global Command Palette Modal (⌘K Dialog) -->
+    <div id="command-dialog-overlay" class="cmd-dialog-overlay" style="display:none;">
+      <div class="cmd-dialog-box" id="cmd-dialog-box">
+        <div class="cmd-search-row">
+          <span class="cmd-search-icon" id="cmd-search-icon"></span>
+          <input type="text" id="cmd-palette-input" class="cmd-search-input" placeholder="Type a component, tool, or block..." autocomplete="off" />
+          <kbd class="cmd-kbd">ESC</kbd>
+        </div>
+        <div class="cmd-list" id="cmd-palette-list">
+          <!-- Rendered dynamically -->
+        </div>
+        <div class="cmd-footer">
+          <div class="cmd-footer-shortcuts">
+            <span class="cmd-footer-shortcut"><kbd class="kbd">↑</kbd><kbd class="kbd">↓</kbd> <span>Navigate</span></span>
+            <span class="cmd-footer-shortcut"><kbd class="kbd">↵</kbd> <span>Select</span></span>
+            <span class="cmd-footer-shortcut"><kbd class="kbd">ESC</kbd> <span>Close</span></span>
+          </div>
+          <span>huragon/ui studio</span>
+        </div>
+      </div>
+    </div>
 
     <!-- Marketing / Showcase Landing Page (Overlay) -->
     <div id="landing-page-overlay" class="landing-view" style="display:none;">

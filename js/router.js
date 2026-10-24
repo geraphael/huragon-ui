@@ -35,13 +35,17 @@ const generatorsMap = {
   // Components
   'button-generator': () => import('./generators/button-generator.js'),
   'card-designer': () => import('./generators/card-designer.js'),
+  'modal-dialog': () => import('./generators/modal-dialog.js'),
+  'tabs-component': () => import('./generators/tabs-component.js'),
+  'charts-studio': () => import('./generators/charts-studio.js'),
+  'table-styler': () => import('./generators/table-styler.js'),
+  'list-accordion': () => import('./generators/list-accordion.js'),
   'navbar-builder': () => import('./generators/navbar-builder.js'),
   'form-input-styler': () => import('./generators/form-input-styler.js'),
   'toggle-checkbox': () => import('./generators/toggle-checkbox.js'),
   'tooltip-generator': () => import('./generators/tooltip-generator.js'),
   'badge-tag': () => import('./generators/badge-tag.js'),
   'avatar-stack': () => import('./generators/avatar-stack.js'),
-  'table-styler': () => import('./generators/table-styler.js'),
   'divider-separator': () => import('./generators/divider-separator.js'),
 
   // Animations & Loaders

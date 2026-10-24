@@ -387,3 +387,281 @@ input:checked + .slider-toggle::before {
 @keyframes toastOut {
   to { transform: translateY(10px); opacity: 0; }
 }
+
+/* =========================================================
+   HeroUI & shadcn/ui Blocks Design System Additions
+   ========================================================= */
+
+/* HeroUI Button Variants */
+.btn-solid {
+  background: var(--text-main);
+  color: var(--bg-app);
+  border: 1px solid var(--text-main);
+}
+.btn-solid:hover {
+  opacity: 0.92;
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12);
+}
+
+.btn-flat {
+  background: var(--bg-hover);
+  color: var(--text-main);
+  border: 1px solid transparent;
+}
+.btn-flat:hover {
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.btn-faded {
+  background: var(--bg-card);
+  color: var(--text-main);
+  border: 1px solid var(--border);
+}
+.btn-faded:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-card-hover);
+}
+
+.btn-bordered {
+  background: transparent;
+  color: var(--text-main);
+  border: 1.5px solid var(--border-strong);
+}
+.btn-bordered:hover {
+  border-color: var(--text-main);
+}
+
+.btn-light {
+  background: transparent;
+  color: var(--text-muted);
+  border: 1px solid transparent;
+}
+.btn-light:hover {
+  color: var(--text-main);
+  background: var(--bg-hover);
+}
+
+.btn-shadow {
+  background: var(--text-main);
+  color: var(--bg-app);
+  border: 1px solid var(--text-main);
+  box-shadow: 0 4px 16px rgba(255, 255, 255, 0.2);
+}
+
+.btn-loading {
+  position: relative;
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+/* Kbd Badges (shadcn/ui & HeroUI standard) */
+.kbd {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-mono);
+  font-size: 0.72rem;
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--bg-input);
+  border: 1px solid var(--border-strong);
+  color: var(--text-dim);
+  box-shadow: inset 0 -1px 0 var(--border);
+  line-height: 1;
+}
+
+/* HeroUI Animated Tabs */
+.heroui-tab-track {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: var(--bg-input);
+  padding: 4px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  position: relative;
+}
+
+.heroui-tab-button {
+  padding: 6px 14px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  position: relative;
+  z-index: 2;
+}
+
+.heroui-tab-button:hover {
+  color: var(--text-main);
+}
+
+.heroui-tab-button.active {
+  color: var(--text-main);
+  font-weight: 600;
+  background: var(--bg-card);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+}
+
+.heroui-tab-count {
+  font-size: 0.65rem;
+  padding: 1px 6px;
+  border-radius: 999px;
+  background: var(--bg-hover);
+  border: 1px solid var(--border);
+}
+
+/* Underline tab variation */
+.heroui-tab-underline-track {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  border-bottom: 1px solid var(--border);
+  position: relative;
+}
+
+.heroui-tab-underline-btn {
+  padding: 8px 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-dim);
+  background: transparent;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.heroui-tab-underline-btn:hover {
+  color: var(--text-main);
+}
+
+.heroui-tab-underline-btn.active {
+  color: var(--text-main);
+  font-weight: 600;
+  border-bottom-color: var(--text-main);
+}
+
+/* HeroUI / shadcn Interactive Modal */
+.heroui-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 600;
+  padding: 20px;
+  animation: fadeIn 0.16s ease;
+}
+
+.heroui-modal-card {
+  width: 100%;
+  max-width: 520px;
+  background: var(--bg-panel);
+  border: 1px solid var(--border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: 0 20px 48px rgba(0, 0, 0, 0.5);
+  overflow: hidden;
+  animation: modalScaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalScaleIn {
+  from { opacity: 0; transform: scale(0.95) translateY(8px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.heroui-modal-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.heroui-modal-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.heroui-modal-body {
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.heroui-modal-footer {
+  padding: 14px 20px;
+  border-top: 1px solid var(--border);
+  background: var(--bg-card);
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+/* Accordion Component */
+.heroui-accordion {
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  background: var(--bg-card);
+}
+
+.heroui-accordion-item + .heroui-accordion-item {
+  border-top: 1px solid var(--border);
+}
+
+.heroui-accordion-trigger {
+  width: 100%;
+  padding: 14px 18px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  border: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-main);
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.heroui-accordion-trigger:hover {
+  background: var(--bg-hover);
+}
+
+.heroui-accordion-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.heroui-accordion-item.open .heroui-accordion-chevron {
+  transform: rotate(180deg);
+}
+
+.heroui-accordion-content {
+  padding: 0 18px 14px;
+  color: var(--text-muted);
+  font-size: 0.825rem;
+  line-height: 1.55;
+  display: none;
+}
+
+.heroui-accordion-item.open .heroui-accordion-content {
+  display: block;
+}

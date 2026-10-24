@@ -85,6 +85,10 @@ export function mount(container, onCodeChange) {
 
     if (config.preset === 'metric') {
       renderMetricPreset(cardWrapper);
+    } else if (config.preset === 'pricing') {
+      renderPricingPreset(cardWrapper);
+    } else if (config.preset === 'blur') {
+      renderBlurPreset(cardWrapper);
     } else if (config.preset === 'security') {
       renderSecurityPreset(cardWrapper);
     } else if (config.preset === 'ticket') {
@@ -158,6 +162,86 @@ export function mount(container, onCodeChange) {
         setTimeout(() => reportBtn.style.transform = 'none', 120);
       };
     }
+  }
+
+  // Preset 2: HeroUI / shadcn Pricing Tier Block
+  function renderPricingPreset(target) {
+    target.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+        <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim);">Developer Pro</span>
+        <span style="font-size:0.7rem; font-weight:600; padding:2px 8px; border-radius:999px; background:var(--text-main); color:var(--bg-app);">Most Popular</span>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <div style="display:flex; align-items:baseline; gap:4px;">
+          <span style="font-size:2.2rem; font-weight:800; color:var(--text-main); letter-spacing:-0.03em;">$29</span>
+          <span style="font-size:0.825rem; color:var(--text-dim);">/ month</span>
+        </div>
+        <p style="font-size:0.8rem; color:var(--text-muted); line-height:1.45; margin:4px 0 0;">
+          Full access to all 50+ generative tools, priority updates, and commercial production exports.
+        </p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:8px; margin-bottom:20px; padding-top:14px; border-top:1px solid var(--border);">
+        ${[
+          'Unlimited SVG & CSS generator exports',
+          'Production Tailwind & React JSX code snippets',
+          'Commercial license for client projects',
+          'Offline PWA desktop & mobile installation',
+          'Priority Discord community support'
+        ].map(item => `
+          <div style="display:flex; align-items:center; gap:8px; font-size:0.8rem; color:var(--text-muted);">
+            <span style="color:#22c55e; display:flex;">${ICONS.check}</span>
+            <span>${item}</span>
+          </div>
+        `).join('')}
+      </div>
+
+      <button class="btn btn-primary" id="pricing-cta-btn" style="width:100%; padding:10px; font-size:0.85rem; font-weight:600; justify-content:center;">
+        <span>Upgrade to Pro</span>
+      </button>
+    `;
+
+    const btn = target.querySelector('#pricing-cta-btn');
+    if (btn) {
+      btn.onclick = () => {
+        btn.innerHTML = `${ICONS.checkCircle} <span>Active Subscription</span>`;
+        btn.style.background = '#22c55e';
+        btn.style.borderColor = '#22c55e';
+        btn.style.color = '#ffffff';
+      };
+    }
+  }
+
+  // Preset 3: HeroUI Frosted Blur Card
+  function renderBlurPreset(target) {
+    target.innerHTML = `
+      <div style="position:relative; overflow:hidden; border-radius:calc(${config.radius}px - 2px);">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+          <span style="font-size:0.7rem; font-weight:600; padding:2px 8px; border-radius:999px; background:rgba(255, 255, 255, 0.08); border:1px solid var(--border-strong); color:var(--text-main);">
+            Next-Gen Interface
+          </span>
+          <span style="font-size:0.72rem; color:var(--text-dim); font-family:var(--font-mono);">v2.4.0</span>
+        </div>
+
+        <h3 style="font-size:1.15rem; font-weight:700; color:var(--text-main); margin:0 0 8px; letter-spacing:-0.02em;">
+          High-Craft Design Tokens
+        </h3>
+        <p style="font-size:0.825rem; color:var(--text-muted); line-height:1.55; margin:0 0 20px;">
+          Frosted glass surfaces with hardware-accelerated backdrop blur, high dynamic range borders, and responsive light reflection.
+        </p>
+
+        <div style="display:flex; justify-content:space-between; align-items:center; padding-top:14px; border-top:1px solid var(--border);">
+          <div style="display:flex; align-items:center; gap:6px;">
+            <span style="width:8px; height:8px; border-radius:50%; background:#22c55e;"></span>
+            <span style="font-size:0.75rem; color:var(--text-main); font-weight:500;">Zero Runtime Overhead</span>
+          </div>
+          <button class="btn btn-outline" style="padding:4px 10px; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px;">
+            <span>Explore</span> ${ICONS.arrowUpRight}
+          </button>
+        </div>
+      </div>
+    `;
   }
 
   // Preset 2: Cloudflare 2FA Recovery Codes Box (from Screenshot_20261024-200927.jpg)
@@ -235,7 +319,7 @@ export function mount(container, onCodeChange) {
         <div style="display:flex; align-items:center; gap:8px;">
           <span style="font-family:var(--font-mono); font-weight:700; font-size:0.8rem; color:var(--text-dim);">#1062</span>
           <span style="font-size:0.68rem; padding:2px 7px; border-radius:999px; background:rgba(234, 179, 8, 0.12); color:#eab308; border:1px solid rgba(234, 179, 8, 0.25); font-weight:500;">
-            ⏱ 21 min
+            21 min
           </span>
         </div>
         <span style="font-size:0.75rem; color:var(--text-dim); cursor:pointer;">···</span>
@@ -415,6 +499,8 @@ ${config.hoverLift ? `.ui-card:hover {
 
       el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '16px' } }, [
         { id: 'metric', name: 'SaaS Metric' },
+        { id: 'pricing', name: 'Pricing Tier Block' },
+        { id: 'blur', name: 'HeroUI Blur Card' },
         { id: 'security', name: '2FA Recovery Keys' },
         { id: 'ticket', name: 'Kitchen Task' },
         { id: 'template', name: 'Starter Template' },

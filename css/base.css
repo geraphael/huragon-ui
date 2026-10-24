@@ -4,8 +4,18 @@ body {
   background-color: var(--bg-app);
   color: var(--text-main);
   overflow-x: hidden;
-  transition: background-color var(--transition-normal), color var(--transition-normal);
   min-height: 100vh;
+}
+
+/* Smooth global theme switching transitions throughout the app */
+body, #app, #sidebar, #workspace, .top-bar, #preview-stage, #controls-stage, #code-stage,
+.code-header, .code-body, .btn, .nav-item, .category-title, .device-btn, .device-preview-bar,
+.stage-tool-btn, .stage-floating-toolbar, .landing-view, .cmd-dialog-box, input, select, textarea,
+.glass-card, .glass-panel, .feature-category-card, .breadcrumb-trail, .status-pill {
+  transition: background-color 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+              border-color 0.26s cubic-bezier(0.16, 1, 0.3, 1),
+              color 0.2s cubic-bezier(0.16, 1, 0.3, 1),
+              box-shadow 0.26s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 code, pre, kbd {

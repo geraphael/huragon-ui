@@ -48,15 +48,19 @@ export const CATEGORIES = [
     name: 'Components',
     icon: 'box',
     tools: [
-      { id: 'button-generator',  name: 'Button Studio',         icon: 'zap',     desc: 'Multi-state button generator with hover, active, focus & gradients' },
-      { id: 'card-designer',     name: 'Card Designer',         icon: 'box',     desc: 'Modern content, stats and product cards with hover lift' },
+      { id: 'button-generator',  name: 'Button Studio',         icon: 'zap',     desc: 'HeroUI & shadcn buttons with solid, flat, faded & loading states' },
+      { id: 'card-designer',     name: 'Card Designer',         icon: 'box',     desc: 'Modern content, stats, blur glass and pricing cards' },
+      { id: 'modal-dialog',      name: 'Modal & Dialog Studio', icon: 'modal',   desc: 'Interactive dialogs with backdrop blur, alert & slide sheet' },
+      { id: 'tabs-component',    name: 'Tabs & Segmented',      icon: 'tabs',    desc: 'HeroUI animated pill slider, underline & bordered tabs' },
+      { id: 'charts-studio',     name: 'Charts & Graphs',       icon: 'barChart',desc: 'Interactive Area, Bar, Donut charts and sparklines' },
+      { id: 'table-styler',      name: 'Data Table Studio',     icon: 'table',   desc: 'E-commerce & SaaS data table with search, sorting & bulk actions' },
+      { id: 'list-accordion',    name: 'Lists & Accordions',    icon: 'list',    desc: 'Interactive collapsible FAQ accordion & HeroUI listbox' },
       { id: 'navbar-builder',    name: 'Navbar Generator',      icon: 'navbar',  desc: 'Responsive header bars with glass effect and mobile nav' },
       { id: 'form-input-styler', name: 'Input & Form Controls', icon: 'form',    desc: 'Modern inputs, focus rings and floating labels' },
       { id: 'toggle-checkbox',   name: 'Toggle & Checkbox',     icon: 'toggle',  desc: 'Pure CSS iOS/Material toggle switches and custom checks' },
       { id: 'tooltip-generator', name: 'CSS Tooltip Builder',   icon: 'tooltip', desc: 'Pure CSS directional hover tooltips' },
       { id: 'badge-tag',         name: 'Badge & Status Tag',    icon: 'tag',     desc: 'Status pills, notification badges and tags' },
       { id: 'avatar-stack',      name: 'Avatar & Stack',        icon: 'users',   desc: 'User avatars, status indicators and overlapping stacks' },
-      { id: 'table-styler',      name: 'Data Table Studio',     icon: 'table',   desc: 'Modern striped, bordered and sticky header tables' },
       { id: 'divider-separator', name: 'Section Dividers',      icon: 'divider', desc: 'Ornate and minimal CSS horizontal separators' }
     ]
   },

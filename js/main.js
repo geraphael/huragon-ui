@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initStageToolbar();
   initCodeTabs();
   initSearch();
+  initCommandPalette();
   initRouting();
   bindGlobalEvents();
   initPWA();
@@ -292,12 +293,26 @@ function initCodeTabs() {
   if (copyBtn) {
     copyBtn.innerHTML = `${ICONS.copy} <span>Copy</span>`;
     copyBtn.addEventListener('click', () => {
-      const codeText = state.codeTab === 'tailwind' && latestCode.tailwind
-        ? latestCode.tailwind
-        : latestCode.css;
+      let codeText = latestCode.css;
+      if (state.codeTab === 'tailwind') {
+        codeText = latestCode.tailwind || latestCode.css;
+      } else if (state.codeTab === 'react') {
+        codeText = getReactCodeSnippet();
+      }
       copyToClipboard(codeText);
     });
   }
+}
+
+function getReactCodeSnippet() {
+  if (latestCode.react) return latestCode.react;
+  const rawHtml = latestCode.tailwind || latestCode.html || '';
+  if (rawHtml) {
+    // Convert class to className for React
+    const reactJsx = rawHtml.replace(/\bclass=/g, 'className=');
+    return `import React from 'react';\n\nexport default function Component() {\n  return (\n    ${reactJsx}\n  );\n}`;
+  }
+  return `/* CSS Snippet */\n${latestCode.css}`;
 }
 
 function onCodeChange(codeObj) {
@@ -308,10 +323,152 @@ function onCodeChange(codeObj) {
 function renderCurrentCode() {
   const codeBody = qs('#code-output-body');
   if (!codeBody) return;
-  const rawCode = state.codeTab === 'tailwind' && latestCode.tailwind
-    ? latestCode.tailwind
-    : latestCode.css;
+  let rawCode = latestCode.css;
+  if (state.codeTab === 'tailwind') {
+    rawCode = latestCode.tailwind || latestCode.css;
+  } else if (state.codeTab === 'react') {
+    rawCode = getReactCodeSnippet();
+  }
   codeBody.innerHTML = `<code>${highlightCSS(rawCode)}</code>`;
+}
+
+function initCommandPalette() {
+  const overlay = qs('#command-dialog-overlay');
+  const input = qs('#cmd-palette-input');
+  const list = qs('#cmd-palette-list');
+  const cmdSearchIcon = qs('#cmd-search-icon');
+  const topCmdBtn = qs('#top-cmd-btn');
+  const topCmdIcon = qs('#top-cmd-search-icon');
+
+  if (cmdSearchIcon) cmdSearchIcon.innerHTML = ICONS.search;
+  if (topCmdIcon) topCmdIcon.innerHTML = ICONS.search;
+
+  let selectedIndex = 0;
+  let filteredTools = [];
+
+  function openPalette() {
+    if (!overlay || !input) return;
+    overlay.style.display = 'flex';
+    input.value = '';
+    renderFilteredTools('');
+    setTimeout(() => input.focus(), 50);
+  }
+
+  function closePalette() {
+    if (!overlay) return;
+    overlay.style.display = 'none';
+  }
+
+  function renderFilteredTools(query) {
+    if (!list) return;
+    const q = query.toLowerCase().trim();
+    filteredTools = [];
+
+    CATEGORIES.forEach(cat => {
+      cat.tools.forEach(tool => {
+        if (!q || tool.name.toLowerCase().includes(q) || cat.name.toLowerCase().includes(q)) {
+          filteredTools.push({ ...tool, categoryName: cat.name, categoryIcon: cat.icon });
+        }
+      });
+    });
+
+    selectedIndex = 0;
+    list.innerHTML = '';
+
+    if (filteredTools.length === 0) {
+      list.innerHTML = `<div style="padding:24px; text-align:center; color:var(--text-dim); font-size:0.8rem;">No tools or components found matching &ldquo;${query}&rdquo;</div>`;
+      return;
+    }
+
+    // Group items by category
+    const grouped = {};
+    filteredTools.forEach(t => {
+      if (!grouped[t.categoryName]) grouped[t.categoryName] = [];
+      grouped[t.categoryName].push(t);
+    });
+
+    let globalIdx = 0;
+    Object.keys(grouped).forEach(catName => {
+      const groupEl = el('div', { className: 'cmd-group-label', textContent: catName });
+      list.appendChild(groupEl);
+
+      grouped[catName].forEach(tool => {
+        const itemIdx = globalIdx++;
+        const iconSvg = ICONS[tool.icon] || ICONS[tool.categoryIcon] || ICONS.sliders;
+        const itemEl = el('div', {
+          className: `cmd-item ${itemIdx === selectedIndex ? 'selected' : ''}`,
+          'data-tool-id': tool.id,
+          onclick: () => {
+            location.hash = `#${tool.id}`;
+            closePalette();
+          }
+        }, [
+          el('div', { className: 'cmd-item-left' }, [
+            el('span', { className: 'cmd-item-icon', innerHTML: iconSvg }),
+            el('span', { textContent: tool.name })
+          ]),
+          el('span', { className: 'cmd-item-cat', textContent: catName })
+        ]);
+        list.appendChild(itemEl);
+      });
+    });
+  }
+
+  if (input) {
+    input.addEventListener('input', (e) => {
+      renderFilteredTools(e.target.value);
+    });
+
+    input.addEventListener('keydown', (e) => {
+      const items = list ? list.querySelectorAll('.cmd-item') : [];
+      if (items.length === 0) return;
+
+      if (e.key === 'ArrowDown') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex + 1) % items.length;
+        updateSelection(items);
+      } else if (e.key === 'ArrowUp') {
+        e.preventDefault();
+        selectedIndex = (selectedIndex - 1 + items.length) % items.length;
+        updateSelection(items);
+      } else if (e.key === 'Enter') {
+        e.preventDefault();
+        if (items[selectedIndex]) {
+          items[selectedIndex].click();
+        }
+      } else if (e.key === 'Escape') {
+        closePalette();
+      }
+    });
+  }
+
+  function updateSelection(items) {
+    items.forEach((it, idx) => {
+      it.classList.toggle('selected', idx === selectedIndex);
+      if (idx === selectedIndex) {
+        it.scrollIntoView({ block: 'nearest' });
+      }
+    });
+  }
+
+  if (overlay) {
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) closePalette();
+    });
+  }
+
+  if (topCmdBtn) {
+    topCmdBtn.addEventListener('click', openPalette);
+  }
+
+  window.addEventListener('keydown', (e) => {
+    if ((e.metaKey || e.ctrlKey) && e.key === 'k') {
+      e.preventDefault();
+      openPalette();
+    } else if (e.key === 'Escape' && overlay && overlay.style.display !== 'none') {
+      closePalette();
+    }
+  });
 }
 
 function initSearch() {

@@ -1,5 +1,5 @@
-// Huragon/ui Service Worker - v3.0.0 (Polished Interactive UI)
-const CACHE_NAME = 'huragon-ui-v3';
+// Huragon/ui Service Worker - v4.0.0 (HeroUI & shadcn/ui Blocks Design Redesign)
+const CACHE_NAME = 'huragon-ui-v4';
 
 const STATIC_PRECACHE = [
   './',
@@ -45,6 +45,11 @@ const STATIC_PRECACHE = [
   './js/generators/responsive-typography.js',
   './js/generators/button-generator.js',
   './js/generators/card-designer.js',
+  './js/generators/modal-dialog.js',
+  './js/generators/tabs-component.js',
+  './js/generators/charts-studio.js',
+  './js/generators/table-styler.js',
+  './js/generators/list-accordion.js',
   './js/generators/navbar-builder.js',
   './js/generators/form-input-styler.js',
   './js/generators/toggle-checkbox.js',

@@ -73,6 +73,8 @@ export function mount(container, onCodeChange) {
 
     if (config.type === 'action') {
       renderActionButton(mountContainer);
+    } else if (config.type === 'heroui') {
+      renderHeroUIVariants(mountContainer);
     } else if (config.type === 'segmented') {
       renderSegmentedPills(mountContainer);
     } else if (config.type === 'split') {
@@ -82,6 +84,72 @@ export function mount(container, onCodeChange) {
     }
 
     updateCode();
+  }
+
+  // HeroUI & shadcn Button Palette Gallery
+  function renderHeroUIVariants(target) {
+    const grid = el('div', {
+      style: {
+        display: 'grid',
+        gridTemplateColumns: 'repeat(3, 1fr)',
+        gap: '14px',
+        width: '100%',
+        maxWidth: '520px'
+      }
+    });
+
+    const variants = [
+      { name: 'Solid', class: 'btn-solid', desc: 'Primary High-contrast' },
+      { name: 'Flat', class: 'btn-flat', desc: 'Soft Elevated Background' },
+      { name: 'Faded', class: 'btn-faded', desc: 'Subtle Surface Border' },
+      { name: 'Bordered', class: 'btn-bordered', desc: '1.5px Geometric Outline' },
+      { name: 'Light', class: 'btn-light', desc: 'Transparent Hover Fill' },
+      { name: 'Loading', class: 'btn-solid btn-loading', desc: 'Async Spinner State' }
+    ];
+
+    variants.forEach(v => {
+      const card = el('div', {
+        style: {
+          padding: '16px 12px',
+          background: 'var(--bg-card)',
+          border: '1px solid var(--border)',
+          borderRadius: `${config.radius}px`,
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '10px',
+          boxShadow: 'var(--shadow-sm)'
+        }
+      });
+
+      const b = el('button', {
+        className: `btn ${v.class}`,
+        style: {
+          padding: `${config.paddingY}px ${config.paddingX}px`,
+          borderRadius: `${config.radius}px`,
+          fontSize: `${config.fontSize}px`,
+          fontWeight: config.fontWeight
+        }
+      });
+
+      if (v.name === 'Loading') {
+        b.innerHTML = `<span style="width:14px; height:14px; border:2px solid currentColor; border-right-color:transparent; border-radius:50%; animation:btnSpin 0.75s linear infinite; display:inline-block;"></span> <span>Saving...</span>`;
+      } else {
+        b.innerHTML = `<span>${v.name}</span>`;
+      }
+
+      b.onmousedown = (e) => {
+        b.style.transform = 'scale(0.96)';
+        createRipple(e, b);
+      };
+      b.onmouseup = () => { b.style.transform = 'scale(1)'; };
+
+      card.appendChild(b);
+      card.appendChild(el('span', { style: { fontSize: '0.68rem', color: 'var(--text-dim)', textAlign: 'center' }, textContent: v.desc }));
+      grid.appendChild(card);
+    });
+
+    target.appendChild(grid);
   }
 
   // 1. Action Button with ripple
@@ -398,6 +466,7 @@ export function mount(container, onCodeChange) {
       el('div', { className: 'section-title', textContent: 'Button Archetype' }),
 
       el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '16px' } }, [
+        { id: 'heroui', name: 'HeroUI Palette' },
         { id: 'action', name: 'Action Ripple' },
         { id: 'segmented', name: 'Segmented Pill' },
         { id: 'split', name: 'Split Dropdown' },
