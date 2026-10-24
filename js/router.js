@@ -3,16 +3,41 @@ import { qs } from './utils/dom.js';
 import { getToolMeta } from './tools-registry.js';
 
 const generatorsMap = {
+  // Gradients
   'mesh-gradient': () => import('./generators/mesh-gradient.js'),
   'gradient-builder': () => import('./generators/gradient-builder.js'),
+
+  // Effects & Shadows
   'glassmorphism': () => import('./generators/glassmorphism.js'),
   'box-shadow': () => import('./generators/box-shadow.js'),
+  'css-filters': () => import('./generators/css-filters.js'),
+  'text-effects': () => import('./generators/text-effects.js'),
+  'transform-3d': () => import('./generators/transform-3d.js'),
+  'neumorphism': () => import('./generators/neumorphism.js'),
+
+  // Shapes
   'svg-wave': () => import('./generators/svg-wave.js'),
+  'clip-path': () => import('./generators/clip-path.js'),
+  'border-radius': () => import('./generators/border-radius.js'),
+
+  // Layout
+  'flexbox-playground': () => import('./generators/flexbox-playground.js'),
+
+  // Components
   'button-generator': () => import('./generators/button-generator.js'),
   'card-designer': () => import('./generators/card-designer.js'),
   'toggle-checkbox': () => import('./generators/toggle-checkbox.js'),
-  'neumorphism': () => import('./generators/neumorphism.js'),
-  'loading-spinner': () => import('./generators/loading-spinner.js')
+  'tooltip-generator': () => import('./generators/tooltip-generator.js'),
+  'badge-tag': () => import('./generators/badge-tag.js'),
+
+  // Animations & Loaders
+  'loading-spinner': () => import('./generators/loading-spinner.js'),
+
+  // Patterns
+  'background-patterns': () => import('./generators/background-patterns.js'),
+
+  // Utilities
+  'scrollbar-styler': () => import('./generators/scrollbar-styler.js')
 };
 
 export async function navigateTo(toolId, onCodeUpdate) {
