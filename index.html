@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Huragon/ui — The Ultimate CSS Design Studio</title>
+  <meta name="description" content="Explore 47+ interactive CSS tools: mesh gradients, glassmorphism, multi-layer shadows, SVG waves, buttons, spinners, and responsive layouts." />
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  
+  <link rel="stylesheet" href="css/reset.css" />
+  <link rel="stylesheet" href="css/tokens.css" />
+  <link rel="stylesheet" href="css/base.css" />
+  <link rel="stylesheet" href="css/layout.css" />
+  <link rel="stylesheet" href="css/components.css" />
+  <link rel="stylesheet" href="css/landing.css" />
+</head>
+<body class="theme-dark">
+  <div id="app">
+    <!-- Sidebar Navigation -->
+    <aside id="sidebar">
+      <div class="sidebar-header">
+        <div class="brand-badge" style="cursor: pointer;" id="brand-home-btn">
+          <img src="assets/favicon.svg" alt="Huragon UI Logo" />
+          <span class="brand-name">Huragon/ui</span>
+        </div>
+        <span class="version-tag">v1.0</span>
+      </div>
+
+      <div class="sidebar-search-box">
+        <div class="search-input-wrapper">
+          <span class="search-icon">🔍</span>
+          <input type="text" id="tool-search-input" placeholder="Search 47 generators..." autocomplete="off" />
+          <span class="search-shortcut">⌘K</span>
+        </div>
+      </div>
+
+      <div class="sidebar-nav" id="sidebar-nav-container">
+        <!-- Rendered via main.js from tools-registry.js -->
+      </div>
+    </aside>
+
+    <!-- Main Workspace -->
+    <main id="workspace">
+      <!-- Top Navigation & Controls Bar -->
+      <header class="top-bar">
+        <div style="display:flex; align-items:center; gap:12px;">
+          <button class="mobile-nav-toggle" id="mobile-toggle-btn" aria-label="Toggle menu">☰</button>
+          <div class="tool-info">
+            <h1 class="tool-title" id="current-tool-title"><span>🌈</span> Mesh Gradient</h1>
+            <span class="tool-desc" id="current-tool-desc">Multi-point radial gradient generator</span>
+          </div>
+        </div>
+
+        <div class="top-actions">
+          <!-- Responsive Device Viewport Switcher -->
+          <div class="device-preview-bar">
+            <button class="device-btn active" data-device="desktop" title="Full Canvas Desktop">🖥️ <span>Full</span></button>
+            <button class="device-btn" data-device="laptop" title="Laptop 1024px">💻 <span>Laptop</span></button>
+            <button class="device-btn" data-device="tablet" title="Tablet 768px">📲 <span>Tablet</span></button>
+            <button class="device-btn" data-device="mobile" title="Mobile 375px">📱 <span>Mobile</span></button>
+          </div>
+
+          <!-- Theme Toggle -->
+          <button class="btn btn-outline btn-icon" id="theme-toggle-btn" title="Toggle Light/Dark Theme">
+            <span id="theme-icon">🌙</span>
+          </button>
+
+          <!-- Home landing toggle -->
+          <button class="btn btn-outline" id="view-landing-btn">
+            <span>✨</span> <span>Overview</span>
+          </button>
+
+          <!-- Public GitHub Repo Link -->
+          <a href="https://github.com" target="_blank" rel="noopener noreferrer" class="btn btn-primary" style="text-decoration:none;">
+            <span>⭐</span> <span>GitHub</span>
+          </a>
+        </div>
+      </header>
+
+      <!-- Center Stage Split (Live Preview & Controls Column) -->
+      <div class="workspace-content">
+        <!-- Left: Live Preview Canvas Area -->
+        <section id="preview-stage" class="bg-grid-pattern">
+          <!-- Tool preview rendered dynamically -->
+        </section>
+
+        <!-- Right: Control Sliders & Code Output -->
+        <aside id="controls-stage">
+          <div class="controls-scroll" id="controls-scroll">
+            <!-- Tool controls rendered dynamically -->
+          </div>
+
+          <!-- Code Output Panel Docked at Bottom -->
+          <div id="code-stage">
+            <div class="code-header">
+              <div class="code-tabs">
+                <button class="code-tab active" data-tab="css">CSS</button>
+                <button class="code-tab" data-tab="tailwind">Tailwind / HTML</button>
+              </div>
+              <div class="code-actions">
+                <button class="btn btn-primary" id="copy-code-btn" style="padding:4px 10px; font-size:0.75rem;">
+                  <span>📋</span> <span>Copy Code</span>
+                </button>
+              </div>
+            </div>
+            <pre class="code-body" id="code-output-body"><code>/* Loading CSS snippet... */</code></pre>
+          </div>
+        </aside>
+      </div>
+    </main>
+
+    <!-- Marketing / Showcase Landing Page (Overlay) -->
+    <div id="landing-page-overlay" class="landing-view" style="display:none;">
+      <header style="padding:20px 32px; display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid var(--border);">
+        <div class="brand-badge">
+          <img src="assets/favicon.svg" alt="Huragon/ui" />
+          <span class="brand-name">Huragon/ui</span>
+        </div>
+        <div style="display:flex; gap:12px;">
+          <button class="btn btn-primary" id="close-landing-btn">Open Studio Dashboard →</button>
+        </div>
+      </header>
+
+      <section class="landing-hero">
+        <div class="hero-glow-bg"></div>
+        <div class="hero-content">
+          <div class="hero-pill">
+            <span>🚀 47 Interactive Generators & Tools</span>
+          </div>
+          <h1 class="hero-title">
+            The Ultimate <span class="hero-title-gradient">CSS Design Studio</span>
+          </h1>
+          <p class="hero-subtitle">
+            Say goodbye to 15 different bookmark tabs. Create complex mesh gradients, frosted glassmorphism, multi-layer shadows, SVG waves, and responsive layout systems in one unified studio.
+          </p>
+          <div class="hero-cta-group">
+            <button class="btn btn-primary btn-hero" id="hero-start-btn">Start Creating Now ⚡</button>
+            <a href="https://github.com" target="_blank" class="btn btn-outline btn-hero">View On GitHub ⭐</a>
+          </div>
+        </div>
+      </section>
+
+      <section class="landing-features">
+        <div class="features-header">
+          <h2 class="features-title">10 Distinct Categories, Zero Bloat</h2>
+          <p class="features-subtitle">All powered by vanilla browser APIs. Lightning fast, zero bundler latency.</p>
+        </div>
+        <div class="categories-showcase-grid" id="landing-categories-grid">
+          <!-- Filled dynamically via main.js -->
+        </div>
+      </section>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toast-container"></div>
+  </div>
+
+  <script type="module" src="js/main.js"></script>
+</body>
+</html>

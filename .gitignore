@@ -1,0 +1,10 @@
+# Project-specific / local ignore
+HURAGON_UI_PLAN.md
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+*.swp
+*.log
