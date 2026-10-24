@@ -1272,3 +1272,60 @@ body.theme-light .cmd-dialog-overlay {
     padding: 56px 14px 20px;
   }
 }
+
+/* -- Favourite / Pinned Tools ----------------------------------------------- */
+.nav-item-star {
+  display: none;
+  margin-left: auto;
+  padding: 2px 4px;
+  color: var(--text-dim);
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: 4px;
+  line-height: 1;
+  transition: color 0.15s, opacity 0.15s;
+  flex-shrink: 0;
+}
+.nav-item:hover .nav-item-star,
+.nav-item-star.starred {
+  display: flex;
+  align-items: center;
+}
+.nav-item-star.starred {
+  color: var(--text-primary);
+}
+.nav-item-star:hover {
+  color: var(--text-primary);
+  background: var(--surface-2);
+}
+#sidebar.collapsed .nav-item-star {
+  display: none !important;
+}
+.nav-pinned-section {
+  padding: 8px 8px 0;
+}
+.nav-pinned-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px 6px;
+  font-size: 0.65rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  user-select: none;
+}
+.nav-pinned-empty {
+  padding: 6px 10px 10px;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+.nav-pinned-list .nav-item {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  margin-bottom: 3px;
+}

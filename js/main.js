@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', () => {
   initTheme();
   initSidebar();
   renderSidebar();
+  initFavourites();
   renderLandingCategories();
   initDeviceSwitcher();
   initStageToolbar();
@@ -87,6 +88,105 @@ function initSidebar() {
   }
 }
 
+// ─── Favourites & Pinned Tools ──────────────────────────────────────────────
+function getFavourites() {
+  try {
+    return JSON.parse(localStorage.getItem('huragon_favourites') || '[]');
+  } catch (_) {
+    return [];
+  }
+}
+
+function saveFavourites(favs) {
+  localStorage.setItem('huragon_favourites', JSON.stringify(favs));
+}
+
+function initFavourites() {
+  renderPinnedSection();
+}
+
+function renderPinnedSection() {
+  const container = qs('#sidebar-nav-container');
+  if (!container) return;
+
+  const existing = qs('#nav-pinned-section');
+  if (existing) existing.remove();
+
+  const favs = getFavourites();
+  if (favs.length === 0) return;
+
+  const pinnedSection = el('div', { id: 'nav-pinned-section', className: 'nav-pinned-section' });
+
+  const header = el('div', { className: 'nav-pinned-header' }, [
+    el('span', { innerHTML: ICONS.pin, style: 'display:flex;align-items:center;' }),
+    el('span', { textContent: 'Pinned' }),
+    el('span', { className: 'cat-count', textContent: favs.length, style: 'margin-left:auto;' })
+  ]);
+  pinnedSection.appendChild(header);
+
+  const list = el('div', { className: 'nav-pinned-list' });
+
+  favs.forEach(toolId => {
+    let toolData = null;
+    let catData = null;
+    for (const cat of CATEGORIES) {
+      const t = cat.tools.find(item => item.id === toolId);
+      if (t) {
+        toolData = t;
+        catData = cat;
+        break;
+      }
+    }
+    if (!toolData) return;
+
+    const iconSvg = ICONS[toolData.icon] || ICONS[catData.icon] || ICONS.sliders;
+    const currentActive = location.hash === `#${toolId}`;
+
+    const removeBtn = el('button', {
+      className: 'nav-item-star starred',
+      title: 'Unpin this tool',
+      innerHTML: ICONS.starFilled
+    });
+
+    removeBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      const current = getFavourites().filter(id => id !== toolId);
+      saveFavourites(current);
+      renderPinnedSection();
+      const mainStar = qs(`.nav-item[data-tool-id="${toolId}"] .nav-item-star`);
+      if (mainStar) {
+        mainStar.classList.remove('starred');
+        mainStar.innerHTML = ICONS.star;
+        mainStar.title = 'Pin this tool';
+      }
+    });
+
+    const item = el('div', {
+      className: 'nav-item' + (currentActive ? ' active' : ''),
+      'data-tool-id': toolId,
+      'data-tooltip': `${toolData.name}`,
+      onclick: () => {
+        location.hash = `#${toolId}`;
+        const sidebar = qs('#sidebar');
+        if (sidebar && window.innerWidth <= 768) {
+          sidebar.classList.remove('open');
+          const backdrop = qs('#sidebar-backdrop');
+          if (backdrop) backdrop.style.display = 'none';
+        }
+      }
+    }, [
+      el('span', { className: 'nav-item-icon', innerHTML: iconSvg }),
+      el('span', { className: 'nav-text', textContent: toolData.name }),
+      removeBtn
+    ]);
+
+    list.appendChild(item);
+  });
+
+  pinnedSection.appendChild(list);
+  container.insertBefore(pinnedSection, container.firstChild);
+}
+
 function renderSidebar() {
   const container = qs('#sidebar-nav-container');
   if (!container) return;
@@ -138,6 +238,35 @@ function renderSidebar() {
         el('span', { className: 'nav-item-icon', innerHTML: toolIconSvg }),
         el('span', { className: 'nav-text', textContent: tool.name })
       ]);
+
+      // Star / favourite button
+      const favs = getFavourites();
+      const isStarred = favs.includes(tool.id);
+      const starBtn = el('button', {
+        className: 'nav-item-star' + (isStarred ? ' starred' : ''),
+        title: isStarred ? 'Remove from pinned' : 'Pin this tool',
+        innerHTML: isStarred ? ICONS.starFilled : ICONS.star
+      });
+      starBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const currentFavs = getFavourites();
+        const alreadyStarred = currentFavs.includes(tool.id);
+        let newFavs;
+        if (alreadyStarred) {
+          newFavs = currentFavs.filter(id => id !== tool.id);
+        } else {
+          if (currentFavs.length >= 8) return; // max 8
+          newFavs = [...currentFavs, tool.id];
+        }
+        saveFavourites(newFavs);
+        const nowStarred = newFavs.includes(tool.id);
+        starBtn.classList.toggle('starred', nowStarred);
+        starBtn.innerHTML = nowStarred ? ICONS.starFilled : ICONS.star;
+        starBtn.title = nowStarred ? 'Remove from pinned' : 'Pin this tool';
+        renderPinnedSection();
+      });
+      navItem.appendChild(starBtn);
+
       toolsList.appendChild(navItem);
     });
 
@@ -556,6 +685,15 @@ function bindGlobalEvents() {
 
   const ghHeaderIcon = qs('#github-header-icon');
   if (ghHeaderIcon) ghHeaderIcon.innerHTML = ICONS.github;
+
+  const shareBtn = qs('#share-url-btn');
+  const shareIcon = qs('#share-url-icon');
+  if (shareIcon) shareIcon.innerHTML = ICONS.link;
+  if (shareBtn) {
+    shareBtn.addEventListener('click', () => {
+      copyToClipboard(window.location.href, 'Link copied to clipboard!');
+    });
+  }
 }
 
 // ─── Mobile Bottom Navigation ────────────────────────────────────────────────
