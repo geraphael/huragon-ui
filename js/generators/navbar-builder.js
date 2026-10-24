@@ -1,4 +1,4 @@
-// Tool: Modern Responsive Navbar Generator
+// Tool: HeroUI & shadcn/ui Navbar & Header Studio
 import { el, qs } from '../utils/dom.js';
 import { ICONS } from '../utils/icons.js';
 
@@ -8,15 +8,16 @@ export const meta = {
 };
 
 let config = {
-  style: 'glass', // 'glass', 'solid', 'floating'
+  archetype: 'floating', // 'floating', 'saas', 'megamenu', 'minimal'
+  brandText: 'Huragon Studio',
+  blur: 16,
+  opacity: 0.85,
+  radius: 999,
   sticky: true,
-  blurAmount: 12,
-  bgOpacity: 0.85,
-  borderBottom: true,
-  brandText: 'Acme UI',
-  linksAlignment: 'center', // 'center', 'right'
-  paddingY: 14,
-  ctaText: 'Get Started'
+  border: true,
+  mobilePreview: false,
+  mobileDrawerOpen: false,
+  openDropdown: null // 'solutions' or 'profile' or null
 };
 
 export function mount(container, onCodeChange) {
@@ -26,269 +27,528 @@ export function mount(container, onCodeChange) {
   previewStage.innerHTML = '';
 
   const centerStage = el('div', {
-    id: 'navbar-preview-container',
+    id: 'navbar-stage-root',
     style: {
       width: '100%',
-      height: '100%',
+      minHeight: '100%',
+      display: 'flex',
+      flexDirection: 'column',
+      alignItems: 'center',
       position: 'relative',
-      borderRadius: 'var(--radius-md)',
+      borderRadius: 'var(--radius-lg)',
       overflow: 'hidden',
-      background: 'var(--bg-main)',
-      border: '1px solid var(--border)'
+      background: 'var(--bg-app)',
+      border: '1px solid var(--border)',
+      boxShadow: 'var(--shadow-md)'
     }
   });
 
   previewStage.appendChild(centerStage);
 
-  // Controls
-  controlsStage.innerHTML = '';
+  renderNavbarStage();
 
-  const section = el('div', { className: 'control-section' }, [
-    el('div', { className: 'control-section-header' }, [
-      el('h4', { className: 'control-section-title', textContent: 'Navbar Style' })
-    ]),
-    el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '8px', marginBottom: '16px' } }, [
-      createStyleBtn('Frosted Glass', 'glass'),
-      createStyleBtn('Solid Zinc', 'solid'),
-      createStyleBtn('Floating Island', 'floating')
-    ]),
+  function renderNavbarStage() {
+    centerStage.innerHTML = '';
 
-    el('div', { className: 'control-section-header' }, [
-      el('h4', { className: 'control-section-title', textContent: 'Dimensions & Blur' })
-    ]),
-    createSlider('Vertical Padding', 8, 24, 2, config.paddingY, 'px', (v) => {
-      config.paddingY = v;
-      update();
-    }),
-    createSlider('Backdrop Blur', 0, 24, 2, config.blurAmount, 'px', (v) => {
-      config.blurAmount = v;
-      update();
-    }),
-    createSlider('Background Opacity', 0.2, 1.0, 0.05, config.bgOpacity, '', (v) => {
-      config.bgOpacity = v;
-      update();
-    }),
-
-    el('div', { className: 'control-section-header', style: { marginTop: '16px' } }, [
-      el('h4', { className: 'control-section-title', textContent: 'Layout & Options' })
-    ]),
-    createToggle('Sticky to Top', config.sticky, (v) => {
-      config.sticky = v;
-      update();
-    }),
-    createToggle('Bottom Border Divider', config.borderBottom, (v) => {
-      config.borderBottom = v;
-      update();
-    })
-  ]);
-
-  controlsStage.appendChild(section);
-
-  function createStyleBtn(label, st) {
-    return el('button', {
-      className: `btn btn-outline ${config.style === st ? 'active' : ''}`,
-      style: { fontSize: '0.75rem', padding: '6px 8px' },
-      textContent: label,
-      onclick: (e) => {
-        config.style = st;
-        controlsStage.querySelectorAll('.btn-outline').forEach(b => {
-          if (['Frosted Glass', 'Solid Zinc', 'Floating Island'].includes(b.textContent.trim())) {
-            b.classList.remove('active');
-          }
-        });
-        e.currentTarget.classList.add('active');
-        update();
+    // Outer mock browser frame / viewport container
+    const viewportContainer = el('div', {
+      style: {
+        width: '100%',
+        minHeight: '480px',
+        position: 'relative',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        background: 'var(--bg-app)'
       }
     });
-  }
 
-  function update() {
-    renderNavbar(centerStage);
-    generateCode();
-  }
-
-  function renderNavbar(target) {
-    let navStyle = '';
-    let containerStyle = '';
-
-    if (config.style === 'glass') {
-      navStyle = `
-        background: rgba(18, 18, 22, ${config.bgOpacity});
-        backdrop-filter: blur(${config.blurAmount}px);
-        -webkit-backdrop-filter: blur(${config.blurAmount}px);
-        border-bottom: ${config.borderBottom ? '1px solid var(--border)' : 'none'};
-      `;
-    } else if (config.style === 'solid') {
-      navStyle = `
-        background: #18181b;
-        border-bottom: ${config.borderBottom ? '1px solid var(--border)' : 'none'};
-      `;
-    } else {
-      // Floating Island
-      containerStyle = 'padding: 16px 20px;';
-      navStyle = `
-        margin: 0 auto;
-        max-width: 900px;
-        background: rgba(24, 24, 27, ${config.bgOpacity});
-        backdrop-filter: blur(${config.blurAmount}px);
-        border: 1px solid var(--border);
-        border-radius: 999px;
-        box-shadow: 0 8px 32px -4px rgba(0,0,0,0.4);
-      `;
+    // 1. Render Top announcement bar if megamenu archetype
+    if (config.archetype === 'megamenu') {
+      const announcementBar = el('div', {
+        style: {
+          width: '100%',
+          padding: '7px 16px',
+          background: 'var(--bg-input)',
+          borderBottom: '1px solid var(--border)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '8px',
+          fontSize: '0.75rem',
+          color: 'var(--text-muted)'
+        }
+      }, [
+        el('span', { style: { padding: '1px 6px', borderRadius: '4px', background: 'var(--text-main)', color: 'var(--bg-app)', fontWeight: '600', fontSize: '0.65rem' }, textContent: 'NEW' }),
+        el('span', { textContent: 'Free worldwide shipping on orders over $150 — Shop Winter Collection' }),
+        el('span', { style: { display: 'flex', alignItems: 'center', color: 'var(--text-main)', fontWeight: '500', cursor: 'pointer' }, innerHTML: `<span>Explore</span> ${ICONS.arrowUpRight}` })
+      ]);
+      viewportContainer.appendChild(announcementBar);
     }
 
-    target.innerHTML = `
-      <div style="width:100%; height:100%; position:relative; overflow-y:auto; display:flex; flex-direction:column; ${containerStyle}">
-        <!-- Navbar -->
-        <header style="width:100%; z-index:10; ${navStyle} transition:all 0.2s ease;">
-          <div style="max-width:1120px; margin:0 auto; padding:${config.paddingY}px 24px; display:flex; align-items:center; justify-content:space-between; position:relative;">
-            <!-- Brand -->
-            <div style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-              <div style="width:28px; height:28px; border-radius:6px; background:#ffffff; color:#09090b; font-weight:700; font-size:0.85rem; display:flex; align-items:center; justify-content:center;">
-                A
-              </div>
-              <span style="font-weight:600; font-size:0.95rem; color:var(--text-main); letter-spacing:-0.02em;">${config.brandText}</span>
-            </div>
+    // 2. Render Main Navbar Component
+    const navWrapper = el('div', {
+      style: {
+        width: '100%',
+        zIndex: 40,
+        position: config.sticky ? 'sticky' : 'relative',
+        top: '0',
+        padding: config.archetype === 'floating' ? '16px 20px 0' : '0'
+      }
+    });
 
-            <!-- Links -->
-            <nav style="display:flex; align-items:center; gap:16px; font-size:0.85rem; color:var(--text-muted);">
-              <span style="cursor:pointer; color:var(--text-main); font-weight:500; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">Features</span>
-              <div style="position:relative;">
-                <span id="nav-dropdown-trigger" style="cursor:pointer; display:inline-flex; align-items:center; gap:4px; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">
-                  <span>Solutions</span>
-                  ${ICONS.chevronDown}
-                </span>
-                <div id="nav-dropdown-popup" style="display:none; position:absolute; top:calc(100% + 8px); left:0; min-width:220px; background:var(--bg-card); border:1px solid var(--border-strong); border-radius:8px; box-shadow:var(--shadow-lg); padding:6px; z-index:50;">
-                  <div style="padding:8px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                      <div style="font-weight:600;">Edge Computing</div>
-                      <div style="font-size:0.7rem; color:var(--text-dim);">Global fast compute</div>
-                    </div>
-                    ${ICONS.arrowUpRight}
-                  </div>
-                  <div style="padding:8px 12px; border-radius:6px; cursor:pointer; font-size:0.8rem; color:var(--text-main); display:flex; justify-content:space-between; align-items:center;">
-                    <div>
-                      <div style="font-weight:600;">Telemetry Hub</div>
-                      <div style="font-size:0.7rem; color:var(--text-dim);">Realtime metrics</div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              <span style="cursor:pointer; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">Changelog</span>
-              <span style="cursor:pointer; padding:4px 8px; border-radius:6px; transition:background 0.15s ease;">Pricing</span>
-            </nav>
+    let navInnerHtml = '';
+    let navStyle = '';
 
-            <!-- Actions -->
-            <div style="display:flex; align-items:center; gap:10px;">
-              <button class="btn btn-primary" style="padding:6px 14px; font-size:0.8rem; border-radius:${config.style === 'floating' ? '999px' : 'var(--radius-sm)'};">
-                ${config.ctaText}
-              </button>
+    if (config.archetype === 'floating') {
+      navStyle = `
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 10px 18px;
+        border-radius: ${config.radius}px;
+        background: rgba(18, 18, 22, ${config.opacity});
+        backdrop-filter: blur(${config.blur}px);
+        -webkit-backdrop-filter: blur(${config.blur}px);
+        border: ${config.border ? '1px solid var(--border-strong)' : 'none'};
+        box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45);
+      `;
+      navInnerHtml = getFloatingIslandNavHtml();
+    } else if (config.archetype === 'saas') {
+      navStyle = `
+        width: 100%;
+        padding: 10px 24px;
+        background: rgba(18, 18, 22, ${config.opacity});
+        backdrop-filter: blur(${config.blur}px);
+        -webkit-backdrop-filter: blur(${config.blur}px);
+        border-bottom: ${config.border ? '1px solid var(--border)' : 'none'};
+      `;
+      navInnerHtml = getSaaSNavHtml();
+    } else if (config.archetype === 'megamenu') {
+      navStyle = `
+        width: 100%;
+        padding: 12px 24px;
+        background: rgba(18, 18, 22, ${config.opacity});
+        backdrop-filter: blur(${config.blur}px);
+        -webkit-backdrop-filter: blur(${config.blur}px);
+        border-bottom: ${config.border ? '1px solid var(--border)' : 'none'};
+      `;
+      navInnerHtml = getMegaMenuNavHtml();
+    } else {
+      // Minimalist
+      navStyle = `
+        width: 100%;
+        padding: 14px 28px;
+        background: rgba(18, 18, 22, ${config.opacity});
+        backdrop-filter: blur(${config.blur}px);
+        -webkit-backdrop-filter: blur(${config.blur}px);
+        border-bottom: ${config.border ? '1px solid var(--border)' : 'none'};
+      `;
+      navInnerHtml = getMinimalNavHtml();
+    }
+
+    const headerEl = el('header', {
+      style: navStyle,
+      innerHTML: navInnerHtml
+    });
+
+    navWrapper.appendChild(headerEl);
+    viewportContainer.appendChild(navWrapper);
+
+    // 3. Render Realistic Hero Section behind the Navbar
+    const heroMock = el('section', {
+      style: {
+        flex: 1,
+        padding: '60px 24px 80px',
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        textAlign: 'center',
+        position: 'relative'
+      }
+    }, [
+      // Ambient radial glow behind hero
+      el('div', {
+        style: {
+          position: 'absolute',
+          top: '20%',
+          width: '320px',
+          height: '180px',
+          background: 'radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%)',
+          filter: 'blur(40px)',
+          pointerEvents: 'none'
+        }
+      }),
+      // Pill badge
+      el('div', {
+        style: {
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '4px 12px',
+          borderRadius: '999px',
+          background: 'var(--bg-input)',
+          border: '1px solid var(--border)',
+          fontSize: '0.75rem',
+          color: 'var(--text-muted)',
+          marginBottom: '20px'
+        }
+      }, [
+        el('span', { style: { width: '6px', height: '6px', borderRadius: '50%', background: '#22c55e' } }),
+        el('span', { textContent: 'Production-Grade UI Architecture' }),
+        el('span', { style: { color: 'var(--text-dim)' }, textContent: '→' })
+      ]),
+      // Main Heading
+      el('h1', {
+        style: {
+          fontSize: 'clamp(1.8rem, 4vw, 2.8rem)',
+          fontWeight: '800',
+          color: 'var(--text-main)',
+          letterSpacing: '-0.03em',
+          maxWidth: '680px',
+          margin: '0 0 14px',
+          lineHeight: '1.2'
+        },
+        textContent: 'Elevate Every Surface with High-Craft Navigation'
+      }),
+      // Subtitle
+      el('p', {
+        style: {
+          fontSize: '0.9rem',
+          color: 'var(--text-muted)',
+          maxWidth: '520px',
+          lineHeight: '1.6',
+          margin: '0 0 28px'
+        },
+        textContent: 'Adaptive responsive headers featuring hardware-accelerated frosted glass physics, interactive mega menus, and zero runtime dependencies.'
+      }),
+      // Action Buttons
+      el('div', { style: { display: 'flex', gap: '10px', alignItems: 'center' } }, [
+        el('button', { className: 'btn btn-primary', style: { padding: '8px 18px', fontSize: '0.825rem', borderRadius: 'var(--radius-sm)' }, textContent: 'Start Building Free' }),
+        el('button', { className: 'btn btn-outline', style: { padding: '8px 18px', fontSize: '0.825rem', borderRadius: 'var(--radius-sm)' }, textContent: 'Read Specifications' })
+      ])
+    ]);
+
+    viewportContainer.appendChild(heroMock);
+
+    // 4. Render Mobile Drawer overlay if open
+    if (config.mobileDrawerOpen) {
+      const mobileDrawer = el('div', {
+        style: {
+          position: 'absolute',
+          inset: '0',
+          background: 'rgba(9, 9, 11, 0.98)',
+          zIndex: 100,
+          display: 'flex',
+          flexDirection: 'column',
+          padding: '20px',
+          animation: 'fadeIn 0.15s ease'
+        }
+      }, [
+        el('div', { style: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '24px' } }, [
+          el('div', { style: { fontWeight: '700', fontSize: '1rem', color: 'var(--text-main)' }, textContent: config.brandText }),
+          el('button', {
+            className: 'btn btn-ghost btn-icon',
+            innerHTML: ICONS.close,
+            onclick: () => {
+              config.mobileDrawerOpen = false;
+              renderNavbarStage();
+            }
+          })
+        ]),
+        el('div', { style: { display: 'flex', flexDirection: 'column', gap: '12px', flex: '1' } }, [
+          el('a', { style: { padding: '10px 0', fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', borderBottom: '1px solid var(--border)' }, textContent: 'Features' }),
+          el('a', { style: { padding: '10px 0', fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', borderBottom: '1px solid var(--border)' }, textContent: 'Solutions' }),
+          el('a', { style: { padding: '10px 0', fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', borderBottom: '1px solid var(--border)' }, textContent: 'Changelog' }),
+          el('a', { style: { padding: '10px 0', fontSize: '1.1rem', fontWeight: '600', color: 'var(--text-main)', borderBottom: '1px solid var(--border)' }, textContent: 'Pricing' })
+        ]),
+        el('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px', paddingTop: '16px', borderTop: '1px solid var(--border)' } }, [
+          el('button', { className: 'btn btn-primary', style: { width: '100%', padding: '10px' }, textContent: 'Get Started' }),
+          el('button', { className: 'btn btn-outline', style: { width: '100%', padding: '10px' }, textContent: 'Sign In' })
+        ])
+      ]);
+      viewportContainer.appendChild(mobileDrawer);
+    }
+
+    centerStage.appendChild(viewportContainer);
+
+    bindNavbarInteractions(headerEl);
+    updateCode();
+  }
+
+  // Archetype 1: Floating Capsule Island
+  function getFloatingIslandNavHtml() {
+    return `
+      <div style="display:flex; align-items:center; justify-content:space-between; position:relative;">
+        <!-- Brand -->
+        <div style="display:flex; align-items:center; gap:8px; cursor:pointer;">
+          <div style="width:26px; height:26px; border-radius:6px; background:var(--text-main); color:var(--bg-app); font-weight:800; font-size:0.8rem; display:flex; align-items:center; justify-content:center;">
+            H
+          </div>
+          <span style="font-weight:700; font-size:0.875rem; color:var(--text-main); letter-spacing:-0.02em;">${config.brandText}</span>
+          <span style="font-size:0.62rem; padding:1px 5px; border-radius:999px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-dim); font-family:var(--font-mono);">v2.4</span>
+        </div>
+
+        <!-- Desktop Navigation Links with Mega Dropdown -->
+        <nav style="display:flex; align-items:center; gap:4px; font-size:0.8rem;">
+          <a class="nav-pill-link" style="padding:6px 12px; border-radius:999px; color:var(--text-main); font-weight:500; cursor:pointer; background:var(--bg-input);">
+            Features
+          </a>
+
+          <div style="position:relative;">
+            <button id="nav-dropdown-btn" class="nav-pill-link" style="padding:6px 12px; border-radius:999px; color:var(--text-muted); cursor:pointer; border:none; background:transparent; font-size:0.8rem; display:inline-flex; align-items:center; gap:4px;">
+              <span>Solutions</span>
+              ${ICONS.chevronDown}
+            </button>
+
+            <!-- HeroUI Rich Mega Dropdown Menu -->
+            <div id="nav-mega-menu" style="display:${config.openDropdown === 'solutions' ? 'block' : 'none'}; position:absolute; top:calc(100% + 12px); left:-60px; width:340px; background:var(--bg-panel); border:1px solid var(--border-strong); border-radius:var(--radius-lg); padding:12px; box-shadow:0 20px 48px rgba(0,0,0,0.55); z-index:100; animation:cmdEnter 0.16s ease-out;">
+              <div style="font-size:0.68rem; font-weight:600; text-transform:uppercase; color:var(--text-dim); padding:4px 8px 8px; letter-spacing:0.05em;">Capabilities</div>
+              <div style="display:flex; flex-direction:column; gap:4px;">
+                ${[
+                  { title: 'Edge Analytics', desc: 'Real-time telemetry and metrics', icon: 'activity' },
+                  { title: 'Design Tokens', desc: 'Semantic variables & dark mode', icon: 'palette' },
+                  { title: 'Component Blocks', desc: 'HeroUI & shadcn copy-paste blocks', icon: 'box' }
+                ].map(item => `
+                  <div class="mega-menu-item" style="display:flex; align-items:center; gap:10px; padding:8px 10px; border-radius:var(--radius-sm); cursor:pointer; transition:background var(--transition-fast);">
+                    <div style="width:30px; height:30px; border-radius:6px; background:var(--bg-input); border:1px solid var(--border); display:flex; align-items:center; justify-content:center; color:var(--text-main); flex-shrink:0;">
+                      ${ICONS[item.icon] || ICONS.zap}
+                    </div>
+                    <div>
+                      <div style="font-size:0.8rem; font-weight:600; color:var(--text-main);">${item.title}</div>
+                      <div style="font-size:0.7rem; color:var(--text-dim);">${item.desc}</div>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
             </div>
           </div>
-        </header>
 
-        <!-- Mock Page Content Behind / Beneath -->
-        <div style="padding:48px 24px; max-width:800px; margin:0 auto; text-align:center;">
-          <h2 style="font-size:1.8rem; font-weight:700; color:var(--text-main); letter-spacing:-0.03em; margin-bottom:12px;">
-            Next-Generation Application Interface
-          </h2>
-          <p style="color:var(--text-muted); font-size:0.925rem; line-height:1.6; max-width:540px; margin:0 auto;">
-            Experience effortless navigation with clean monochromatic typography, frosted glass physics, and adaptive responsive constraints.
-          </p>
+          <a class="nav-pill-link" style="padding:6px 12px; border-radius:999px; color:var(--text-muted); cursor:pointer;">Changelog</a>
+          <a class="nav-pill-link" style="padding:6px 12px; border-radius:999px; color:var(--text-muted); cursor:pointer;">Pricing</a>
+        </nav>
+
+        <!-- Right Actions -->
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button id="nav-search-shortcut" style="display:inline-flex; align-items:center; gap:6px; padding:4px 8px; border-radius:999px; background:var(--bg-input); border:1px solid var(--border); color:var(--text-dim); font-size:0.72rem; cursor:pointer;">
+            ${ICONS.search}
+            <kbd class="kbd" style="font-size:0.6rem; padding:1px 4px;">⌘K</kbd>
+          </button>
+          <button class="btn btn-primary" style="padding:6px 14px; font-size:0.75rem; border-radius:999px; font-weight:600;">
+            Get Started
+          </button>
+          <button id="nav-mobile-toggle" class="btn btn-ghost btn-icon" style="display:none; width:30px; height:30px;">
+            ${ICONS.menu}
+          </button>
         </div>
       </div>
     `;
-
-    const dropTrigger = target.querySelector('#nav-dropdown-trigger');
-    const dropPopup = target.querySelector('#nav-dropdown-popup');
-    if (dropTrigger && dropPopup) {
-      dropTrigger.onclick = (e) => {
-        e.stopPropagation();
-        dropPopup.style.display = dropPopup.style.display === 'none' ? 'block' : 'none';
-      };
-      document.addEventListener('click', () => {
-        if (dropPopup) dropPopup.style.display = 'none';
-      });
-    }
   }
 
-  function generateCode() {
+  // Archetype 2: SaaS Enterprise Application Header
+  function getSaaSNavHtml() {
+    return `
+      <div style="max-width:1240px; margin:0 auto; display:flex; align-items:center; justify-content:space-between; gap:16px;">
+        <!-- Left Org / Workspace Switcher -->
+        <div style="display:flex; align-items:center; gap:12px;">
+          <div style="display:flex; align-items:center; gap:8px; cursor:pointer; padding:4px 8px; border-radius:var(--radius-sm); border:1px solid var(--border); background:var(--bg-input);">
+            <div style="width:20px; height:20px; border-radius:4px; background:var(--text-main); color:var(--bg-app); font-weight:700; font-size:0.75rem; display:flex; align-items:center; justify-content:center;">H</div>
+            <span style="font-weight:600; font-size:0.8rem; color:var(--text-main);">Acme Corp</span>
+            <span style="color:var(--text-dim); font-size:0.75rem;">/</span>
+            <span style="font-size:0.75rem; color:var(--text-muted);">Production</span>
+            ${ICONS.chevronDown}
+          </div>
+        </div>
+
+        <!-- Center Global Search Input -->
+        <div style="flex:1; max-width:400px; position:relative; display:flex; align-items:center;">
+          <span style="position:absolute; left:10px; color:var(--text-dim); display:flex;">${ICONS.search}</span>
+          <input type="text" placeholder="Search resources, logs, deployments..." style="width:100%; padding:6px 36px 6px 32px; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--text-main); font-size:0.775rem;" />
+          <kbd class="kbd" style="position:absolute; right:8px; font-size:0.65rem;">⌘K</kbd>
+        </div>
+
+        <!-- Right Side User & Alerts -->
+        <div style="display:flex; align-items:center; gap:10px;">
+          <button class="btn btn-ghost btn-icon" title="Notifications" style="position:relative; width:32px; height:32px;">
+            ${ICONS.bell}
+            <span style="position:absolute; top:6px; right:6px; width:6px; height:6px; border-radius:50%; background:#22c55e;"></span>
+          </button>
+          <div style="position:relative;">
+            <div id="nav-user-avatar" style="width:30px; height:30px; border-radius:50%; background:var(--bg-card); border:1.5px solid var(--border-strong); display:flex; align-items:center; justify-content:center; font-weight:600; font-size:0.75rem; color:var(--text-main); cursor:pointer;">
+              JH
+            </div>
+            <!-- Profile Dropdown Menu -->
+            <div id="nav-profile-menu" style="display:${config.openDropdown === 'profile' ? 'block' : 'none'}; position:absolute; top:calc(100% + 8px); right:0; width:180px; background:var(--bg-panel); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:6px; box-shadow:var(--shadow-lg); z-index:100;">
+              <div style="padding:6px 10px; font-size:0.75rem; color:var(--text-main); font-weight:600; border-bottom:1px solid var(--border);">jordan@acme.corp</div>
+              <div style="padding:6px 10px; font-size:0.75rem; color:var(--text-muted); cursor:pointer;">Account Settings</div>
+              <div style="padding:6px 10px; font-size:0.75rem; color:var(--text-muted); cursor:pointer;">Billing ($29/mo)</div>
+              <div style="padding:6px 10px; font-size:0.75rem; color:#ef4444; cursor:pointer; border-top:1px solid var(--border);">Sign Out</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // Archetype 3: E-Commerce Mega-Menu
+  function getMegaMenuNavHtml() {
+    return `
+      <div style="max-width:1200px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:24px;">
+          <div style="font-weight:700; font-size:1.05rem; color:var(--text-main); letter-spacing:-0.03em; cursor:pointer;">
+            ${config.brandText}
+          </div>
+          <nav style="display:flex; align-items:center; gap:18px; font-size:0.825rem; color:var(--text-muted);">
+            <span style="color:var(--text-main); font-weight:500; cursor:pointer;">Store</span>
+            <span style="cursor:pointer;">Mechanical Keyboards</span>
+            <span style="cursor:pointer;">Displays</span>
+            <span style="cursor:pointer;">Accessories</span>
+          </nav>
+        </div>
+
+        <div style="display:flex; align-items:center; gap:12px;">
+          <span style="font-size:0.75rem; color:var(--text-dim); font-family:var(--font-mono);">$ USD</span>
+          <button class="btn btn-outline" style="padding:5px 12px; font-size:0.75rem; display:inline-flex; align-items:center; gap:6px;">
+            <span>Cart</span>
+            <span style="padding:1px 5px; border-radius:999px; background:var(--text-main); color:var(--bg-app); font-weight:700; font-size:0.65rem;">3</span>
+          </button>
+          <button class="btn btn-primary" style="padding:5px 14px; font-size:0.75rem;">Checkout</button>
+        </div>
+      </div>
+    `;
+  }
+
+  // Archetype 4: Minimal Frosted Glass
+  function getMinimalNavHtml() {
+    return `
+      <div style="max-width:1120px; margin:0 auto; display:flex; align-items:center; justify-content:space-between;">
+        <div style="font-weight:700; font-size:0.95rem; color:var(--text-main); letter-spacing:-0.02em;">
+          ${config.brandText}
+        </div>
+        <nav style="display:flex; align-items:center; gap:20px; font-size:0.825rem; color:var(--text-muted);">
+          <a style="color:var(--text-main); font-weight:500; cursor:pointer;">Docs</a>
+          <a style="cursor:pointer;">Components</a>
+          <a style="cursor:pointer;">Blocks</a>
+          <a style="cursor:pointer;">Showcase</a>
+        </nav>
+        <div style="display:flex; align-items:center; gap:8px;">
+          <button class="btn btn-ghost" style="font-size:0.78rem;">Sign In</button>
+          <button class="btn btn-primary" style="padding:5px 14px; font-size:0.78rem;">Deploy Now</button>
+        </div>
+      </div>
+    `;
+  }
+
+  function bindNavbarInteractions(header) {
+    const dropBtn = header.querySelector('#nav-dropdown-btn');
+    if (dropBtn) {
+      dropBtn.onclick = (e) => {
+        e.stopPropagation();
+        config.openDropdown = config.openDropdown === 'solutions' ? null : 'solutions';
+        renderNavbarStage();
+      };
+    }
+
+    const avatarBtn = header.querySelector('#nav-user-avatar');
+    if (avatarBtn) {
+      avatarBtn.onclick = (e) => {
+        e.stopPropagation();
+        config.openDropdown = config.openDropdown === 'profile' ? null : 'profile';
+        renderNavbarStage();
+      };
+    }
+
+    const mobileToggle = header.querySelector('#nav-mobile-toggle');
+    if (mobileToggle) {
+      mobileToggle.onclick = () => {
+        config.mobileDrawerOpen = true;
+        renderNavbarStage();
+      };
+    }
+
+    // Hover effect on mega menu items
+    header.querySelectorAll('.mega-menu-item').forEach(it => {
+      it.onmouseenter = () => { it.style.background = 'var(--bg-hover)'; };
+      it.onmouseleave = () => { it.style.background = 'transparent'; };
+    });
+
+    document.addEventListener('click', () => {
+      if (config.openDropdown) {
+        config.openDropdown = null;
+        renderNavbarStage();
+      }
+    }, { once: true });
+  }
+
+  function updateCode() {
     let css = '';
     let tailwind = '';
 
-    if (config.style === 'glass') {
-      css = `/* Frosted Glass Sticky Navbar */
-.navbar {
-  position: ${config.sticky ? 'sticky' : 'relative'};
-  top: 0;
-  width: 100%;
-  z-index: 50;
-  padding: ${config.paddingY}px 24px;
-  background-color: rgba(18, 18, 22, ${config.bgOpacity});
-  backdrop-filter: blur(${config.blurAmount}px);
-  -webkit-backdrop-filter: blur(${config.blurAmount}px);
-  ${config.borderBottom ? 'border-bottom: 1px solid var(--border);' : ''}
-}`;
-      tailwind = `<!-- Tailwind Frosted Glass Navbar -->
-<header class="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/80 backdrop-blur-md px-6 py-3.5">
-  <div class="max-w-6xl mx-auto flex items-center justify-between">
-    <div class="font-semibold text-white tracking-tight">${config.brandText}</div>
-    <nav class="hidden md:flex items-center gap-6 text-sm text-zinc-400">
-      <a href="#" class="text-white">Features</a>
-      <a href="#" class="hover:text-white">Pricing</a>
-      <a href="#" class="hover:text-white">Docs</a>
-    </nav>
-    <button class="bg-white text-zinc-950 font-medium text-xs px-3.5 py-1.5 rounded-md hover:bg-zinc-200">
-      ${config.ctaText}
-    </button>
-  </div>
-</header>`;
-    } else if (config.style === 'floating') {
-      css = `/* Floating Island Navbar */
-.navbar-island {
+    if (config.archetype === 'floating') {
+      css = `/* HeroUI / Linear Floating Capsule Navbar */
+.navbar-capsule {
   position: ${config.sticky ? 'sticky' : 'relative'};
   top: 16px;
   max-width: 900px;
   margin: 0 auto;
   z-index: 50;
-  padding: ${config.paddingY}px 24px;
-  background-color: rgba(24, 24, 27, ${config.bgOpacity});
-  backdrop-filter: blur(${config.blurAmount}px);
-  border: 1px solid var(--border);
-  border-radius: 9999px;
-  box-shadow: 0 8px 32px -4px rgba(0, 0, 0, 0.4);
+  padding: 10px 18px;
+  background-color: rgba(18, 18, 22, ${config.opacity});
+  backdrop-filter: blur(${config.blur}px);
+  -webkit-backdrop-filter: blur(${config.blur}px);
+  border: 1px solid var(--border-strong);
+  border-radius: ${config.radius}px;
+  box-shadow: 0 16px 36px -8px rgba(0, 0, 0, 0.45);
+}
+
+.nav-link {
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  color: var(--text-muted);
+  transition: all 0.15s ease;
+}
+
+.nav-link:hover, .nav-link.active {
+  color: var(--text-main);
+  background: var(--bg-input);
 }`;
-      tailwind = `<!-- Tailwind Floating Island Navbar -->
-<header class="sticky top-4 z-50 max-w-4xl mx-auto border border-zinc-800 bg-zinc-900/80 backdrop-blur-md px-6 py-3 rounded-full shadow-2xl">
+      tailwind = `<!-- Floating Capsule Navbar Component -->
+<header class="sticky top-4 z-50 mx-auto max-w-4xl rounded-full border border-zinc-800 bg-zinc-950/85 px-5 py-2.5 shadow-2xl backdrop-blur-md">
   <div class="flex items-center justify-between">
-    <span class="font-semibold text-white tracking-tight">${config.brandText}</span>
-    <nav class="flex items-center gap-6 text-sm text-zinc-400">
-      <a href="#" class="text-white">Features</a>
-      <a href="#" class="hover:text-white">Pricing</a>
+    <div class="flex items-center gap-2">
+      <div class="h-6 w-6 rounded-md bg-white text-zinc-950 font-bold flex items-center justify-center text-xs">H</div>
+      <span class="text-sm font-bold tracking-tight text-white">${config.brandText}</span>
+    </div>
+    <nav class="hidden md:flex items-center gap-2 text-xs">
+      <a href="#" class="rounded-full bg-zinc-900 px-3 py-1.5 font-medium text-white">Features</a>
+      <a href="#" class="rounded-full px-3 py-1.5 text-zinc-400 hover:text-white">Solutions</a>
+      <a href="#" class="rounded-full px-3 py-1.5 text-zinc-400 hover:text-white">Pricing</a>
     </nav>
-    <button class="bg-white text-zinc-950 text-xs font-medium px-4 py-1.5 rounded-full">
-      ${config.ctaText}
+    <button class="rounded-full bg-white px-4 py-1.5 text-xs font-semibold text-zinc-950 hover:bg-zinc-200">
+      Get Started
     </button>
   </div>
 </header>`;
     } else {
-      css = `/* Solid Zinc Navbar */
-.navbar-solid {
+      css = `/* SaaS Enterprise Sticky Navbar */
+.navbar-enterprise {
   position: ${config.sticky ? 'sticky' : 'relative'};
   top: 0;
   width: 100%;
   z-index: 50;
-  padding: ${config.paddingY}px 24px;
-  background-color: #18181b;
-  ${config.borderBottom ? 'border-bottom: 1px solid var(--border);' : ''}
+  padding: 10px 24px;
+  background-color: rgba(18, 18, 22, ${config.opacity});
+  backdrop-filter: blur(${config.blur}px);
+  -webkit-backdrop-filter: blur(${config.blur}px);
+  border-bottom: 1px solid var(--border);
 }`;
-      tailwind = `<!-- Tailwind Solid Navbar -->
-<header class="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-900 px-6 py-3.5">
-  <div class="max-w-6xl mx-auto flex items-center justify-between">
-    <div class="font-semibold text-white">${config.brandText}</div>
-    <button class="bg-white text-zinc-950 text-xs px-3.5 py-1.5 rounded-md font-medium">
-      ${config.ctaText}
-    </button>
+      tailwind = `<!-- Enterprise SaaS Navbar -->
+<header class="sticky top-0 z-50 w-full border-b border-zinc-800 bg-zinc-950/80 px-6 py-2.5 backdrop-blur-md">
+  <div class="mx-auto flex max-w-7xl items-center justify-between gap-4">
+    <div class="font-bold text-white text-sm">${config.brandText}</div>
+    <!-- Search Bar & Avatar -->
   </div>
 </header>`;
     }
@@ -296,45 +556,109 @@ export function mount(container, onCodeChange) {
     onCodeChange({ css, tailwind });
   }
 
-  update();
-}
+  function renderControls() {
+    controlsStage.innerHTML = '';
 
-function createSlider(label, min, max, step, initial, unit, onChange) {
-  const wrapper = el('div', { className: 'control-item' });
-  const row = el('div', { className: 'control-label-row' }, [
-    el('label', { className: 'control-label', textContent: label }),
-    el('span', { className: 'control-value', textContent: `${initial}${unit}` })
-  ]);
-  const valSpan = row.querySelector('.control-value');
-  const slider = el('input', {
-    type: 'range',
-    min,
-    max,
-    step,
-    value: initial,
-    oninput: (e) => {
-      const v = parseFloat(e.target.value);
-      valSpan.textContent = `${v}${unit}`;
-      onChange(v);
-    }
-  });
+    const sec = el('div', { className: 'controls-section' }, [
+      el('div', { className: 'section-title', textContent: 'Navbar Archetype' }),
+      el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '16px' } }, [
+        { id: 'floating', name: 'Floating Capsule' },
+        { id: 'saas', name: 'SaaS App Header' },
+        { id: 'megamenu', name: 'E-Commerce Mega' },
+        { id: 'minimal', name: 'Minimal Glass' }
+      ].map(a => el('button', {
+        className: `btn ${config.archetype === a.id ? 'btn-primary' : 'btn-outline'}`,
+        style: { fontSize: '0.72rem', padding: '6px' },
+        textContent: a.name,
+        onclick: () => {
+          config.archetype = a.id;
+          renderControls();
+          renderNavbarStage();
+        }
+      }))),
 
-  wrapper.appendChild(row);
-  wrapper.appendChild(slider);
-  return wrapper;
-}
+      el('div', { className: 'section-title', textContent: 'Brand Configuration' }),
+      el('div', { className: 'control-group' }, [
+        el('div', { className: 'control-label-row' }, [
+          el('span', { className: 'control-label', textContent: 'Brand Name' })
+        ]),
+        el('input', {
+          type: 'text',
+          value: config.brandText,
+          style: { width: '100%', padding: '7px 10px', background: 'var(--bg-input)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', color: 'var(--text-main)', fontSize: '0.8rem' },
+          oninput: (e) => {
+            config.brandText = e.target.value;
+            renderNavbarStage();
+          }
+        })
+      ]),
 
-function createToggle(label, initial, onChange) {
-  const wrapper = el('div', { className: 'control-item', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '6px 0' } });
-  const lbl = el('label', { className: 'control-label', textContent: label });
-  const chk = el('input', {
-    type: 'checkbox',
-    checked: initial,
-    style: { cursor: 'pointer', width: '16px', height: '16px', accentColor: '#ffffff' },
-    onchange: (e) => onChange(e.target.checked)
-  });
+      el('div', { className: 'section-title', textContent: 'Physics & Blur' }),
+      createSlider('Backdrop Blur', config.blur, 0, 24, (v) => { config.blur = v; renderNavbarStage(); }, 'px'),
+      createSlider('Background Opacity', config.opacity, 0.3, 1.0, (v) => { config.opacity = v; renderNavbarStage(); }, '', 0.05),
 
-  wrapper.appendChild(lbl);
-  wrapper.appendChild(chk);
-  return wrapper;
+      el('div', { className: 'section-title', textContent: 'Options' }),
+      el('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } }, [
+        el('label', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', cursor: 'pointer' } }, [
+          el('input', {
+            type: 'checkbox',
+            checked: config.sticky,
+            onchange: (e) => {
+              config.sticky = e.target.checked;
+              renderNavbarStage();
+            }
+          }),
+          el('span', { textContent: 'Sticky Position to Top' })
+        ]),
+        el('label', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', cursor: 'pointer' } }, [
+          el('input', {
+            type: 'checkbox',
+            checked: config.border,
+            onchange: (e) => {
+              config.border = e.target.checked;
+              renderNavbarStage();
+            }
+          }),
+          el('span', { textContent: 'Thin 1px Border Outline' })
+        ]),
+        el('label', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', cursor: 'pointer', marginTop: '6px' } }, [
+          el('button', {
+            className: `btn ${config.mobileDrawerOpen ? 'btn-primary' : 'btn-outline'}`,
+            style: { width: '100%', fontSize: '0.75rem', justifyContent: 'center' },
+            textContent: config.mobileDrawerOpen ? 'Close Mobile Drawer View' : 'Simulate Mobile Drawer Menu →',
+            onclick: () => {
+              config.mobileDrawerOpen = !config.mobileDrawerOpen;
+              renderNavbarStage();
+            }
+          })
+        ])
+      ])
+    ]);
+
+    controlsStage.appendChild(sec);
+  }
+
+  function createSlider(label, val, min, max, onChange, unit = '', step = 1) {
+    const valSpan = el('span', { className: 'control-value', textContent: `${val}${unit}` });
+    return el('div', { className: 'control-group' }, [
+      el('div', { className: 'control-label-row' }, [
+        el('span', { className: 'control-label', textContent: label }),
+        valSpan
+      ]),
+      el('input', {
+        type: 'range',
+        min,
+        max,
+        step,
+        value: val,
+        oninput: (e) => {
+          const v = parseFloat(e.target.value);
+          valSpan.textContent = `${v}${unit}`;
+          onChange(v);
+        }
+      })
+    ]);
+  }
+
+  renderControls();
 }

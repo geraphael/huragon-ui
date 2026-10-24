@@ -661,7 +661,7 @@ body.theme-light .stage-floating-toolbar {
   justify-content: center;
   position: relative;
   overflow: auto;
-  padding: 44px 24px 24px;
+  padding: 64px 24px 24px;
   transition: background var(--transition-normal);
 }
 
