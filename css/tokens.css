@@ -14,6 +14,8 @@
   --bg-input: #141418;
   --bg-input-focus: #1c1c22;
   --bg-hover: rgba(255, 255, 255, 0.04);
+  --glass-bg: rgba(18, 18, 22, 0.82);
+  --glass-border: rgba(255, 255, 255, 0.1);
 
   /* Crisp thin borders */
   --border: #222226;
@@ -79,6 +81,8 @@ body.theme-light {
   --bg-input: #f4f4f5;
   --bg-input-focus: #e4e4e7;
   --bg-hover: rgba(0, 0, 0, 0.04);
+  --glass-bg: rgba(255, 255, 255, 0.85);
+  --glass-border: rgba(0, 0, 0, 0.08);
 
   --border: #e4e4e7;
   --border-strong: #d4d4d8;

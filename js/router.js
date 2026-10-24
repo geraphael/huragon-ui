@@ -33,6 +33,7 @@ const generatorsMap = {
   'responsive-typography': () => import('./generators/responsive-typography.js'),
 
   // Components
+  'blocks-studio': () => import('./generators/blocks-studio.js'),
   'button-generator': () => import('./generators/button-generator.js'),
   'card-designer': () => import('./generators/card-designer.js'),
   'modal-dialog': () => import('./generators/modal-dialog.js'),

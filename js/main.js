@@ -50,6 +50,7 @@ function applyTheme(theme) {
     if (themeIcon) themeIcon.innerHTML = ICONS.moon;
     localStorage.setItem('huragon_theme', 'dark');
   }
+  window.dispatchEvent(new CustomEvent('huragon:theme-change', { detail: { theme } }));
 }
 
 function initSidebar() {

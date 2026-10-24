@@ -48,6 +48,7 @@ export const CATEGORIES = [
     name: 'Components',
     icon: 'box',
     tools: [
+      { id: 'blocks-studio',     name: 'Page Blocks Studio',    icon: 'grid',    desc: 'shadcn/ui & HeroUI application blocks: Analytics, Auth, Settings, Pricing' },
       { id: 'button-generator',  name: 'Button Studio',         icon: 'zap',     desc: 'HeroUI & shadcn buttons with solid, flat, faded & loading states' },
       { id: 'card-designer',     name: 'Card Designer',         icon: 'box',     desc: 'Modern content, stats, blur glass and pricing cards' },
       { id: 'modal-dialog',      name: 'Modal & Dialog Studio', icon: 'modal',   desc: 'Interactive dialogs with backdrop blur, alert & slide sheet' },

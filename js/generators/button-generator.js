@@ -438,7 +438,9 @@ export function mount(container, onCodeChange) {
 }`;
       tailwind = `<div class="inline-flex border border-zinc-800 rounded-[${config.radius}px] bg-zinc-900">
   <button class="px-3 py-1.5 text-xs text-zinc-100 border-r border-zinc-800 hover:bg-zinc-800">Deploy</button>
-  <button class="px-2 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800">⌵</button>
+  <button class="px-2 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+  </button>
 </div>`;
     } else if (config.type === 'loading') {
       css = `/* Huragon/ui — Async Loading State Button */

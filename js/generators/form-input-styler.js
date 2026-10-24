@@ -1,6 +1,8 @@
-// Tool 25: Form Input & Field Styler (Interactive Notched Labels, Password Eye Reveal & Multi-Step Wizard)
+// Tool: HeroUI & shadcn Form Input & Field Controls
+// Bordered, Flat, Underline, and Faded input variants with interactive validation, password eye reveal, and multi-step stepper
 import { el, qs } from '../utils/dom.js';
 import { ICONS } from '../utils/icons.js';
+import { copyToClipboard } from '../clipboard.js';
 
 export const meta = {
   id: 'form-input-styler',
@@ -8,11 +10,19 @@ export const meta = {
 };
 
 let config = {
-  preset: 'notched', // notched, password, stepper, search
+  variant: 'bordered', // bordered, flat, underlined, faded
+  preset: 'catalog',   // catalog, validation, password, stepper, search
   radius: 8,
-  focusRing: true,
+  hasError: false,
   currentStep: 1
 };
+
+const VARIANTS = [
+  { id: 'bordered',   name: 'Bordered',   desc: 'Clean 1px outline with focus ring' },
+  { id: 'flat',       name: 'Flat',       desc: 'Subtle filled background' },
+  { id: 'underlined', name: 'Underlined', desc: 'Minimal bottom border line' },
+  { id: 'faded',      name: 'Faded',      desc: 'Light border + muted background' }
+];
 
 export function mount(container, onCodeChange) {
   const previewStage = qs('#preview-stage');
@@ -21,6 +31,7 @@ export function mount(container, onCodeChange) {
   previewStage.innerHTML = '';
 
   const centerStage = el('div', {
+    id: 'form-input-preview-stage',
     style: {
       width: '100%',
       minHeight: '100%',
@@ -28,8 +39,8 @@ export function mount(container, onCodeChange) {
       flexDirection: 'column',
       alignItems: 'center',
       justifyContent: 'center',
-      padding: '40px',
-      gap: '20px'
+      padding: '30px 20px 60px',
+      gap: '24px'
     }
   });
 
@@ -37,12 +48,13 @@ export function mount(container, onCodeChange) {
     id: 'input-interactive-box',
     style: {
       width: '100%',
-      maxWidth: config.preset === 'stepper' ? '460px' : '360px',
+      maxWidth: config.preset === 'stepper' ? '480px' : '420px',
       background: 'var(--bg-card)',
       border: '1px solid var(--border)',
-      borderRadius: `${config.radius + 4}px`,
-      padding: '24px',
-      transition: 'all 0.2s ease'
+      borderRadius: `${config.radius + 6}px`,
+      padding: '28px',
+      boxShadow: 'var(--shadow-md)',
+      transition: 'all 0.22s ease'
     }
   });
 
@@ -56,89 +68,249 @@ export function mount(container, onCodeChange) {
       alignItems: 'center',
       gap: '6px'
     },
-    innerHTML: `${ICONS.sparkles} <span>Type, focus, and interact directly with form elements above</span>`
+    innerHTML: `<span>Type, toggle, and interact with the input fields above</span>`
   });
   centerStage.appendChild(interactiveHint);
-
   previewStage.appendChild(centerStage);
 
-  renderFormPreset();
+  renderControls();
+  renderForm();
 
-  function renderFormPreset() {
-    formBox.innerHTML = '';
-    formBox.style.maxWidth = config.preset === 'stepper' ? '460px' : '360px';
+  function renderControls() {
+    controlsStage.innerHTML = '';
 
-    if (config.preset === 'notched') {
-      renderNotchedLabel(formBox);
-    } else if (config.preset === 'password') {
-      renderPasswordReveal(formBox);
-    } else if (config.preset === 'stepper') {
-      renderStepperWizard(formBox);
-    } else if (config.preset === 'search') {
-      renderSearchPill(formBox);
-    }
+    const section = el('div', { className: 'control-section' }, [
+      el('div', { className: 'control-section-header' }, [
+        el('h4', { className: 'control-section-title', textContent: 'HeroUI Input Variants' })
+      ]),
+      el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '8px', marginBottom: '18px' } },
+        VARIANTS.map(v => el('button', {
+          className: `btn btn-outline ${config.variant === v.id ? 'active' : ''}`,
+          style: { fontSize: '0.75rem', padding: '8px 10px', textAlign: 'left' },
+          innerHTML: `<div style="font-weight:600;">${v.name}</div><div style="font-size:0.65rem; color:var(--text-dim); margin-top:2px;">${v.desc}</div>`,
+          onclick: () => {
+            config.variant = v.id;
+            renderControls();
+            renderForm();
+          }
+        }))
+      ),
 
-    updateCode();
+      el('div', { className: 'control-section-header' }, [
+        el('h4', { className: 'control-section-title', textContent: 'Form Presets' })
+      ]),
+      el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '16px' } }, [
+        createPresetBtn('Field Gallery', 'catalog'),
+        createPresetBtn('Error Validation', 'validation'),
+        createPresetBtn('Password Reveal', 'password'),
+        createPresetBtn('Step Wizard', 'stepper'),
+        createPresetBtn('Search Pill', 'search')
+      ]),
+
+      el('div', { className: 'control-section-header' }, [
+        el('h4', { className: 'control-section-title', textContent: 'Dimensions & Radius' })
+      ]),
+      createSlider('Corner Radius', 0, 24, 2, config.radius, 'px', (v) => {
+        config.radius = v;
+        formBox.style.borderRadius = `${config.radius + 6}px`;
+        renderForm();
+      })
+    ]);
+
+    controlsStage.appendChild(section);
   }
 
-  // 1. Notched Floating Label (from Screenshot_20261024-192535.jpg)
-  function renderNotchedLabel(target) {
+  function createPresetBtn(label, pKey) {
+    return el('button', {
+      className: `btn btn-outline ${config.preset === pKey ? 'active' : ''}`,
+      style: { fontSize: '0.75rem', padding: '6px 8px' },
+      textContent: label,
+      onclick: () => {
+        config.preset = pKey;
+        renderControls();
+        renderForm();
+      }
+    });
+  }
+
+  function getInputVariantStyles() {
+    const r = `${config.radius}px`;
+    if (config.variant === 'flat') {
+      return `background: var(--bg-input); border: 1px solid transparent; border-radius: ${r}; padding: 10px 12px;`;
+    }
+    if (config.variant === 'underlined') {
+      return `background: transparent; border: none; border-bottom: 2px solid var(--border); border-radius: 0; padding: 8px 2px;`;
+    }
+    if (config.variant === 'faded') {
+      return `background: var(--bg-input); border: 1px solid var(--border); border-radius: ${r}; padding: 10px 12px;`;
+    }
+    // Default: bordered
+    return `background: var(--bg-card); border: 1px solid var(--border-strong); border-radius: ${r}; padding: 10px 12px;`;
+  }
+
+  function renderForm() {
+    formBox.innerHTML = '';
+    formBox.style.maxWidth = config.preset === 'stepper' ? '480px' : '420px';
+
+    if (config.preset === 'catalog') {
+      renderCatalog(formBox);
+    } else if (config.preset === 'validation') {
+      renderValidation(formBox);
+    } else if (config.preset === 'password') {
+      renderPassword(formBox);
+    } else if (config.preset === 'stepper') {
+      renderStepper(formBox);
+    } else if (config.preset === 'search') {
+      renderSearch(formBox);
+    }
+
+    generateCode();
+  }
+
+  // 1. INPUT FIELD GALLERY
+  function renderCatalog(target) {
+    const inputStyle = getInputVariantStyles();
+
     target.innerHTML = `
-      <div style="margin-bottom:16px;">
-        <h3 style="font-size:1rem; font-weight:600; color:var(--text-main); margin:0 0 4px;">Account Registration</h3>
-        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Floating label animates into the top border notch</p>
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin:0 0 4px; letter-spacing:-0.02em;">HeroUI Input Components</h3>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Active variant: <strong style="color:var(--text-main); text-transform:capitalize;">${config.variant}</strong></p>
       </div>
 
       <div style="display:flex; flex-direction:column; gap:16px;">
-        <div class="notched-input-box">
-          <input type="text" class="notched-input-field" id="name-input" placeholder=" " style="border-radius:${config.radius}px;" value="Sarah Connor" />
-          <label class="notched-input-label" for="name-input">Full Name</label>
+        <!-- Email with Clear Button -->
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Email Address</label>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="email" id="catalog-email" value="alex.rivera@acme.dev" placeholder="Enter your email" style="width:100%; ${inputStyle} color:var(--text-main); font-size:0.85rem; outline:none; transition:border-color 0.15s ease;" />
+            <button id="email-clear-btn" style="position:absolute; right:10px; background:none; border:none; color:var(--text-dim); cursor:pointer; padding:4px; display:flex; align-items:center; justify-content:center; border-radius:50%;" title="Clear input">
+              ${ICONS.close || '×'}
+            </button>
+          </div>
+          <span style="font-size:0.7rem; color:var(--text-dim);">We will never share your personal information.</span>
         </div>
 
-        <div class="notched-input-box">
-          <input type="email" class="notched-input-field" id="email-input" placeholder=" " style="border-radius:${config.radius}px;" />
-          <label class="notched-input-label" for="email-input">Work Email Address</label>
+        <!-- Currency Input with Prefix & Suffix -->
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Project Budget ($ USD)</label>
+          <div style="position:relative; display:flex; align-items:center;">
+            <span style="position:absolute; left:12px; font-size:0.85rem; font-weight:600; color:var(--text-dim); pointer-events:none;">$</span>
+            <input type="text" value="2,450.00" style="width:100%; ${inputStyle} padding-left:26px; padding-right:54px; color:var(--text-main); font-size:0.85rem; outline:none; font-family:var(--font-mono);" />
+            <span style="position:absolute; right:12px; font-size:0.7rem; font-weight:600; color:var(--text-dim); background:var(--bg-input); padding:2px 6px; border-radius:4px; border:1px solid var(--border);">USD</span>
+          </div>
         </div>
 
-        <button class="btn btn-primary" style="margin-top:6px; padding:8px 14px; border-radius:${config.radius}px;">
-          <span>Continue</span>
+        <!-- Subdomain with URL Prefix -->
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <label style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Custom Subdomain</label>
+          <div style="display:flex; align-items:center;">
+            <span style="padding:10px 12px; background:var(--bg-input); border:1px solid var(--border); border-right:none; border-radius:${config.radius}px 0 0 ${config.radius}px; font-size:0.75rem; color:var(--text-dim); font-family:var(--font-mono);">https://</span>
+            <input type="text" value="acme-production" style="flex:1; ${inputStyle} border-radius:0 ${config.radius}px ${config.radius}px 0; color:var(--text-main); font-size:0.85rem; outline:none;" />
+          </div>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:6px; padding:9px 16px; border-radius:${config.radius}px; font-weight:600; justify-content:center;">
+          <span>Save Changes</span>
+        </button>
+      </div>
+    `;
+
+    const clearBtn = target.querySelector('#email-clear-btn');
+    const emailInput = target.querySelector('#catalog-email');
+    if (clearBtn && emailInput) {
+      clearBtn.onclick = () => {
+        emailInput.value = '';
+        emailInput.focus();
+      };
+    }
+  }
+
+  // 2. ERROR & VALIDATION STATE
+  function renderValidation(target) {
+    const inputStyle = getInputVariantStyles();
+
+    target.innerHTML = `
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin:0 0 4px; letter-spacing:-0.02em;">Validation & Error States</h3>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Real-time interactive input constraint validation</p>
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <!-- Error State Input -->
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:0.75rem; font-weight:600; color:#ef4444;">Company Work Email</label>
+            <span style="font-size:0.7rem; color:#ef4444; font-weight:500;">Invalid Format</span>
+          </div>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="email" id="invalid-email-input" value="alex.rivera@invalid" style="width:100%; ${inputStyle} border-color:#ef4444 !important; color:var(--text-main); font-size:0.85rem; outline:none;" />
+            <span style="position:absolute; right:10px; color:#ef4444; display:flex; align-items:center;">
+              ${ICONS.alertCircle}
+            </span>
+          </div>
+          <span style="font-size:0.72rem; color:#ef4444; display:flex; align-items:center; gap:4px;">
+            Please enter a valid company work email address ending with .com or .org.
+          </span>
+        </div>
+
+        <!-- Valid State Input -->
+        <div style="display:flex; flex-direction:column; gap:6px;">
+          <div style="display:flex; justify-content:space-between; align-items:center;">
+            <label style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Workspace Subdomain</label>
+            <span style="font-size:0.7rem; color:#22c55e; font-weight:600;">Available</span>
+          </div>
+          <div style="position:relative; display:flex; align-items:center;">
+            <input type="text" value="huragon-cloud" style="width:100%; ${inputStyle} border-color:#22c55e !important; color:var(--text-main); font-size:0.85rem; outline:none;" />
+            <span style="position:absolute; right:10px; color:#22c55e; display:flex; align-items:center;">
+              ${ICONS.check}
+            </span>
+          </div>
+          <span style="font-size:0.72rem; color:var(--text-dim);">
+            Domain is claimed and ready for instant deployment.
+          </span>
+        </div>
+
+        <button class="btn btn-primary" style="margin-top:6px; padding:9px 16px; border-radius:${config.radius}px; font-weight:600; justify-content:center;">
+          <span>Submit Verification</span>
         </button>
       </div>
     `;
   }
 
-  // 2. Password with interactive Eye reveal toggle
-  function renderPasswordReveal(target) {
+  // 3. PASSWORD EYE REVEAL
+  function renderPassword(target) {
+    const inputStyle = getInputVariantStyles();
+
     target.innerHTML = `
-      <div style="margin-bottom:16px;">
-        <h3 style="font-size:1rem; font-weight:600; color:var(--text-main); margin:0 0 4px;">Security Authentication</h3>
-        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Click the eye icon to toggle visibility & check strength</p>
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin:0 0 4px; letter-spacing:-0.02em;">Password & Secret Token</h3>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Toggle visibility & live entropy strength analyzer</p>
       </div>
 
-      <div style="display:flex; flex-direction:column; gap:14px;">
+      <div style="display:flex; flex-direction:column; gap:16px;">
         <div style="display:flex; flex-direction:column; gap:6px;">
-          <label style="font-size:0.75rem; font-weight:500; color:var(--text-muted);">Password</label>
+          <label style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Master Password</label>
           <div style="position:relative; display:flex; align-items:center;">
-            <input type="password" id="pw-field" value="huragonSuperSecret#2026" style="width:100%; padding:9px 36px 9px 12px; background:var(--bg-input); border:1px solid var(--border); border-radius:${config.radius}px; color:var(--text-main); font-size:0.85rem; outline:none;" />
+            <input type="password" id="pw-field" value="huragonSuperSecret#2026" style="width:100%; ${inputStyle} padding-right:38px; color:var(--text-main); font-size:0.85rem; outline:none;" />
             <button id="pw-toggle-btn" class="btn-ghost" style="position:absolute; right:8px; display:flex; align-items:center; justify-content:center; padding:4px; border:none; background:none; color:var(--text-muted); cursor:pointer;" title="Toggle password visibility">
               ${ICONS.eye}
             </button>
           </div>
         </div>
 
-        <!-- Live Password Strength Meter -->
+        <!-- Password Strength Meter -->
         <div>
           <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-dim); margin-bottom:4px;">
-            <span>Password Strength</span>
-            <span id="pw-strength-label" style="color:#10b981; font-weight:600;">Strong</span>
+            <span>Password Complexity</span>
+            <span id="pw-strength-label" style="color:#22c55e; font-weight:600;">Strong (85/100)</span>
           </div>
-          <div style="height:4px; width:100%; background:var(--bg-input); border-radius:999px; overflow:hidden;">
-            <div id="pw-meter-bar" style="width:85%; height:100%; background:#10b981; transition:all 0.2s ease;"></div>
+          <div style="height:5px; width:100%; background:var(--bg-input); border-radius:999px; overflow:hidden;">
+            <div id="pw-meter-bar" style="width:85%; height:100%; background:#22c55e; transition:all 0.2s ease;"></div>
           </div>
         </div>
 
-        <button class="btn btn-primary" style="margin-top:4px; padding:8px 14px; border-radius:${config.radius}px;">
-          <span>Update Credentials</span>
+        <button class="btn btn-primary" style="margin-top:6px; padding:9px 16px; border-radius:${config.radius}px; font-weight:600; justify-content:center;">
+          <span>Update Password</span>
         </button>
       </div>
     `;
@@ -176,80 +348,81 @@ export function mount(container, onCodeChange) {
           strengthLabel.style.color = '#eab308';
         } else {
           meterBar.style.width = '100%';
-          meterBar.style.background = '#10b981';
-          strengthLabel.textContent = 'Strong';
-          strengthLabel.style.color = '#10b981';
+          meterBar.style.background = '#22c55e';
+          strengthLabel.textContent = 'Strong (85/100)';
+          strengthLabel.style.color = '#22c55e';
         }
       };
     }
   }
 
-  // 3. Multi-Step Form Stepper (from Screenshot_20261024-192535.jpg)
-  function renderStepperWizard(target) {
+  // 4. STEPPER WIZARD
+  function renderStepper(target) {
     const step = config.currentStep;
+    const inputStyle = getInputVariantStyles();
 
     target.innerHTML = `
       <!-- Stepper Header -->
-      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; position:relative;">
+      <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:24px; position:relative;">
         <div style="display:flex; flex-direction:column; align-items:center; gap:4px; z-index:2;">
-          <div style="width:26px; height:26px; border-radius:50%; background:${step >= 1 ? 'var(--text-main)' : 'var(--bg-input)'}; color:${step >= 1 ? 'var(--bg-app)' : 'var(--text-dim)'}; border:1px solid ${step >= 1 ? 'var(--text-main)' : 'var(--border)'}; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
+          <div style="width:28px; height:28px; border-radius:50%; background:${step >= 1 ? 'var(--text-main)' : 'var(--bg-input)'}; color:${step >= 1 ? 'var(--bg-app)' : 'var(--text-dim)'}; border:1px solid ${step >= 1 ? 'var(--text-main)' : 'var(--border)'}; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
             ${step > 1 ? ICONS.check : '1'}
           </div>
-          <span style="font-size:0.68rem; color:${step === 1 ? 'var(--text-main)' : 'var(--text-dim)'}; font-weight:500;">Account</span>
+          <span style="font-size:0.7rem; color:${step === 1 ? 'var(--text-main)' : 'var(--text-dim)'}; font-weight:600;">Workspace</span>
         </div>
 
         <div style="flex:1; height:2px; background:${step >= 2 ? 'var(--text-main)' : 'var(--border)'}; margin:0 8px; margin-bottom:14px; transition:background 0.2s ease;"></div>
 
         <div style="display:flex; flex-direction:column; align-items:center; gap:4px; z-index:2;">
-          <div style="width:26px; height:26px; border-radius:50%; background:${step >= 2 ? 'var(--text-main)' : 'var(--bg-input)'}; color:${step >= 2 ? 'var(--bg-app)' : 'var(--text-dim)'}; border:1px solid ${step >= 2 ? 'var(--text-main)' : 'var(--border)'}; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
+          <div style="width:28px; height:28px; border-radius:50%; background:${step >= 2 ? 'var(--text-main)' : 'var(--bg-input)'}; color:${step >= 2 ? 'var(--bg-app)' : 'var(--text-dim)'}; border:1px solid ${step >= 2 ? 'var(--text-main)' : 'var(--border)'}; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
             ${step > 2 ? ICONS.check : '2'}
           </div>
-          <span style="font-size:0.68rem; color:${step === 2 ? 'var(--text-main)' : 'var(--text-dim)'}; font-weight:500;">Security</span>
+          <span style="font-size:0.7rem; color:${step === 2 ? 'var(--text-main)' : 'var(--text-dim)'}; font-weight:600;">Security</span>
         </div>
 
         <div style="flex:1; height:2px; background:${step >= 3 ? 'var(--text-main)' : 'var(--border)'}; margin:0 8px; margin-bottom:14px; transition:background 0.2s ease;"></div>
 
         <div style="display:flex; flex-direction:column; align-items:center; gap:4px; z-index:2;">
-          <div style="width:26px; height:26px; border-radius:50%; background:${step >= 3 ? 'var(--text-main)' : 'var(--bg-input)'}; color:${step >= 3 ? 'var(--bg-app)' : 'var(--text-dim)'}; border:1px solid ${step >= 3 ? 'var(--text-main)' : 'var(--border)'}; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
+          <div style="width:28px; height:28px; border-radius:50%; background:${step >= 3 ? 'var(--text-main)' : 'var(--bg-input)'}; color:${step >= 3 ? 'var(--bg-app)' : 'var(--text-dim)'}; border:1px solid ${step >= 3 ? 'var(--text-main)' : 'var(--border)'}; font-size:0.75rem; font-weight:700; display:flex; align-items:center; justify-content:center;">
             3
           </div>
-          <span style="font-size:0.68rem; color:${step === 3 ? 'var(--text-main)' : 'var(--text-dim)'}; font-weight:500;">Review</span>
+          <span style="font-size:0.7rem; color:${step === 3 ? 'var(--text-main)' : 'var(--text-dim)'}; font-weight:600;">Review</span>
         </div>
       </div>
 
-      <!-- Step Content -->
-      <div style="min-height:130px; margin-bottom:20px;">
+      <!-- Step Body -->
+      <div style="min-height:140px; margin-bottom:20px;">
         ${step === 1 ? `
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">Organization Workspace Name</label>
-            <input type="text" value="Acme Studio Labs" style="width:100%; padding:8px 12px; background:var(--bg-input); border:1px solid var(--border); border-radius:${config.radius}px; color:var(--text-main); font-size:0.85rem;" />
-            <span style="font-size:0.7rem; color:var(--text-dim);">Your custom subdomain: acme-studio.huragon.app</span>
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <label style="font-size:0.75rem; color:var(--text-main); font-weight:600;">Organization Workspace Name</label>
+            <input type="text" value="Acme Design Labs" style="width:100%; ${inputStyle} color:var(--text-main); font-size:0.85rem; outline:none;" />
+            <span style="font-size:0.7rem; color:var(--text-dim);">Your custom subdomain: acme-design.huragon.app</span>
           </div>
         ` : step === 2 ? `
-          <div style="display:flex; flex-direction:column; gap:10px;">
-            <label style="font-size:0.75rem; color:var(--text-muted); font-weight:500;">Two-Factor Authentication Setup</label>
-            <div style="padding:10px; background:var(--bg-input); border:1px solid var(--border); border-radius:${config.radius}px; font-size:0.78rem; color:var(--text-muted);">
-              Authenticator app is configured for this workspace domain.
+          <div style="display:flex; flex-direction:column; gap:12px;">
+            <label style="font-size:0.75rem; color:var(--text-main); font-weight:600;">Two-Factor Authentication Setup</label>
+            <div style="padding:12px; background:var(--bg-input); border:1px solid var(--border); border-radius:${config.radius}px; font-size:0.8rem; color:var(--text-muted); line-height:1.4;">
+              Authenticator app is configured for this domain. Hardware security keys (WebAuthn/FIDO2) are supported.
             </div>
           </div>
         ` : `
-          <div style="text-align:center; padding:10px 0;">
-            <div style="width:36px; height:36px; border-radius:50%; background:rgba(16, 185, 129, 0.12); color:#10b981; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
+          <div style="text-align:center; padding:12px 0;">
+            <div style="width:40px; height:40px; border-radius:50%; background:rgba(34, 197, 94, 0.12); color:#22c55e; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
               ${ICONS.checkCircle}
             </div>
-            <h4 style="font-size:0.95rem; font-weight:600; color:var(--text-main); margin:0 0 4px;">Ready to Provision</h4>
-            <p style="font-size:0.75rem; color:var(--text-dim); margin:0;">All requirements validated successfully.</p>
+            <h4 style="font-size:1rem; font-weight:700; color:var(--text-main); margin:0 0 4px;">Ready to Provision</h4>
+            <p style="font-size:0.75rem; color:var(--text-dim); margin:0;">All workspace configurations and domain DNS validated.</p>
           </div>
         `}
       </div>
 
-      <!-- Stepper Action Buttons -->
-      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:14px;">
+      <!-- Action Buttons -->
+      <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid var(--border); padding-top:16px;">
         <button class="btn btn-outline" id="stepper-back-btn" ${step === 1 ? 'disabled style="opacity:0.4; cursor:not-allowed;"' : ''}>
           ${ICONS.chevronLeft} <span>Back</span>
         </button>
         <button class="btn btn-primary" id="stepper-next-btn">
-          <span>${step === 3 ? 'Deploy Now' : 'Next Step'}</span> ${ICONS.chevronRight}
+          <span>${step === 3 ? 'Launch Workspace' : 'Continue'}</span> ${step < 3 ? ICONS.chevronRight : ''}
         </button>
       </div>
     `;
@@ -260,188 +433,141 @@ export function mount(container, onCodeChange) {
     if (backBtn && step > 1) {
       backBtn.onclick = () => {
         config.currentStep--;
-        renderStepperWizard(target);
-        updateCode();
+        renderStepper(target);
       };
     }
-
     if (nextBtn) {
       nextBtn.onclick = () => {
         if (config.currentStep < 3) {
           config.currentStep++;
+          renderStepper(target);
         } else {
           config.currentStep = 1;
+          renderStepper(target);
         }
-        renderStepperWizard(target);
-        updateCode();
       };
     }
   }
 
-  // 4. Search input pill with shortcut
-  function renderSearchPill(target) {
+  // 5. SEARCH PILL WITH ⌘K
+  function renderSearch(target) {
     target.innerHTML = `
-      <div style="margin-bottom:14px;">
-        <h3 style="font-size:1rem; font-weight:600; color:var(--text-main); margin:0 0 4px;">Global Command Search</h3>
-        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Compact pill with keyboard trigger badge</p>
+      <div style="margin-bottom:18px;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--text-main); margin:0 0 4px; letter-spacing:-0.02em;">Search Bar & Command Pill</h3>
+        <p style="font-size:0.75rem; color:var(--text-muted); margin:0;">Global search trigger with keyboard shortcut indicator</p>
       </div>
 
-      <div style="position:relative; display:flex; align-items:center;">
-        <span style="position:absolute; left:10px; color:var(--text-dim); display:flex; align-items:center;">${ICONS.search}</span>
-        <input type="text" id="pill-search-input" placeholder="Search resources, tokens, tools..." style="width:100%; padding:8px 60px 8px 32px; background:var(--bg-input); border:1px solid var(--border); border-radius:999px; color:var(--text-main); font-size:0.8rem; outline:none;" />
-        <span style="position:absolute; right:8px; font-size:0.65rem; background:var(--bg-card); padding:1px 6px; border-radius:4px; border:1px solid var(--border); color:var(--text-dim); font-family:var(--font-mono);">Ctrl+K</span>
+      <div style="display:flex; flex-direction:column; gap:16px;">
+        <div style="position:relative; display:flex; align-items:center;">
+          <span style="position:absolute; left:12px; color:var(--text-dim); display:flex; align-items:center; pointer-events:none;">
+            ${ICONS.search}
+          </span>
+          <input type="text" placeholder="Search documentation, components, or files..." style="width:100%; padding:10px 48px 10px 38px; background:var(--bg-input); border:1px solid var(--border-strong); border-radius:999px; color:var(--text-main); font-size:0.85rem; outline:none;" />
+          <kbd style="position:absolute; right:12px; font-size:0.7rem; font-family:var(--font-mono); color:var(--text-dim); background:var(--bg-card); border:1px solid var(--border); padding:2px 6px; border-radius:4px; pointer-events:none;">⌘K</kbd>
+        </div>
+
+        <div style="background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-md); padding:12px;">
+          <div style="font-size:0.7rem; font-weight:600; text-transform:uppercase; letter-spacing:0.04em; color:var(--text-dim); margin-bottom:8px;">Recent Searches</div>
+          <div style="display:flex; flex-direction:column; gap:6px;">
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; color:var(--text-main); padding:4px 6px; border-radius:4px; cursor:pointer;">
+              <span>Navbar Builder</span>
+              <span style="font-size:0.7rem; color:var(--text-dim);">Jump to tool</span>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; font-size:0.78rem; color:var(--text-main); padding:4px 6px; border-radius:4px; cursor:pointer;">
+              <span>Data Table Studio</span>
+              <span style="font-size:0.7rem; color:var(--text-dim);">Jump to tool</span>
+            </div>
+          </div>
+        </div>
       </div>
     `;
   }
 
-  function updateCode() {
-    let css = '';
-    let tailwind = '';
-
-    if (config.preset === 'notched') {
-      css = `/* Huragon/ui — Notched Floating Label Input */
-.notched-input-box {
-  position: relative;
-  width: 100%;
-}
-
-.notched-input-field {
-  width: 100%;
-  padding: 12px 14px;
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: ${config.radius}px;
-  color: var(--text-main);
-  outline: none;
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.notched-input-field:focus {
-  border-color: var(--text-main);
-  box-shadow: 0 0 0 2px var(--accent-subtle);
-}
-
-.notched-input-label {
-  position: absolute;
-  left: 12px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: transparent;
-  color: var(--text-dim);
-  font-size: 0.85rem;
-  pointer-events: none;
-  transition: all 0.16s cubic-bezier(0.16, 1, 0.3, 1);
-  padding: 0 4px;
-}
-
-.notched-input-field:focus ~ .notched-input-label,
-.notched-input-field:not(:placeholder-shown) ~ .notched-input-label {
-  top: 0;
-  font-size: 0.7rem;
-  color: var(--text-main);
-  background: var(--bg-card);
-  font-weight: 500;
-}`;
-      tailwind = `<div class="relative w-full">
-  <input type="text" placeholder=" " class="peer w-full px-3.5 py-3 bg-zinc-900 border border-zinc-800 rounded-[${config.radius}px] text-zinc-100 text-sm focus:border-zinc-100 focus:outline-none" />
-  <label class="absolute left-3 top-1/2 -translate-y-1/2 px-1 text-zinc-500 text-sm transition-all peer-focus:top-0 peer-focus:text-xs peer-focus:text-zinc-100 peer-focus:bg-zinc-900 peer-[:not(:placeholder-shown)]:top-0 peer-[:not(:placeholder-shown)]:text-xs">
-    Full Name
-  </label>
-</div>`;
-    } else if (config.preset === 'password') {
-      css = `/* Huragon/ui — Password with Visibility Toggle */
-.password-box {
+  function generateCode() {
+    const css = `/* HeroUI ${config.variant.toUpperCase()} Input */
+.ui-input-wrapper {
   position: relative;
   display: flex;
   align-items: center;
-}
-
-.password-input {
   width: 100%;
-  padding: 9px 36px 9px 12px;
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  border-radius: ${config.radius}px;
-  color: var(--text-main);
 }
 
-.password-toggle-btn {
-  position: absolute;
-  right: 8px;
-  background: none;
-  border: none;
-  color: var(--text-muted);
-  cursor: pointer;
+.ui-input {
+  width: 100%;
+  padding: 10px 12px;
+  background: var(--bg-${config.variant === 'bordered' ? 'card' : 'input'});
+  border: ${config.variant === 'underlined' ? 'none' : '1px solid var(--border)'};
+  ${config.variant === 'underlined' ? 'border-bottom: 2px solid var(--border);' : ''}
+  border-radius: ${config.variant === 'underlined' ? '0' : `${config.radius}px`};
+  color: var(--text-main);
+  font-size: 0.875rem;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.ui-input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.08);
 }`;
-      tailwind = `<div class="relative flex items-center">
-  <input type="password" class="w-full pl-3 pr-10 py-2 bg-zinc-900 border border-zinc-800 rounded-md text-sm text-zinc-100" />
-  <button class="absolute right-2 text-zinc-400 hover:text-zinc-100"></button>
+
+    const tailwind = `<!-- HeroUI ${config.variant} Input -->
+<div class="relative flex w-full flex-col gap-1.5">
+  <label class="text-xs font-semibold text-zinc-900 dark:text-zinc-100">Work Email</label>
+  <div class="relative flex items-center">
+    <input
+      type="email"
+      placeholder="name@company.com"
+      class="w-full rounded-${config.radius >= 12 ? 'xl' : 'lg'} border border-zinc-200 bg-white px-3.5 py-2.5 text-sm text-zinc-900 placeholder:text-zinc-400 focus:border-zinc-900 focus:outline-none focus:ring-2 focus:ring-zinc-900/10 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:focus:border-zinc-100"
+    />
+  </div>
+  <p class="text-xs text-zinc-500">We'll never share your email with anyone else.</p>
 </div>`;
-    } else {
-      css = `/* Huragon/ui — Form Control Preset (${config.preset}) */
-.ui-form-wizard {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: ${config.radius}px;
-  padding: 24px;
+
+    const react = `// React / HeroUI Input Component
+import React, { useState } from 'react';
+
+export function ModernInput({ label, helperText, placeholder = 'Enter value...' }) {
+  const [value, setValue] = useState('');
+
+  return (
+    <div className="flex flex-col gap-1.5 w-full">
+      {label && <label className="text-xs font-semibold text-zinc-900 dark:text-zinc-100">{label}</label>}
+      <input
+        value={value}
+        onChange={(e) => setValue(e.target.value)}
+        placeholder={placeholder}
+        className="w-full rounded-lg border border-zinc-300 dark:border-zinc-800 bg-white dark:bg-zinc-950 px-3.5 py-2.5 text-sm outline-none transition focus:border-zinc-900 dark:focus:border-zinc-100"
+      />
+      {helperText && <p className="text-xs text-zinc-500">{helperText}</p>}
+    </div>
+  );
 }`;
-      tailwind = `<div class="bg-zinc-900 border border-zinc-800 rounded-[${config.radius}px] p-6 text-zinc-100">
-  <!-- Stepper Form -->
-</div>`;
-    }
 
-    onCodeChange({ css, tailwind });
+    onCodeChange({ css, tailwind, react });
   }
 
-  function renderControls() {
-    controlsStage.innerHTML = '';
-
-    const sec = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', textContent: 'Form Control Preset' }),
-
-      el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(2, 1fr)', gap: '6px', marginBottom: '16px' } }, [
-        { id: 'notched', name: 'Notched Label' },
-        { id: 'password', name: 'Password Eye' },
-        { id: 'stepper', name: 'Multi-Step Wizard' },
-        { id: 'search', name: 'Command Search' }
-      ].map(p => el('button', {
-        className: `btn ${config.preset === p.id ? 'btn-primary' : 'btn-outline'}`,
-        style: { padding: '6px 8px', fontSize: '0.72rem' },
-        textContent: p.name,
-        onclick: () => {
-          config.preset = p.id;
-          renderControls();
-          renderFormPreset();
-        }
-      }))),
-
-      el('div', { className: 'section-title', textContent: 'Dimensions' }),
-      createSlider('Border Radius', config.radius, 0, 20, (v) => { config.radius = v; renderFormPreset(); }, 'px')
+  function createSlider(label, min, max, step, initial, unit, onChange) {
+    const wrapper = el('div', { className: 'control-item' });
+    const row = el('div', { className: 'control-label-row' }, [
+      el('label', { className: 'control-label', textContent: label }),
+      el('span', { className: 'control-value', textContent: `${initial}${unit}` })
     ]);
+    const valSpan = row.querySelector('.control-value');
+    const slider = el('input', {
+      type: 'range',
+      min,
+      max,
+      step,
+      value: initial,
+      oninput: (e) => {
+        const v = parseFloat(e.target.value);
+        valSpan.textContent = `${v}${unit}`;
+        onChange(v);
+      }
+    });
 
-    controlsStage.appendChild(sec);
+    wrapper.appendChild(row);
+    wrapper.appendChild(slider);
+    return wrapper;
   }
-
-  function createSlider(label, val, min, max, onChange, unit = '') {
-    const valSpan = el('span', { className: 'control-value', textContent: `${val}${unit}` });
-    return el('div', { className: 'control-group' }, [
-      el('div', { className: 'control-label-row' }, [
-        el('span', { className: 'control-label', textContent: label }),
-        valSpan
-      ]),
-      el('input', {
-        type: 'range',
-        min,
-        max,
-        value: val,
-        oninput: (e) => {
-          const v = parseFloat(e.target.value);
-          valSpan.textContent = `${v}${unit}`;
-          onChange(v);
-        }
-      })
-    ]);
-  }
-
-  renderControls();
 }

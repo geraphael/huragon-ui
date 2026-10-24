@@ -45,6 +45,13 @@ export function mount(container, onCodeChange) {
 
   previewStage.appendChild(centerStage);
 
+  function getGlassBg() {
+    const isLight = document.body.classList.contains('theme-light');
+    return isLight ? `rgba(255, 255, 255, ${config.opacity})` : `rgba(18, 18, 22, ${config.opacity})`;
+  }
+
+  window.addEventListener('huragon:theme-change', renderNavbarStage);
+
   renderNavbarStage();
 
   function renderNavbarStage() {
@@ -106,7 +113,7 @@ export function mount(container, onCodeChange) {
         margin: 0 auto;
         padding: 10px 18px;
         border-radius: ${config.radius}px;
-        background: rgba(18, 18, 22, ${config.opacity});
+        background: ${getGlassBg()};
         backdrop-filter: blur(${config.blur}px);
         -webkit-backdrop-filter: blur(${config.blur}px);
         border: ${config.border ? '1px solid var(--border-strong)' : 'none'};
@@ -117,7 +124,7 @@ export function mount(container, onCodeChange) {
       navStyle = `
         width: 100%;
         padding: 10px 24px;
-        background: rgba(18, 18, 22, ${config.opacity});
+        background: ${getGlassBg()};
         backdrop-filter: blur(${config.blur}px);
         -webkit-backdrop-filter: blur(${config.blur}px);
         border-bottom: ${config.border ? '1px solid var(--border)' : 'none'};
@@ -127,7 +134,7 @@ export function mount(container, onCodeChange) {
       navStyle = `
         width: 100%;
         padding: 12px 24px;
-        background: rgba(18, 18, 22, ${config.opacity});
+        background: ${getGlassBg()};
         backdrop-filter: blur(${config.blur}px);
         -webkit-backdrop-filter: blur(${config.blur}px);
         border-bottom: ${config.border ? '1px solid var(--border)' : 'none'};
@@ -138,7 +145,7 @@ export function mount(container, onCodeChange) {
       navStyle = `
         width: 100%;
         padding: 14px 28px;
-        background: rgba(18, 18, 22, ${config.opacity});
+        background: ${getGlassBg()};
         backdrop-filter: blur(${config.blur}px);
         -webkit-backdrop-filter: blur(${config.blur}px);
         border-bottom: ${config.border ? '1px solid var(--border)' : 'none'};
@@ -237,7 +244,7 @@ export function mount(container, onCodeChange) {
         style: {
           position: 'absolute',
           inset: '0',
-          background: 'rgba(9, 9, 11, 0.98)',
+          background: document.body.classList.contains('theme-light') ? 'rgba(255, 255, 255, 0.98)' : 'rgba(9, 9, 11, 0.98)',
           zIndex: 100,
           display: 'flex',
           flexDirection: 'column',
@@ -493,7 +500,7 @@ export function mount(container, onCodeChange) {
   margin: 0 auto;
   z-index: 50;
   padding: 10px 18px;
-  background-color: rgba(18, 18, 22, ${config.opacity});
+  background-color: var(--glass-bg, rgba(18, 18, 22, ${config.opacity}));
   backdrop-filter: blur(${config.blur}px);
   -webkit-backdrop-filter: blur(${config.blur}px);
   border: 1px solid var(--border-strong);
@@ -539,7 +546,7 @@ export function mount(container, onCodeChange) {
   width: 100%;
   z-index: 50;
   padding: 10px 24px;
-  background-color: rgba(18, 18, 22, ${config.opacity});
+  background-color: var(--glass-bg, rgba(18, 18, 22, ${config.opacity}));
   backdrop-filter: blur(${config.blur}px);
   -webkit-backdrop-filter: blur(${config.blur}px);
   border-bottom: 1px solid var(--border);
