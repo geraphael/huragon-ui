@@ -8,10 +8,10 @@ export const meta = {
 };
 
 const INITIAL_ROWS = [
-  { id: 1, name: '5 mintest', sub: 'Hotspot', offer: 'Ksh 2', offerBadge: 'Unlimited', validity: '5 minutes', speedDown: '15M', speedUp: '15M', routers: 'All routers', status: 'Active' },
-  { id: 2, name: '1 Hour Premium', sub: 'PPPoE', offer: 'Ksh 50', offerBadge: 'Standard', validity: '1 hour', speedDown: '25M', speedUp: '25M', routers: 'Router A', status: 'Active' },
-  { id: 3, name: '24 Hour Pass', sub: 'Hotspot', offer: 'Ksh 100', offerBadge: 'Unlimited', validity: '24 hours', speedDown: '50M', speedUp: '20M', routers: 'All routers', status: 'Inactive' },
-  { id: 4, name: 'Weekly Heavy', sub: 'PPPoE', offer: 'Ksh 450', offerBadge: 'High Bandwidth', validity: '7 days', speedDown: '100M', speedUp: '50M', routers: 'Router B', status: 'Active' }
+  { id: 1, name: '1 Hour Premium', sub: 'PPPoE', offer: '$50', offerBadge: 'Standard', validity: '1 hour', speedDown: '25M', speedUp: '25M', routers: 'Router A', status: 'Active' },
+  { id: 2, name: '24 Hour Pass', sub: 'Hotspot', offer: '$100', offerBadge: 'Unlimited', validity: '24 hours', speedDown: '50M', speedUp: '20M', routers: 'All routers', status: 'Inactive' },
+  { id: 3, name: '5 mintest', sub: 'Hotspot', offer: '$2', offerBadge: 'Unlimited', validity: '5 minutes', speedDown: '15M', speedUp: '15M', routers: 'All routers', status: 'Active' },
+  { id: 4, name: 'Weekly Heavy', sub: 'PPPoE', offer: '$450', offerBadge: 'High Bandwidth', validity: '7 days', speedDown: '100M', speedUp: '50M', routers: 'Router B', status: 'Active' }
 ];
 
 let stateTable = {

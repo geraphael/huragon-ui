@@ -104,7 +104,7 @@ export function mount(container, onCodeChange) {
       <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px;">
         <div>
           <span style="font-size:0.72rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim);">Revenue Collected</span>
-          <div style="font-size:1.65rem; font-weight:700; color:var(--text-main); margin-top:2px; letter-spacing:-0.02em;">Ksh 11,664</div>
+          <div style="font-size:1.65rem; font-weight:700; color:var(--text-main); margin-top:2px; letter-spacing:-0.02em;">$11,664</div>
         </div>
         <span style="display:inline-flex; align-items:center; gap:4px; font-size:0.72rem; padding:3px 8px; border-radius:999px; background:rgba(16, 185, 129, 0.12); color:#10b981; border:1px solid rgba(16, 185, 129, 0.25); font-weight:600;">
           +18.4%
@@ -119,14 +119,14 @@ export function mount(container, onCodeChange) {
         <!-- Interactive distribution bar chart -->
         <div id="metric-bars-row" style="display:flex; align-items:flex-end; gap:6px; height:60px; padding:6px 0; border-bottom:1px solid var(--border);">
           ${[35, 55, 40, 75, 48, 90, 65, 85, 70, 95, 60, 80].map((h, i) => `
-            <div class="interactive-bar-col" data-index="${i}" data-val="${h * 12}" style="flex:1; height:${h}%; background:var(--text-dim); border-radius:3px 3px 0 0; transition:all 0.15s ease; cursor:pointer;" title="Day ${i+1}: Ksh ${h*12}"></div>
+            <div class="interactive-bar-col" data-index="${i}" data-val="${h * 12}" style="flex:1; height:${h}%; background:var(--text-dim); border-radius:3px 3px 0 0; transition:all 0.15s ease; cursor:pointer;" title="Day ${i+1}: $${h*12}"></div>
           `).join('')}
         </div>
         <div id="bar-tooltip-label" style="height:18px; font-size:0.72rem; color:var(--text-muted); text-align:center; margin-top:4px;">Hover any column to inspect day data</div>
       </div>
 
       <div style="display:flex; justify-content:space-between; align-items:center; pt-2; border-top:1px solid var(--border); padding-top:10px;">
-        <span style="font-size:0.72rem; color:var(--text-dim);">Avg Ksh 6,500/mo</span>
+        <span style="font-size:0.72rem; color:var(--text-dim);">Avg $6,500/mo</span>
         <button class="btn btn-outline" id="metric-details-btn" style="padding:4px 10px; font-size:0.75rem; display:inline-flex; align-items:center; gap:4px;">
           <span>View Report</span>
           ${ICONS.arrowUpRight}
@@ -142,7 +142,7 @@ export function mount(container, onCodeChange) {
         bars.forEach(other => other.style.background = 'var(--text-dim)');
         b.style.background = 'var(--text-main)';
         b.style.transform = 'scaleY(1.08)';
-        if (label) label.textContent = `Day ${parseInt(b.dataset.index) + 1}: Ksh ${b.dataset.val} · 6 transactions`;
+        if (label) label.textContent = `Day ${parseInt(b.dataset.index) + 1}: $${b.dataset.val} · 6 transactions`;
       };
       b.onmouseleave = () => {
         b.style.transform = 'none';
