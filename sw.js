@@ -1,5 +1,5 @@
-// Huragon/ui Service Worker - v1.0.0
-const CACHE_NAME = 'huragon-ui-v1';
+// Huragon/ui Service Worker - v2.0.0 (All 47 Tools)
+const CACHE_NAME = 'huragon-ui-v2';
 
 const STATIC_PRECACHE = [
   './',
@@ -27,6 +27,7 @@ const STATIC_PRECACHE = [
   './js/generators/mesh-gradient.js',
   './js/generators/gradient-builder.js',
   './js/generators/animated-gradient.js',
+  './js/generators/aurora-gradient.js',
   './js/generators/glassmorphism.js',
   './js/generators/box-shadow.js',
   './js/generators/css-filters.js',
@@ -39,26 +40,37 @@ const STATIC_PRECACHE = [
   './js/generators/border-radius.js',
   './js/generators/grid-generator.js',
   './js/generators/flexbox-playground.js',
+  './js/generators/responsive-preview.js',
+  './js/generators/media-query.js',
   './js/generators/responsive-typography.js',
   './js/generators/button-generator.js',
   './js/generators/card-designer.js',
+  './js/generators/navbar-builder.js',
   './js/generators/form-input-styler.js',
   './js/generators/toggle-checkbox.js',
   './js/generators/tooltip-generator.js',
   './js/generators/badge-tag.js',
   './js/generators/avatar-stack.js',
-  './js/generators/navbar-builder.js',
   './js/generators/table-styler.js',
   './js/generators/divider-separator.js',
   './js/generators/loading-spinner.js',
   './js/generators/skeleton-screen.js',
   './js/generators/hover-effects.js',
+  './js/generators/keyframe-animator.js',
+  './js/generators/text-animations.js',
+  './js/generators/background-patterns.js',
+  './js/generators/noise-texture.js',
+  './js/generators/underline-effects.js',
   './js/generators/color-palette.js',
   './js/generators/contrast-checker.js',
-  './js/generators/background-patterns.js',
+  './js/generators/typography-scale.js',
   './js/generators/scrollbar-styler.js',
   './js/generators/easing-editor.js',
-  './js/generators/color-converter.js'
+  './js/generators/transition-builder.js',
+  './js/generators/color-converter.js',
+  './js/generators/spacing-calculator.js',
+  './js/generators/aspect-ratio.js',
+  './js/generators/css-reset.js'
 ];
 
 self.addEventListener('install', (event) => {

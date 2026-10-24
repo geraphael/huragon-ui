@@ -6,7 +6,8 @@ export const CATEGORIES = [
     tools: [
       { id: 'mesh-gradient', name: 'Mesh Gradient', desc: 'Organic multi-point radial gradient generator' },
       { id: 'gradient-builder', name: 'Linear & Radial Gradient', desc: 'Linear, radial, and conic gradient designer' },
-      { id: 'animated-gradient', name: 'Animated Gradient', desc: 'Looping hue-shifting keyframe gradients' }
+      { id: 'animated-gradient', name: 'Animated Gradient', desc: 'Looping hue-shifting keyframe gradients' },
+      { id: 'aurora-gradient', name: 'Aurora Borealis Glow', desc: 'Flowing multi-beam northern lights ambient glow' }
     ]
   },
   {

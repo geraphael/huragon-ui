@@ -7,6 +7,7 @@ const generatorsMap = {
   'mesh-gradient': () => import('./generators/mesh-gradient.js'),
   'gradient-builder': () => import('./generators/gradient-builder.js'),
   'animated-gradient': () => import('./generators/animated-gradient.js'),
+  'aurora-gradient': () => import('./generators/aurora-gradient.js'),
 
   // Effects & Shadows
   'glassmorphism': () => import('./generators/glassmorphism.js'),
@@ -27,6 +28,8 @@ const generatorsMap = {
   'flexbox-playground': () => import('./generators/flexbox-playground.js'),
 
   // Responsive
+  'responsive-preview': () => import('./generators/responsive-preview.js'),
+  'media-query': () => import('./generators/media-query.js'),
   'responsive-typography': () => import('./generators/responsive-typography.js'),
 
   // Components
@@ -45,18 +48,27 @@ const generatorsMap = {
   'loading-spinner': () => import('./generators/loading-spinner.js'),
   'skeleton-screen': () => import('./generators/skeleton-screen.js'),
   'hover-effects': () => import('./generators/hover-effects.js'),
-
-  // Color & Accessibility
-  'color-palette': () => import('./generators/color-palette.js'),
-  'contrast-checker': () => import('./generators/contrast-checker.js'),
+  'keyframe-animator': () => import('./generators/keyframe-animator.js'),
+  'text-animations': () => import('./generators/text-animations.js'),
 
   // Patterns
   'background-patterns': () => import('./generators/background-patterns.js'),
+  'noise-texture': () => import('./generators/noise-texture.js'),
+  'underline-effects': () => import('./generators/underline-effects.js'),
+
+  // Color & Typography
+  'color-palette': () => import('./generators/color-palette.js'),
+  'contrast-checker': () => import('./generators/contrast-checker.js'),
+  'typography-scale': () => import('./generators/typography-scale.js'),
 
   // Utilities
   'scrollbar-styler': () => import('./generators/scrollbar-styler.js'),
   'easing-editor': () => import('./generators/easing-editor.js'),
-  'color-converter': () => import('./generators/color-converter.js')
+  'transition-builder': () => import('./generators/transition-builder.js'),
+  'color-converter': () => import('./generators/color-converter.js'),
+  'spacing-calculator': () => import('./generators/spacing-calculator.js'),
+  'aspect-ratio': () => import('./generators/aspect-ratio.js'),
+  'css-reset': () => import('./generators/css-reset.js')
 };
 
 export async function navigateTo(toolId, onCodeUpdate) {
