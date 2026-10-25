@@ -6,6 +6,7 @@
   --accent-subtle: rgba(255, 255, 255, 0.08);
 
   /* Deep slate neutral surfaces */
+  --bg-canvas: #09090b;
   --bg-app: #09090b;
   --bg-sidebar: #0d0d10;
   --bg-panel: #111115;
@@ -97,7 +98,8 @@ body.theme-light {
   --accent-muted: #e4e4e7;
   --accent-subtle: rgba(0, 0, 0, 0.05);
 
-  --bg-app: #fafafa;
+  --bg-canvas: #f0f1f4;
+  --bg-app: #f0f1f4;
   --bg-sidebar: #f4f4f5;
   --bg-panel: #ffffff;
   --bg-card: #ffffff;

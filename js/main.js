@@ -9,7 +9,7 @@ import { ICONS } from './utils/icons.js';
 
 let latestCode = { css: '', tailwind: '' };
 
-document.addEventListener('DOMContentLoaded', () => {
+function boot() {
   initTheme();
   initSidebar();
   renderSidebar();
@@ -26,7 +26,13 @@ document.addEventListener('DOMContentLoaded', () => {
   initStageCodeView();
   initLandingPage();
   initPWA();
-});
+}
+
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', boot);
+} else {
+  boot();
+}
 
 function initTheme() {
   const savedTheme = localStorage.getItem('huragon_theme') || 'dark';
@@ -72,7 +78,7 @@ function initSidebar() {
   const toggleIcon = qs('#sidebar-toggle-icon');
 
   const isCollapsed = localStorage.getItem('huragon_sidebar_collapsed') === 'true';
-  if (isCollapsed && sidebar) {
+  if (isCollapsed && sidebar && window.innerWidth > 768) {
     sidebar.classList.add('collapsed');
   }
 
@@ -80,10 +86,16 @@ function initSidebar() {
 
   if (toggleBtn && sidebar) {
     toggleBtn.addEventListener('click', () => {
-      sidebar.classList.toggle('collapsed');
-      const collapsed = sidebar.classList.contains('collapsed');
-      localStorage.setItem('huragon_sidebar_collapsed', collapsed);
-      updateSidebarToggleIcon();
+      if (window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+        const backdrop = qs('#sidebar-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
+      } else {
+        sidebar.classList.toggle('collapsed');
+        const collapsed = sidebar.classList.contains('collapsed');
+        localStorage.setItem('huragon_sidebar_collapsed', collapsed);
+        updateSidebarToggleIcon();
+      }
     });
   }
 
@@ -172,10 +184,11 @@ function renderPinnedSection() {
         if (sidebar && window.innerWidth <= 768) {
           sidebar.classList.remove('open');
           const backdrop = qs('#sidebar-backdrop');
-          if (backdrop) backdrop.style.display = 'none';
+          if (backdrop) backdrop.classList.remove('active');
         }
       }
     }, [
+      el('span', { className: 'nav-item-icon', innerHTML: iconSvg }),
       el('span', { className: 'nav-text', textContent: meta.name }),
       removeBtn
     ]);
@@ -184,10 +197,10 @@ function renderPinnedSection() {
   });
 
   pinnedSection.appendChild(list);
-  const overviewItem = qs('#nav-overview-item');
-  if (overviewItem && overviewItem.nextSibling) {
-    container.insertBefore(pinnedSection, overviewItem.nextSibling);
-  } else if (overviewItem) {
+  const workspaceSection = qs('#nav-workspace-section') || qs('#nav-overview-item');
+  if (workspaceSection && workspaceSection.nextSibling) {
+    container.insertBefore(pinnedSection, workspaceSection.nextSibling);
+  } else if (workspaceSection) {
     container.appendChild(pinnedSection);
   } else {
     container.insertBefore(pinnedSection, container.firstChild);
@@ -204,9 +217,12 @@ function renderToolNavItem(tool) {
       const sidebar = qs('#sidebar');
       if (sidebar && window.innerWidth <= 768) {
         sidebar.classList.remove('open');
+        const backdrop = qs('#sidebar-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
       }
     }
   }, [
+    el('span', { className: 'nav-item-icon', innerHTML: ICONS[tool.icon] || ICONS.sliders }),
     el('span', { className: 'nav-text', textContent: tool.name })
   ]);
 
@@ -245,39 +261,61 @@ function renderSidebar() {
   if (!container) return;
   container.innerHTML = '';
 
-  // Studio Overview fixed entry at top of sidebar
+  // Workspace Section (Studio Overview & Live Dashboard)
   const currentRoute = location.hash.replace('#', '') || 'overview';
-  const isOverview = currentRoute === 'overview';
+  const workspaceSection = el('div', {
+    id: 'nav-workspace-section',
+    className: 'nav-workspace-section',
+    style: 'margin-bottom: 6px;'
+  });
+
   const overviewNav = el('div', {
     id: 'nav-overview-item',
-    className: 'nav-item nav-item-overview' + (isOverview ? ' active' : ''),
+    className: 'nav-item nav-item-overview' + (currentRoute === 'overview' ? ' active' : ''),
     'data-tool-id': 'overview',
     'data-tooltip': 'Studio Overview',
-    style: 'margin-bottom: 6px;',
     onclick: () => {
       location.hash = '#overview';
       const sidebar = qs('#sidebar');
       if (sidebar && window.innerWidth <= 768) {
         sidebar.classList.remove('open');
         const backdrop = qs('#sidebar-backdrop');
-        if (backdrop) backdrop.style.display = 'none';
+        if (backdrop) backdrop.classList.remove('active');
       }
     }
   }, [
-    el('span', { className: 'nav-overview-icon', innerHTML: ICONS.home || ICONS.layout, style: 'display:flex;align-items:center;justify-content:center;color:inherit;margin-right:8px;flex-shrink:0;' }),
-    el('span', { className: 'nav-text', textContent: 'Studio Overview', style: 'font-weight:600;' })
+    el('span', { className: 'nav-item-icon', innerHTML: ICONS.home || ICONS.layout }),
+    el('span', { className: 'nav-text', textContent: 'Studio Overview' })
   ]);
-  container.appendChild(overviewNav);
 
-  // Load per-category and per-group collapse state from localStorage
+  const dashboardNav = el('div', {
+    id: 'nav-dashboard-item',
+    className: 'nav-item nav-item-dashboard' + (currentRoute === 'app-canvas' ? ' active' : ''),
+    'data-tool-id': 'app-canvas',
+    'data-tooltip': 'Live Dashboard (App Canvas)',
+    onclick: () => {
+      location.hash = '#app-canvas';
+      const sidebar = qs('#sidebar');
+      if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+        const backdrop = qs('#sidebar-backdrop');
+        if (backdrop) backdrop.classList.remove('active');
+      }
+    }
+  }, [
+    el('span', { className: 'nav-item-icon', innerHTML: ICONS.layout || ICONS.sliders }),
+    el('span', { className: 'nav-text', textContent: 'Live Dashboard' })
+  ]);
+
+  workspaceSection.appendChild(overviewNav);
+  workspaceSection.appendChild(dashboardNav);
+  container.appendChild(workspaceSection);
+
+  // Load per-category collapse state from localStorage
   let catStates = {};
-  let groupStates = {};
   try {
     catStates = JSON.parse(localStorage.getItem('huragon_cat_states') || '{}');
   } catch (_) { catStates = {}; }
-  try {
-    groupStates = JSON.parse(localStorage.getItem('huragon_group_states') || '{}');
-  } catch (_) { groupStates = {}; }
 
   CATEGORIES.forEach(cat => {
     // Default: all categories expanded
@@ -289,7 +327,7 @@ function renderSidebar() {
       innerHTML: isCollapsed ? ICONS.chevronRight : ICONS.chevronDown
     });
 
-    const totalCount = cat.tools ? cat.tools.length : (cat.groups ? cat.groups.reduce((acc, g) => acc + g.tools.length, 0) : 0);
+    const totalCount = cat.tools ? cat.tools.length : 0;
 
     const titleRow = el('div', {
       className: 'category-title' + (isCollapsed ? ' cat-collapsed' : ''),
@@ -304,49 +342,7 @@ function renderSidebar() {
       className: 'nav-tools-list' + (isCollapsed ? ' nav-tools-hidden' : '')
     });
 
-    if (cat.groups && cat.groups.length > 0) {
-      cat.groups.forEach(group => {
-        const groupKey = `${cat.id}-${group.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-        const isGroupCollapsed = groupStates[groupKey] === true;
-
-        const groupChevron = el('span', {
-          className: 'group-chevron',
-          innerHTML: isGroupCollapsed ? ICONS.chevronRight : ICONS.chevronDown
-        });
-
-        const groupHeader = el('div', {
-          className: 'nav-group-label' + (isGroupCollapsed ? ' group-collapsed' : '')
-        }, [
-          el('span', { textContent: group.label }),
-          groupChevron
-        ]);
-
-        const groupToolsList = el('div', {
-          className: 'nav-group-tools' + (isGroupCollapsed ? ' group-hidden' : '')
-        });
-
-        group.tools.forEach(tool => {
-          groupToolsList.appendChild(renderToolNavItem(tool));
-        });
-
-        groupHeader.addEventListener('click', (e) => {
-          const sidebar = qs('#sidebar');
-          if (sidebar && sidebar.classList.contains('collapsed')) return;
-          e.stopPropagation();
-
-          const nowGroupCollapsed = !groupToolsList.classList.contains('group-hidden');
-          groupToolsList.classList.toggle('group-hidden', nowGroupCollapsed);
-          groupHeader.classList.toggle('group-collapsed', nowGroupCollapsed);
-          groupChevron.innerHTML = nowGroupCollapsed ? ICONS.chevronRight : ICONS.chevronDown;
-
-          groupStates[groupKey] = nowGroupCollapsed;
-          localStorage.setItem('huragon_group_states', JSON.stringify(groupStates));
-        });
-
-        toolsList.appendChild(groupHeader);
-        toolsList.appendChild(groupToolsList);
-      });
-    } else {
+    if (cat.tools && cat.tools.length > 0) {
       cat.tools.forEach(tool => {
         toolsList.appendChild(renderToolNavItem(tool));
       });
@@ -371,6 +367,9 @@ function renderSidebar() {
     const catBox = el('div', { className: 'nav-category', 'data-cat-id': cat.id }, [titleRow, toolsList]);
     container.appendChild(catBox);
   });
+
+  // Render pinned section if available
+  renderPinnedSection();
 }
 
 function updateBreadcrumbs(toolId) {
@@ -794,9 +793,13 @@ function initRouting() {
     updateBreadcrumbs(route);
   });
 
-  const initialRoute = location.hash.replace('#', '') || 'overview';
-  navigateTo(initialRoute, onCodeChange);
-  updateBreadcrumbs(initialRoute);
+  if (!location.hash || location.hash === '#' || location.hash === '#/') {
+    location.hash = '#overview';
+  } else {
+    const initialRoute = location.hash.replace('#', '') || 'overview';
+    navigateTo(initialRoute, onCodeChange);
+    updateBreadcrumbs(initialRoute);
+  }
 }
 
 function openLanding() {
@@ -842,6 +845,15 @@ function bindGlobalEvents() {
 
   const ghHeaderIcon = qs('#github-header-icon');
   if (ghHeaderIcon) ghHeaderIcon.innerHTML = ICONS.github;
+
+  const sidebarGhIcon = qs('#sidebar-github-icon');
+  if (sidebarGhIcon) sidebarGhIcon.innerHTML = ICONS.github;
+
+  const sidebarAiIcon = qs('#sidebar-ai-icon');
+  if (sidebarAiIcon) sidebarAiIcon.innerHTML = ICONS.bot || ICONS.sliders;
+
+  const sidebarAiBtn = qs('#sidebar-ai-skill-btn');
+  if (sidebarAiBtn) sidebarAiBtn.addEventListener('click', openGlobalAiSkillModal);
 
   const shareBtn = qs('#share-url-btn');
   const shareIcon = qs('#share-url-icon');
@@ -955,9 +967,24 @@ function initMobileNav() {
   const mobPreviewIcon = qs('#mob-preview-icon');
   const mobControlsIcon = qs('#mob-controls-icon');
   const mobCodeIcon = qs('#mob-code-icon');
+  const mobToolsIcon = qs('#mob-tools-icon');
   if (mobPreviewIcon) mobPreviewIcon.innerHTML = ICONS.eye;
   if (mobControlsIcon) mobControlsIcon.innerHTML = ICONS.sliders;
   if (mobCodeIcon) mobCodeIcon.innerHTML = ICONS.code;
+  if (mobToolsIcon) mobToolsIcon.innerHTML = ICONS.sliders || ICONS.menu;
+
+  const sidebar = qs('#sidebar');
+  const backdrop = qs('#sidebar-backdrop');
+
+  function openSidebarMobile() {
+    if (sidebar) sidebar.classList.add('open');
+    if (backdrop) backdrop.classList.add('active');
+  }
+
+  function closeSidebarMobile() {
+    if (sidebar) sidebar.classList.remove('open');
+    if (backdrop) backdrop.classList.remove('active');
+  }
 
   // Set initial tab state on mobile
   function setMobileTab(tab) {
@@ -973,7 +1000,17 @@ function initMobileNav() {
   const navBtns = qsa('.mobile-nav-btn');
   navBtns.forEach(btn => {
     btn.addEventListener('click', () => {
-      setMobileTab(btn.dataset.mobileTab);
+      const tab = btn.dataset.mobileTab;
+      if (tab === 'tools') {
+        if (sidebar && sidebar.classList.contains('open')) {
+          closeSidebarMobile();
+        } else {
+          openSidebarMobile();
+        }
+      } else {
+        closeSidebarMobile();
+        setMobileTab(tab);
+      }
     });
   });
 
@@ -982,50 +1019,9 @@ function initMobileNav() {
     setMobileTab('preview');
   }
 
-  // Sidebar backdrop for mobile
-  const sidebar = qs('#sidebar');
-  const mobileToggle = qs('#mobile-toggle-btn');
-
-  // Create backdrop element once
-  let backdrop = qs('#sidebar-backdrop');
-  if (!backdrop) {
-    backdrop = el('div', {
-      id: 'sidebar-backdrop',
-      style: 'display:none; position:fixed; inset:0; background:rgba(0,0,0,0.5); z-index:400; backdrop-filter:blur(2px);'
-    });
-    document.body.appendChild(backdrop);
+  if (backdrop) {
+    backdrop.addEventListener('click', closeSidebarMobile);
   }
-
-  function openSidebar() {
-    if (sidebar) sidebar.classList.add('open');
-    backdrop.style.display = 'block';
-    setTimeout(() => { backdrop.style.opacity = '1'; }, 10);
-  }
-
-  function closeSidebarMobile() {
-    if (sidebar) sidebar.classList.remove('open');
-    backdrop.style.opacity = '0';
-    setTimeout(() => { backdrop.style.display = 'none'; }, 200);
-  }
-
-  backdrop.style.transition = 'opacity 0.2s ease';
-  backdrop.style.opacity = '0';
-
-  if (mobileToggle) {
-    // Replace existing listener by cloning
-    const newToggle = mobileToggle.cloneNode(true);
-    newToggle.innerHTML = ICONS.menu;
-    mobileToggle.parentNode.replaceChild(newToggle, mobileToggle);
-    newToggle.addEventListener('click', () => {
-      if (sidebar && sidebar.classList.contains('open')) {
-        closeSidebarMobile();
-      } else {
-        openSidebar();
-      }
-    });
-  }
-
-  backdrop.addEventListener('click', closeSidebarMobile);
 
   // Also close sidebar on nav item click (mobile)
   document.addEventListener('click', (e) => {

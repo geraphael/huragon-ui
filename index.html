@@ -28,19 +28,22 @@
 </head>
 <body class="theme-dark">
   <div id="app">
-    <!-- Sidebar Navigation -->
-    <aside id="sidebar">
-      <!-- Collapse toggle on border edge -->
-      <button id="sidebar-collapse-btn" class="sidebar-boundary-toggle" title="Toggle Sidebar rail" aria-label="Toggle rail mode">
-        <span id="sidebar-toggle-icon"></span>
-      </button>
+    <!-- Backdrop for Mobile Sidebar Overlay -->
+    <div id="sidebar-backdrop" class="sidebar-backdrop"></div>
 
+    <!-- Floating Sidebar Navigation -->
+    <aside id="sidebar">
       <div class="sidebar-header">
         <div class="brand-badge" style="cursor: pointer;" id="brand-home-btn" title="Huragon Studio Home">
           <img src="assets/favicon.svg" alt="Huragon UI" />
           <span class="brand-name">huragon/ui</span>
         </div>
-        <span class="version-tag">v1.2</span>
+        <div class="sidebar-header-actions">
+          <span class="version-tag">v1.2</span>
+          <button id="sidebar-collapse-btn" class="sidebar-toggle-btn btn-ghost btn-icon" title="Toggle Sidebar rail" aria-label="Toggle rail mode">
+            <span id="sidebar-toggle-icon"></span>
+          </button>
+        </div>
       </div>
 
       <div class="sidebar-search-box">
@@ -54,15 +57,26 @@
       <div class="sidebar-nav" id="sidebar-nav-container">
         <!-- Rendered via main.js from tools-registry.js -->
       </div>
+
+      <!-- Bottom Pinned Footer (Inspired by modern app sidebars) -->
+      <div class="sidebar-footer">
+        <a href="https://github.com/geraphael/huragon-ui" target="_blank" rel="noopener noreferrer" class="sidebar-footer-link" title="View Source on GitHub">
+          <span class="sidebar-footer-icon" id="sidebar-github-icon"></span>
+          <span class="sidebar-footer-text">GitHub</span>
+          <span class="sidebar-footer-arrow">↗</span>
+        </a>
+        <button class="sidebar-footer-link" id="sidebar-ai-skill-btn" title="AI Coding Agent Skill">
+          <span class="sidebar-footer-icon" id="sidebar-ai-icon"></span>
+          <span class="sidebar-footer-text">AI Skill</span>
+        </button>
+      </div>
     </aside>
 
-    <!-- Main Workspace -->
+    <!-- Main Workspace Card -->
     <main id="workspace">
       <!-- Top Navigation & Controls Bar -->
       <header class="top-bar">
         <div class="top-bar-left">
-          <button class="mobile-nav-toggle btn-ghost btn-icon" id="mobile-toggle-btn" aria-label="Toggle menu"></button>
-          
           <!-- Dynamic Interactive Breadcrumbs -->
           <nav class="breadcrumb-trail" id="breadcrumb-trail" aria-label="Breadcrumbs">
             <span class="bc-segment bc-brand" id="bc-brand-btn" title="Open Overview">huragon</span>
@@ -250,6 +264,10 @@
         <button class="mobile-nav-btn" data-mobile-tab="code">
           <span class="mobile-nav-icon" id="mob-code-icon"></span>
           <span class="mobile-nav-label">Code</span>
+        </button>
+        <button class="mobile-nav-btn" id="mob-sidebar-tools-btn" data-mobile-tab="tools" title="Open Generators Menu">
+          <span class="mobile-nav-icon" id="mob-tools-icon"></span>
+          <span class="mobile-nav-label">Tools</span>
         </button>
       </nav>
     </main>
