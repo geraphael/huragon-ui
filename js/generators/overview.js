@@ -387,7 +387,7 @@ export function mount(container, onCodeChange) {
     el('div', { className: 'dash-section-header' }, [
       el('div', { className: 'dash-section-title-wrap' }, [
         el('h2', { className: 'dash-section-title', textContent: 'Explore Categories' }),
-        el('p', { className: 'dash-section-desc', textContent: 'All 47 visual generators and design engineering utilities organized by workflow' })
+        el('p', { className: 'dash-section-desc', textContent: 'All 54 visual generators and design engineering utilities organized by workflow' })
       ])
     ]),
     el('div', { className: 'dash-categories-grid' },

@@ -1523,3 +1523,25 @@ body.theme-light .cmd-dialog-overlay {
   border-radius: 6px;
   margin-bottom: 3px;
 }
+
+/* ─── Workspace nav section (Studio Overview + Live Dashboard) ─── */
+.nav-workspace-section {
+  padding: 4px 8px 8px;
+  margin-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+
+/* In collapsed rail mode hide the text labels of workspace section items */
+#sidebar.collapsed .nav-workspace-section .nav-text {
+  display: none !important;
+}
+
+#sidebar.collapsed .nav-workspace-section .nav-item {
+  justify-content: center;
+  padding: 8px 0;
+}
+
+/* Collapsed rail: centre icons for workspace section */
+#sidebar.collapsed .nav-workspace-section .nav-item-icon {
+  margin: 0 auto;
+}
