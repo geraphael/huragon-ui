@@ -33,6 +33,7 @@ const generatorsMap = {
   'responsive-typography': () => import('./generators/responsive-typography.js'),
 
   // Components
+  'app-canvas': () => import('./generators/app-canvas.js'),
   'blocks-studio': () => import('./generators/blocks-studio.js'),
   'button-generator': () => import('./generators/button-generator.js'),
   'card-designer': () => import('./generators/card-designer.js'),
@@ -65,6 +66,7 @@ const generatorsMap = {
   'color-palette': () => import('./generators/color-palette.js'),
   'contrast-checker': () => import('./generators/contrast-checker.js'),
   'typography-scale': () => import('./generators/typography-scale.js'),
+  'font-pairing': () => import('./generators/font-pairing.js'),
 
   // Utilities
   'scrollbar-styler': () => import('./generators/scrollbar-styler.js'),

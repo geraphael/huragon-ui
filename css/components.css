@@ -19,12 +19,14 @@
   transform: scale(0.98);
 }
 
-.btn-primary {
+.btn-primary,
+.btn-solid {
   background: var(--text-main);
   color: var(--bg-app);
   border-color: var(--text-main);
 }
-.btn-primary:hover {
+.btn-primary:hover,
+.btn-solid:hover {
   opacity: 0.92;
 }
 
@@ -38,11 +40,13 @@
   border-color: var(--border-strong);
 }
 
-.btn-ghost {
+.btn-ghost,
+.btn-light {
   color: var(--text-muted);
   background: transparent;
 }
-.btn-ghost:hover {
+.btn-ghost:hover,
+.btn-light:hover {
   color: var(--text-main);
   background: var(--bg-hover);
 }
@@ -393,16 +397,6 @@ input:checked + .slider-toggle::before {
    ========================================================= */
 
 /* HeroUI Button Variants */
-.btn-solid {
-  background: var(--text-main);
-  color: var(--bg-app);
-  border: 1px solid var(--text-main);
-}
-.btn-solid:hover {
-  opacity: 0.92;
-  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.12);
-}
-
 .btn-flat {
   background: var(--bg-hover);
   color: var(--text-main);
@@ -429,16 +423,6 @@ input:checked + .slider-toggle::before {
 }
 .btn-bordered:hover {
   border-color: var(--text-main);
-}
-
-.btn-light {
-  background: transparent;
-  color: var(--text-muted);
-  border: 1px solid transparent;
-}
-.btn-light:hover {
-  color: var(--text-main);
-  background: var(--bg-hover);
 }
 
 .btn-shadow {

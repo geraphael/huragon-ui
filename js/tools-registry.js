@@ -8,6 +8,7 @@ export const CATEGORIES = [
     tools: [
       { id: 'color-palette',      name: 'Color Palette Studio',       icon: 'droplet',  desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
       { id: 'typography-scale',   name: 'Type Scale System',          icon: 'type',     desc: 'Mathematical font scale generator with Google Fonts' },
+      { id: 'font-pairing',       name: 'Font Pairing Studio',        icon: 'type',     desc: 'Google Fonts browser with live pairing preview and variable typography' },
       { id: 'contrast-checker',   name: 'WCAG Contrast Checker',      icon: 'contrast', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
       { id: 'spacing-calculator', name: 'Spacing System (8pt/4pt)',   icon: 'space',    desc: 'Design token spacing scale generator' },
       { id: 'css-reset',          name: 'CSS Reset Generator',        icon: 'reset',    desc: 'Curated modern CSS resets with customizable rules' }
@@ -47,6 +48,54 @@ export const CATEGORIES = [
     id: 'components',
     name: 'Components',
     icon: 'box',
+    groups: [
+      {
+        label: 'Dashboard',
+        tools: [
+          { id: 'app-canvas',        name: 'App Canvas (Homescreen)', icon: 'layout',   desc: 'Composite living dashboard with editable cards, tables, charts and combined CSS' },
+          { id: 'blocks-studio',     name: 'Page Blocks Studio',    icon: 'grid',    desc: 'shadcn/ui & HeroUI application blocks: Analytics, Auth, Settings, Pricing' }
+        ]
+      },
+      {
+        label: 'Charts & Graphs',
+        tools: [
+          { id: 'charts-studio',     name: 'Charts & Graphs',       icon: 'barChart',desc: 'Interactive Area, Bar, Donut charts and sparklines' }
+        ]
+      },
+      {
+        label: 'Buttons & Triggers',
+        tools: [
+          { id: 'button-generator',  name: 'Button Studio',         icon: 'zap',     desc: 'HeroUI & shadcn buttons with solid, flat, faded & loading states' },
+          { id: 'toggle-checkbox',   name: 'Toggle & Checkbox',     icon: 'toggle',  desc: 'Pure CSS iOS/Material toggle switches and custom checks' },
+          { id: 'badge-tag',         name: 'Badge & Status Tag',    icon: 'tag',     desc: 'Status pills, notification badges and tags' }
+        ]
+      },
+      {
+        label: 'Form & Selectors',
+        tools: [
+          { id: 'form-input-styler', name: 'Input & Form Controls', icon: 'form',    desc: 'Modern inputs, focus rings and floating labels' },
+          { id: 'tabs-component',    name: 'Tabs & Segmented',      icon: 'tabs',    desc: 'HeroUI animated pill slider, underline & bordered tabs' },
+          { id: 'tooltip-generator', name: 'CSS Tooltip Builder',   icon: 'tooltip', desc: 'Pure CSS directional hover tooltips' }
+        ]
+      },
+      {
+        label: 'Data Display',
+        tools: [
+          { id: 'table-styler',      name: 'Data Table Studio',     icon: 'table',   desc: 'E-commerce & SaaS data table with search, sorting & bulk actions' },
+          { id: 'card-designer',     name: 'Card Designer',         icon: 'box',     desc: 'Modern content, stats, blur glass and pricing cards' },
+          { id: 'list-accordion',    name: 'Lists & Accordions',    icon: 'list',    desc: 'Interactive collapsible FAQ accordion & HeroUI listbox' },
+          { id: 'avatar-stack',      name: 'Avatar & Stack',        icon: 'users',   desc: 'User avatars, status indicators and overlapping stacks' }
+        ]
+      },
+      {
+        label: 'Navigation & Overlays',
+        tools: [
+          { id: 'navbar-builder',    name: 'Navbar Generator',      icon: 'navbar',  desc: 'Responsive header bars with glass effect and mobile nav' },
+          { id: 'modal-dialog',      name: 'Modal & Dialog Studio', icon: 'modal',   desc: 'Interactive dialogs with backdrop blur, alert & slide sheet' },
+          { id: 'divider-separator', name: 'Section Dividers',      icon: 'divider', desc: 'Ornate and minimal CSS horizontal separators' }
+        ]
+      }
+    ],
     tools: [
       { id: 'app-canvas',        name: 'App Canvas (Homescreen)', icon: 'layout',   desc: 'Composite living dashboard with editable cards, tables, charts and combined CSS' },
       { id: 'blocks-studio',     name: 'Page Blocks Studio',    icon: 'grid',    desc: 'shadcn/ui & HeroUI application blocks: Analytics, Auth, Settings, Pricing' },
@@ -100,8 +149,16 @@ export const CATEGORIES = [
 
 export function getToolMeta(toolId) {
   for (const cat of CATEGORIES) {
-    const tool = cat.tools.find(t => t.id === toolId);
-    if (tool) return { ...tool, categoryName: cat.name, categoryId: cat.id };
+    if (cat.tools) {
+      const tool = cat.tools.find(t => t.id === toolId);
+      if (tool) return { ...tool, categoryName: cat.name, categoryId: cat.id };
+    }
+    if (cat.groups) {
+      for (const group of cat.groups) {
+        const tool = group.tools.find(t => t.id === toolId);
+        if (tool) return { ...tool, categoryName: cat.name, categoryId: cat.id, groupName: group.label };
+      }
+    }
   }
   return null;
 }

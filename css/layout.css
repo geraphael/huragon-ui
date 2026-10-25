@@ -154,47 +154,45 @@
 
 /* Category accordion header */
 .category-title {
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
   color: var(--text-dim);
-  padding: 5px 8px;
+  padding: 6px 10px;
   display: flex;
   align-items: center;
-  gap: 7px;
+  gap: 8px;
   border-radius: var(--radius-sm);
   cursor: pointer;
   transition: background var(--transition-fast), color var(--transition-fast);
   user-select: none;
-  margin-bottom: 1px;
+  margin-top: 6px;
+  margin-bottom: 2px;
 }
 
 .category-title:hover {
-  background: var(--bg-hover);
   color: var(--text-muted);
 }
 
 .cat-title-icon {
-  display: flex;
-  align-items: center;
-  color: var(--text-dim);
-  flex-shrink: 0;
+  display: none;
 }
 
 .cat-title-text {
   flex: 1;
-  font-size: 0.72rem;
+  font-size: 0.68rem;
   font-weight: 600;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
   white-space: nowrap;
   overflow: hidden;
+  color: var(--text-dim);
 }
 
 .cat-count {
   font-size: 0.62rem;
-  padding: 1px 5px;
+  padding: 1px 6px;
   border-radius: 999px;
-  background: var(--bg-input);
+  background: var(--surface-2);
   border: 1px solid var(--border);
   color: var(--text-dim);
   font-weight: 500;
@@ -236,36 +234,82 @@
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 10px;
-  padding: 7px 10px;
+  justify-content: space-between;
+  padding: 6px 10px;
   border-radius: var(--radius-sm);
-  font-size: 0.815rem;
+  font-size: 0.8125rem;
   color: var(--text-muted);
   cursor: pointer;
   transition: all var(--transition-fast);
   margin-bottom: 1px;
   position: relative;
+  border: 1px solid transparent;
+}
+
+.nav-item .nav-text {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .nav-item:hover {
-  background: var(--bg-hover);
+  background: var(--surface-2);
   color: var(--text-main);
 }
 
 .nav-item.active {
-  background: var(--bg-input-focus);
-  color: var(--text-main);
-  font-weight: 500;
-  border: 1px solid var(--border-strong);
+  background: var(--surface-2);
+  color: var(--text-primary);
+  font-weight: 600;
+  border-left: 2px solid var(--text-primary);
+  border-color: transparent;
+  border-left-color: var(--text-primary);
+}
+
+/* Sub-group accordion within a category */
+.nav-group-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  padding: 6px 10px 4px 12px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  cursor: pointer;
+  user-select: none;
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast), background var(--transition-fast);
+  margin-top: 4px;
+}
+.nav-group-label:hover {
+  color: var(--text-primary);
+  background: var(--bg-hover);
+}
+.nav-group-label .group-chevron {
+  display: flex;
+  align-items: center;
+  color: var(--text-dim);
+  transition: transform 0.2s ease;
+}
+.nav-group-tools {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  max-height: 500px;
+  transition: max-height 0.22s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.18s ease;
+  opacity: 1;
+}
+.nav-group-tools.group-hidden {
+  max-height: 0;
+  opacity: 0;
+}
+.nav-group-tools .nav-item {
+  padding-left: 20px;
 }
 
 .nav-item-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  color: var(--text-dim);
-  flex-shrink: 0;
-  transition: color var(--transition-fast);
+  display: none !important;
 }
 
 .nav-item:hover .nav-item-icon,
@@ -349,12 +393,40 @@
   margin-bottom: 0;
 }
 
+#sidebar.collapsed .nav-group-label {
+  display: none !important;
+}
+
+#sidebar.collapsed .nav-group-tools {
+  max-height: none !important;
+  opacity: 1 !important;
+}
+
+#sidebar.collapsed .nav-group-tools.group-hidden {
+  max-height: none !important;
+  opacity: 1 !important;
+}
+
+#sidebar.collapsed .nav-group-tools .nav-item {
+  padding-left: 4px !important;
+}
+
 #sidebar.collapsed .nav-item {
-  padding: 9px 0;
+  padding: 8px 4px;
   justify-content: center;
 }
 
-#sidebar.collapsed .nav-item .nav-text,
+#sidebar.collapsed .nav-item .nav-text {
+  display: block;
+  font-size: 0.68rem;
+  font-weight: 600;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  max-width: 44px;
+  text-align: center;
+}
+
 #sidebar.collapsed .nav-item .nav-dot {
   display: none;
 }

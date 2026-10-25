@@ -1,6 +1,14 @@
-// Tool: HeroUI & shadcn/ui Interactive Charts Studio
+// Tool: HeroUI & shadcn/ui Interactive Charts & Graphs Studio
 import { el, qs } from '../utils/dom.js';
 import { ICONS } from '../utils/icons.js';
+import {
+  catmullRomPath,
+  catmullRomAreaPath,
+  arcPath,
+  scaleToViewport,
+  findNearestPoint,
+  formatCurrency
+} from '../utils/chart-math.js';
 
 export const meta = {
   id: 'charts-studio',
@@ -8,36 +16,48 @@ export const meta = {
 };
 
 const CHART_DATA = {
-  days7: [
-    { label: 'Mon', val: 320, orders: 14 },
-    { label: 'Tue', val: 540, orders: 22 },
-    { label: 'Wed', val: 410, orders: 18 },
-    { label: 'Thu', val: 680, orders: 31 },
-    { label: 'Fri', val: 920, orders: 45 },
-    { label: 'Sat', val: 780, orders: 38 },
-    { label: 'Sun', val: 860, orders: 40 }
+  '7d': [
+    { label: 'Mon', val: 3420.50, orders: 24, delta: '+12.4%' },
+    { label: 'Tue', val: 5120.00, orders: 38, delta: '+18.2%' },
+    { label: 'Wed', val: 4230.75, orders: 31, delta: '+8.1%' },
+    { label: 'Thu', val: 6890.20, orders: 52, delta: '+28.5%' },
+    { label: 'Fri', val: 9450.00, orders: 68, delta: '+42.1%' },
+    { label: 'Sat', val: 7810.40, orders: 55, delta: '+22.0%' },
+    { label: 'Sun', val: 8650.00, orders: 61, delta: '+31.4%' }
   ],
-  days30: [
-    { label: 'W1', val: 2400, orders: 110 },
-    { label: 'W2', val: 3100, orders: 145 },
-    { label: 'W3', val: 4500, orders: 198 },
-    { label: 'W4', val: 5200, orders: 230 }
+  '30d': [
+    { label: 'Week 1', val: 24500.00, orders: 180, delta: '+15.2%' },
+    { label: 'Week 2', val: 31200.00, orders: 245, delta: '+24.1%' },
+    { label: 'Week 3', val: 45800.50, orders: 340, delta: '+38.6%' },
+    { label: 'Week 4', val: 52100.00, orders: 395, delta: '+46.0%' }
+  ],
+  '90d': [
+    { label: 'Month 1', val: 112000.00, orders: 840, delta: '+19.5%' },
+    { label: 'Month 2', val: 145000.00, orders: 1090, delta: '+29.4%' },
+    { label: 'Month 3', val: 188500.00, orders: 1420, delta: '+41.2%' }
+  ],
+  '1y': [
+    { label: 'Q1', val: 320000.00, orders: 2400, delta: '+18.0%' },
+    { label: 'Q2', val: 410000.00, orders: 3100, delta: '+28.1%' },
+    { label: 'Q3', val: 495000.00, orders: 3850, delta: '+36.5%' },
+    { label: 'Q4', val: 620000.00, orders: 4900, delta: '+48.2%' }
   ]
 };
 
 const DONUT_DATA = [
-  { label: 'Direct Commerce', percent: 45, val: '$14,850', color: '#f4f4f5' },
-  { label: 'Affiliates', percent: 30, val: '$9,900', color: '#a1a1aa' },
-  { label: 'Organic Search', percent: 15, val: '$4,950', color: '#71717a' },
-  { label: 'Referral & Social', percent: 10, val: '$3,300', color: '#3f3f46' }
+  { label: 'Direct Commerce', percent: 45, val: 14850.00, color: 'var(--text-primary)' },
+  { label: 'Affiliates', percent: 30, val: 9900.00, color: 'var(--text-secondary)' },
+  { label: 'Organic Search', percent: 15, val: 4950.00, color: 'var(--text-muted)' },
+  { label: 'Referral & Social', percent: 10, val: 3300.00, color: 'var(--text-dim)' }
 ];
 
 let config = {
   type: 'area', // 'area', 'bar', 'donut'
-  timeframe: '7d', // '7d' or '30d'
+  timeframe: '7d', // '7d', '30d', '90d', '1y'
   curved: true,
   showGrid: true,
-  colorTone: 'zinc' // 'zinc', 'emerald', 'indigo'
+  colorTone: 'zinc', // 'zinc', 'emerald', 'indigo'
+  showSecondary: true
 };
 
 export function mount(container, onCodeChange) {
@@ -45,16 +65,16 @@ export function mount(container, onCodeChange) {
   const controlsStage = qs('#controls-scroll');
 
   previewStage.innerHTML = '';
+  controlsStage.innerHTML = '';
 
   const centerStage = el('div', {
+    id: 'charts-studio-container',
     style: {
       width: '100%',
-      minHeight: '100%',
+      maxWidth: '720px',
+      margin: '0 auto',
       display: 'flex',
       flexDirection: 'column',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: '24px',
       gap: '20px'
     }
   });
@@ -62,15 +82,13 @@ export function mount(container, onCodeChange) {
   const chartCard = el('div', {
     id: 'interactive-chart-card',
     style: {
-      width: '100%',
-      maxWidth: '640px',
-      background: 'var(--bg-card)',
+      background: 'var(--surface-1)',
       border: '1px solid var(--border)',
       borderRadius: 'var(--radius-lg)',
-      padding: '24px',
+      padding: '24px 28px',
       boxShadow: 'var(--shadow-md)',
-      transition: 'all 0.2s ease',
-      position: 'relative'
+      position: 'relative',
+      overflow: 'visible'
     }
   });
 
@@ -78,10 +96,34 @@ export function mount(container, onCodeChange) {
   previewStage.appendChild(centerStage);
 
   renderChart();
+  renderControls();
+
+  function getToneColors() {
+    if (config.colorTone === 'emerald') {
+      return {
+        line: '#22c55e',
+        fillStart: 'rgba(34, 197, 94, 0.25)',
+        fillEnd: 'rgba(34, 197, 94, 0.0)'
+      };
+    }
+    if (config.colorTone === 'indigo') {
+      return {
+        line: '#6366f1',
+        fillStart: 'rgba(99, 102, 241, 0.25)',
+        fillEnd: 'rgba(99, 102, 241, 0.0)'
+      };
+    }
+    return {
+      line: 'var(--chart-line, var(--text-primary))',
+      fillStart: 'var(--chart-fill-start, rgba(244, 244, 245, 0.2))',
+      fillEnd: 'var(--chart-fill-end, rgba(244, 244, 245, 0.0))'
+    };
+  }
 
   function renderChart() {
-    const data = config.timeframe === '7d' ? CHART_DATA.days7 : CHART_DATA.days30;
+    const data = CHART_DATA[config.timeframe] || CHART_DATA['7d'];
     const totalRev = data.reduce((acc, d) => acc + d.val, 0);
+    const avgDelta = data[data.length - 1].delta;
 
     let chartBody = '';
 
@@ -94,115 +136,139 @@ export function mount(container, onCodeChange) {
     }
 
     chartCard.innerHTML = `
-      <!-- Card Header with KPI & Timeframe Segmented Switcher -->
-      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:20px;">
+      <!-- Card Header -->
+      <div style="display:flex; flex-wrap:wrap; justify-content:space-between; align-items:flex-start; gap:16px; margin-bottom:24px;">
         <div>
           <div style="display:flex; align-items:center; gap:8px;">
-            <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--text-dim);">Total Revenue</span>
-            <span style="display:inline-flex; align-items:center; gap:3px; font-size:0.7rem; padding:2px 7px; border-radius:999px; background:rgba(34, 197, 94, 0.12); color:#22c55e; border:1px solid rgba(34, 197, 94, 0.25); font-weight:600;">
-              +24.8%
+            <span style="font-size:0.75rem; font-weight:600; text-transform:uppercase; letter-spacing:0.06em; color:var(--text-dim);">Gross Revenue Velocity</span>
+            <span style="display:inline-flex; align-items:center; gap:3px; font-size:0.7rem; padding:2px 8px; border-radius:999px; background:var(--success-muted); color:var(--success); border:1px solid var(--success-border); font-weight:600;">
+              ${avgDelta} vs prev
             </span>
           </div>
-          <div style="font-size:1.85rem; font-weight:700; color:var(--text-main); margin-top:2px; letter-spacing:-0.03em;">
-            $${totalRev.toLocaleString()}
+          <div id="chart-total-metric" style="font-size:2rem; font-weight:700; color:var(--text-primary); margin-top:4px; letter-spacing:-0.03em;">
+            ${config.type === 'donut' ? '$33,000.00' : formatCurrency(totalRev)}
           </div>
-          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">Showing real-time converted volume</div>
+          <div style="font-size:0.75rem; color:var(--text-muted); margin-top:2px;">
+            ${config.type === 'donut' ? 'Channel distribution volume' : 'Interactive mathematical SVG vector projection'}
+          </div>
         </div>
 
-        <!-- HeroUI Segmented Pill Switcher -->
-        <div style="display:inline-flex; align-items:center; background:var(--bg-input); padding:3px; border-radius:var(--radius-sm); border:1px solid var(--border);">
-          <button class="timeframe-btn ${config.timeframe === '7d' ? 'active' : ''}" data-tf="7d" style="padding:4px 10px; font-size:0.75rem; border:none; background:${config.timeframe === '7d' ? 'var(--bg-card)' : 'transparent'}; color:${config.timeframe === '7d' ? 'var(--text-main)' : 'var(--text-dim)'}; border-radius:var(--radius-xs); cursor:pointer; font-weight:500; transition:all 0.15s ease;">
-            7 Days
-          </button>
-          <button class="timeframe-btn ${config.timeframe === '30d' ? 'active' : ''}" data-tf="30d" style="padding:4px 10px; font-size:0.75rem; border:none; background:${config.timeframe === '30d' ? 'var(--bg-card)' : 'transparent'}; color:${config.timeframe === '30d' ? 'var(--text-main)' : 'var(--text-dim)'}; border-radius:var(--radius-xs); cursor:pointer; font-weight:500; transition:all 0.15s ease;">
-            4 Weeks
-          </button>
-        </div>
+        ${config.type !== 'donut' ? `
+          <!-- Timeframe Segmented Switcher -->
+          <div class="segmented-pill-bar">
+            ${['7d', '30d', '90d', '1y'].map(tf => `
+              <button class="segmented-pill-btn ${config.timeframe === tf ? 'active' : ''}" data-tf="${tf}">
+                ${tf.toUpperCase()}
+              </button>
+            `).join('')}
+          </div>
+        ` : ''}
       </div>
 
-      <!-- Rendered Chart Body -->
+      <!-- Chart Viewport -->
       ${chartBody}
 
-      <!-- Interactive Hover Output Bubble -->
-      <div id="chart-hover-info" style="margin-top:16px; padding:8px 12px; background:var(--bg-input); border:1px solid var(--border); border-radius:var(--radius-sm); display:flex; justify-content:space-between; align-items:center; font-size:0.75rem; color:var(--text-muted);">
-        <span>Hover cursor over graph points to inspect exact figures</span>
-        <span style="font-family:var(--font-mono); color:var(--text-dim);">Live SVG Renderer</span>
+      <!-- Interactive Crosshair Tooltip Container (Floating) -->
+      <div id="chart-floating-tooltip" style="position:absolute; display:none; pointer-events:none; z-index:100; background:var(--surface-2); border:1px solid var(--border-strong); border-radius:var(--radius-sm); padding:8px 12px; box-shadow:var(--shadow-lg); font-size:0.75rem; transition:opacity 0.1s ease; transform:translate(-50%, -120%); white-space:nowrap;">
+        <div id="tooltip-date" style="font-size:0.68rem; color:var(--text-dim); text-transform:uppercase; font-weight:600;"></div>
+        <div id="tooltip-value" style="font-size:0.95rem; font-weight:700; color:var(--text-primary); margin-top:2px;"></div>
+        <div id="tooltip-meta" style="font-size:0.7rem; color:var(--text-muted); margin-top:1px;"></div>
       </div>
     `;
 
     bindChartEvents();
-    updateCode();
+    emitCode();
   }
 
   function renderAreaChart(data) {
-    const w = 560;
-    const h = 180;
-    const maxVal = Math.max(...data.map(d => d.val)) * 1.15;
-    const stepX = w / (data.length - 1);
+    const w = 620;
+    const h = 200;
+    const padLeft = 40;
+    const padRight = 20;
+    const padTop = 20;
+    const padBottom = 30;
 
-    const points = data.map((d, i) => {
-      const x = i * stepX;
-      const y = h - (d.val / maxVal) * (h - 20);
-      return { x, y, ...d };
-    });
+    const values = data.map(d => d.val);
+    const scaled = scaleToViewport(values, { width: w, height: h, padLeft, padRight, padTop, padBottom });
+    const baselineY = h - padBottom;
 
-    // Generate smooth SVG curve path (Catmull-Rom or Bezier)
-    let pathD = `M ${points[0].x} ${points[0].y}`;
-    for (let i = 0; i < points.length - 1; i++) {
-      const p0 = points[i];
-      const p1 = points[i + 1];
-      const mx = (p0.x + p1.x) / 2;
-      pathD += ` C ${mx} ${p0.y}, ${mx} ${p1.y}, ${p1.x} ${p1.y}`;
-    }
+    const pathD = config.curved ? catmullRomPath(scaled) : scaled.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+    const areaD = config.curved ? catmullRomAreaPath(scaled, baselineY) : `${pathD} L ${scaled[scaled.length - 1].x.toFixed(1)},${baselineY} L ${scaled[0].x.toFixed(1)},${baselineY} Z`;
 
-    const areaD = `${pathD} L ${points[points.length - 1].x} ${h} L ${points[0].x} ${h} Z`;
+    // Secondary comparison series (previous period 85% volume)
+    const secValues = values.map(v => v * 0.82);
+    const secScaled = scaleToViewport(secValues, { width: w, height: h, padLeft, padRight, padTop, padBottom });
+    const secPathD = config.curved ? catmullRomPath(secScaled) : secScaled.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x.toFixed(1)},${p.y.toFixed(1)}`).join(' ');
+
+    const tones = getToneColors();
 
     return `
-      <div style="position:relative; width:100%; height:${h + 30}px; overflow:hidden;">
-        <svg viewBox="0 0 ${w} ${h}" style="width:100%; height:${h}px; overflow:visible;">
+      <div style="position:relative; width:100%; height:${h}px; user-select:none;">
+        <svg id="area-chart-svg" viewBox="0 0 ${w} ${h}" style="width:100%; height:100%; overflow:visible;">
           <defs>
-            <linearGradient id="areaGradient" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stop-color="var(--text-main)" stop-opacity="0.25"/>
-              <stop offset="100%" stop-color="var(--text-main)" stop-opacity="0.0"/>
+            <linearGradient id="areaCurveGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stop-color="${tones.fillStart}" />
+              <stop offset="100%" stop-color="${tones.fillEnd}" />
             </linearGradient>
           </defs>
+
           ${config.showGrid ? `
-            <line x1="0" y1="${h * 0.25}" x2="${w}" y2="${h * 0.25}" stroke="var(--border)" stroke-dasharray="3 3" />
-            <line x1="0" y1="${h * 0.5}" x2="${w}" y2="${h * 0.5}" stroke="var(--border)" stroke-dasharray="3 3" />
-            <line x1="0" y1="${h * 0.75}" x2="${w}" y2="${h * 0.75}" stroke="var(--border)" stroke-dasharray="3 3" />
-            <line x1="0" y1="${h}" x2="${w}" y2="${h}" stroke="var(--border)" />
+            <line x1="${padLeft}" y1="${padTop}" x2="${w - padRight}" y2="${padTop}" stroke="var(--chart-grid, var(--border))" stroke-dasharray="3 3" />
+            <line x1="${padLeft}" y1="${(baselineY + padTop) / 2}" x2="${w - padRight}" y2="${(baselineY + padTop) / 2}" stroke="var(--chart-grid, var(--border))" stroke-dasharray="3 3" />
+            <line x1="${padLeft}" y1="${baselineY}" x2="${w - padRight}" y2="${baselineY}" stroke="var(--border-strong)" />
           ` : ''}
-          <path d="${areaD}" fill="url(#areaGradient)" />
-          <path d="${pathD}" fill="none" stroke="var(--text-main)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
-          
-          ${points.map((p, idx) => `
-            <circle class="chart-point" data-idx="${idx}" cx="${p.x}" cy="${p.y}" r="4.5" fill="var(--bg-card)" stroke="var(--text-main)" stroke-width="2" style="cursor:pointer; transition:transform 0.15s ease;" />
+
+          <!-- Area Fill -->
+          <path d="${areaD}" fill="url(#areaCurveGradient)" />
+
+          ${config.showSecondary ? `
+            <!-- Secondary Series Guide -->
+            <path d="${secPathD}" fill="none" stroke="var(--text-dim)" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.6" />
+          ` : ''}
+
+          <!-- Primary Curve -->
+          <path d="${pathD}" fill="none" stroke="${tones.line}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" />
+
+          <!-- Interactive Vertical Hairline (Dynamic) -->
+          <line id="svg-crosshair-line" x1="0" y1="${padTop}" x2="0" y2="${baselineY}" stroke="var(--text-secondary)" stroke-width="1" stroke-dasharray="2 2" style="display:none;" />
+
+          <!-- Interactive Active Point (Dynamic) -->
+          <circle id="svg-crosshair-circle" cx="0" cy="0" r="5" fill="var(--surface-1)" stroke="${tones.line}" stroke-width="2.5" style="display:none;" />
+
+          <!-- Data Points Circles -->
+          ${scaled.map((p, idx) => `
+            <circle class="static-chart-circle" data-idx="${idx}" cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="3.5" fill="var(--surface-1)" stroke="${tones.line}" stroke-width="1.5" />
+          `).join('')}
+
+          <!-- X-Axis Labels -->
+          ${scaled.map((p, idx) => `
+            <text x="${p.x.toFixed(1)}" y="${h - 8}" text-anchor="middle" fill="var(--text-dim)" font-size="10" font-family="var(--font-mono)">${data[idx].label}</text>
           `).join('')}
         </svg>
-
-        <!-- X-axis Labels -->
-        <div style="display:flex; justify-content:space-between; margin-top:8px; font-size:0.72rem; color:var(--text-dim); font-family:var(--font-mono);">
-          ${data.map(d => `<span>${d.label}</span>`).join('')}
-        </div>
       </div>
     `;
   }
 
   function renderBarChart(data) {
     const maxVal = Math.max(...data.map(d => d.val)) * 1.15;
+    const tones = getToneColors();
+
     return `
-      <div style="height:190px; display:flex; flex-direction:column; justify-content:flex-end;">
-        <div style="flex:1; display:flex; align-items:flex-end; gap:12px; border-bottom:1px solid var(--border); padding-bottom:8px;">
+      <div style="height:220px; display:flex; flex-direction:column; justify-content:flex-end;">
+        <div id="bar-chart-track" style="flex:1; display:flex; align-items:flex-end; gap:16px; border-bottom:1px solid var(--border-strong); padding-bottom:8px;">
           ${data.map((d, idx) => {
             const pct = Math.round((d.val / maxVal) * 100);
             return `
-              <div class="chart-bar-col" data-idx="${idx}" style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; cursor:pointer;">
-                <div class="bar-fill" style="width:100%; max-width:44px; height:${pct}%; background:var(--text-muted); border-radius:6px 6px 0 0; transition:all 0.15s ease;"></div>
+              <div class="interactive-bar-col" data-idx="${idx}" style="flex:1; display:flex; flex-direction:column; align-items:center; height:100%; justify-content:flex-end; cursor:pointer; position:relative;">
+                <div class="bar-value-label" style="font-size:0.68rem; font-family:var(--font-mono); color:var(--text-dim); margin-bottom:6px; opacity:0; transition:opacity 0.15s ease;">
+                  ${formatCurrency(d.val)}
+                </div>
+                <div class="bar-rect" style="width:100%; max-width:48px; height:${pct}%; background:${tones.line}; border-radius:6px 6px 0 0; transition:all 0.18s cubic-bezier(0.16, 1, 0.3, 1);"></div>
               </div>
             `;
           }).join('')}
         </div>
-        <div style="display:flex; justify-content:space-between; padding-top:8px; font-size:0.72rem; color:var(--text-dim); font-family:var(--font-mono);">
+        <div style="display:flex; justify-content:space-between; padding-top:10px; font-size:0.75rem; color:var(--text-dim); font-family:var(--font-mono);">
           ${data.map(d => `<span style="flex:1; text-align:center;">${d.label}</span>`).join('')}
         </div>
       </div>
@@ -210,32 +276,46 @@ export function mount(container, onCodeChange) {
   }
 
   function renderDonutChart() {
+    const total = DONUT_DATA.reduce((acc, d) => acc + d.val, 0);
+    const cx = 100;
+    const cy = 100;
+    const rOuter = 82;
+    const rInner = 56;
+
+    let currentAngle = 0;
+    const slices = DONUT_DATA.map(item => {
+      const sliceAngle = (item.val / total) * (Math.PI * 2);
+      const start = currentAngle;
+      const end = currentAngle + sliceAngle;
+      currentAngle = end;
+      const path = arcPath(cx, cy, rInner, rOuter, start, end);
+      return { ...item, path };
+    });
+
     return `
-      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:28px; padding:12px 0;">
-        <div style="position:relative; width:160px; height:160px; flex-shrink:0;">
-          <svg viewBox="0 0 100 100" style="transform:rotate(-90deg); width:100%; height:100%;">
-            <circle cx="50" cy="50" r="38" fill="none" stroke="var(--border)" stroke-width="12" />
-            <circle cx="50" cy="50" r="38" fill="none" stroke="#f4f4f5" stroke-width="12" stroke-dasharray="107.4 238.8" stroke-dashoffset="0" />
-            <circle cx="50" cy="50" r="38" fill="none" stroke="#a1a1aa" stroke-width="12" stroke-dasharray="71.6 238.8" stroke-dashoffset="-107.4" />
-            <circle cx="50" cy="50" r="38" fill="none" stroke="#71717a" stroke-width="12" stroke-dasharray="35.8 238.8" stroke-dashoffset="-179" />
-            <circle cx="50" cy="50" r="38" fill="none" stroke="#3f3f46" stroke-width="12" stroke-dasharray="23.9 238.8" stroke-dashoffset="-214.8" />
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:36px; padding:16px 0;">
+        <div style="position:relative; width:200px; height:200px; flex-shrink:0;">
+          <svg viewBox="0 0 200 200" style="width:100%; height:100%; overflow:visible;">
+            ${slices.map((slice, idx) => `
+              <path class="donut-arc-slice" data-idx="${idx}" d="${slice.path}" fill="${slice.color}" style="cursor:pointer; transition:transform 0.2s cubic-bezier(0.16, 1, 0.3, 1); transform-origin:100px 100px;" />
+            `).join('')}
           </svg>
-          <div style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;">
-            <span style="font-size:0.68rem; color:var(--text-dim); text-transform:uppercase;">Channels</span>
-            <span style="font-size:1.15rem; font-weight:700; color:var(--text-main);">$33k</span>
+          <div id="donut-center-readout" style="position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; pointer-events:none;">
+            <span id="donut-center-label" style="font-size:0.68rem; color:var(--text-dim); text-transform:uppercase; font-weight:600; letter-spacing:0.04em;">All Channels</span>
+            <span id="donut-center-val" style="font-size:1.25rem; font-weight:700; color:var(--text-primary); letter-spacing:-0.02em;">$33,000</span>
           </div>
         </div>
 
-        <div style="display:flex; flex-direction:column; gap:10px; flex:1; min-width:200px;">
+        <div style="display:flex; flex-direction:column; gap:8px; flex:1; min-width:240px;">
           ${DONUT_DATA.map((item, idx) => `
-            <div class="donut-legend-row" data-idx="${idx}" style="display:flex; align-items:center; justify-content:space-between; font-size:0.78rem; padding:4px 8px; border-radius:var(--radius-xs); cursor:pointer; transition:background 0.12s ease;">
-              <div style="display:flex; align-items:center; gap:8px;">
-                <span style="width:8px; height:8px; border-radius:50%; background:${item.color};"></span>
-                <span style="color:var(--text-main); font-weight:500;">${item.label}</span>
-              </div>
+            <div class="interactive-donut-legend" data-idx="${idx}" style="display:flex; align-items:center; justify-content:space-between; font-size:0.8rem; padding:8px 12px; border-radius:var(--radius-sm); border:1px solid transparent; cursor:pointer; transition:all 0.15s ease;">
               <div style="display:flex; align-items:center; gap:10px;">
-                <span style="font-family:var(--font-mono); color:var(--text-dim);">${item.percent}%</span>
-                <span style="font-weight:600; color:var(--text-main); font-family:var(--font-mono);">${item.val}</span>
+                <span style="width:10px; height:10px; border-radius:50%; background:${item.color};"></span>
+                <span style="color:var(--text-primary); font-weight:500;">${item.label}</span>
+              </div>
+              <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-family:var(--font-mono); color:var(--text-dim); font-size:0.75rem;">${item.percent}%</span>
+                <span style="font-weight:600; color:var(--text-primary); font-family:var(--font-mono);">${formatCurrency(item.val)}</span>
               </div>
             </div>
           `).join('')}
@@ -245,184 +325,339 @@ export function mount(container, onCodeChange) {
   }
 
   function bindChartEvents() {
-    const data = config.timeframe === '7d' ? CHART_DATA.days7 : CHART_DATA.days30;
-    const infoBox = chartCard.querySelector('#chart-hover-info');
-
-    // Timeframe toggle
-    chartCard.querySelectorAll('.timeframe-btn').forEach(btn => {
-      btn.onclick = () => {
+    // Timeframe segmented buttons
+    const tfBtns = chartCard.querySelectorAll('.segmented-pill-btn[data-tf]');
+    tfBtns.forEach(btn => {
+      btn.addEventListener('click', () => {
         config.timeframe = btn.dataset.tf;
         renderChart();
-      };
+        renderControls();
+      });
     });
 
-    // Area points hover
-    chartCard.querySelectorAll('.chart-point').forEach(p => {
-      p.onmouseenter = () => {
-        const idx = parseInt(p.dataset.idx, 10);
-        const item = data[idx];
-        p.setAttribute('r', '7');
-        p.setAttribute('fill', 'var(--text-main)');
-        if (infoBox) {
-          infoBox.innerHTML = `
-            <span style="font-weight:600; color:var(--text-main);">${item.label}: $${item.val.toLocaleString()}</span>
-            <span style="color:var(--text-dim); font-family:var(--font-mono);">${item.orders} recorded checkout conversions</span>
-          `;
-        }
-      };
-      p.onmouseleave = () => {
-        p.setAttribute('r', '4.5');
-        p.setAttribute('fill', 'var(--bg-card)');
-        if (infoBox) {
-          infoBox.innerHTML = `
-            <span>Hover cursor over graph points to inspect exact figures</span>
-            <span style="font-family:var(--font-mono); color:var(--text-dim);">Live SVG Renderer</span>
-          `;
-        }
-      };
-    });
+    const tooltip = chartCard.querySelector('#chart-floating-tooltip');
+    const tipDate = chartCard.querySelector('#tooltip-date');
+    const tipVal = chartCard.querySelector('#tooltip-value');
+    const tipMeta = chartCard.querySelector('#tooltip-meta');
 
-    // Bar hover
-    chartCard.querySelectorAll('.chart-bar-col').forEach(col => {
-      col.onmouseenter = () => {
+    // Area Chart Crosshair Mouse Tracking
+    if (config.type === 'area') {
+      const svg = chartCard.querySelector('#area-chart-svg');
+      const crosshairLine = chartCard.querySelector('#svg-crosshair-line');
+      const crosshairCircle = chartCard.querySelector('#svg-crosshair-circle');
+      const data = CHART_DATA[config.timeframe] || CHART_DATA['7d'];
+      const values = data.map(d => d.val);
+      const scaled = scaleToViewport(values, { width: 620, height: 200, padLeft: 40, padRight: 20, padTop: 20, padBottom: 30 });
+
+      if (svg && crosshairLine && crosshairCircle && tooltip) {
+        svg.addEventListener('mousemove', (e) => {
+          const rect = svg.getBoundingClientRect();
+          const mouseX = ((e.clientX - rect.left) / rect.width) * 620;
+          const nearestIdx = findNearestPoint(mouseX, scaled);
+          if (nearestIdx >= 0 && nearestIdx < scaled.length) {
+            const pt = scaled[nearestIdx];
+            const item = data[nearestIdx];
+
+            crosshairLine.style.display = 'block';
+            crosshairLine.setAttribute('x1', pt.x.toFixed(1));
+            crosshairLine.setAttribute('x2', pt.x.toFixed(1));
+
+            crosshairCircle.style.display = 'block';
+            crosshairCircle.setAttribute('cx', pt.x.toFixed(1));
+            crosshairCircle.setAttribute('cy', pt.y.toFixed(1));
+
+            // Floating Tooltip Positioning
+            const cardRect = chartCard.getBoundingClientRect();
+            tooltip.style.display = 'block';
+            tooltip.style.left = `${e.clientX - cardRect.left}px`;
+            tooltip.style.top = `${e.clientY - cardRect.top}px`;
+
+            tipDate.textContent = item.label;
+            tipVal.textContent = formatCurrency(item.val);
+            tipMeta.textContent = `${item.orders} orders (${item.delta})`;
+          }
+        });
+
+        svg.addEventListener('mouseleave', () => {
+          crosshairLine.style.display = 'none';
+          crosshairCircle.style.display = 'none';
+          tooltip.style.display = 'none';
+        });
+      }
+    }
+
+    // Bar Chart Hover Dimming
+    if (config.type === 'bar') {
+      const barCols = chartCard.querySelectorAll('.interactive-bar-col');
+      const data = CHART_DATA[config.timeframe] || CHART_DATA['7d'];
+
+      barCols.forEach(col => {
         const idx = parseInt(col.dataset.idx, 10);
-        const item = data[idx];
-        const barFill = col.querySelector('.bar-fill');
-        if (barFill) barFill.style.background = 'var(--text-main)';
-        if (infoBox) {
-          infoBox.innerHTML = `
-            <span style="font-weight:600; color:var(--text-main);">${item.label}: $${item.val.toLocaleString()}</span>
-            <span style="color:var(--text-dim); font-family:var(--font-mono);">${item.orders} transactions</span>
-          `;
+        col.addEventListener('mouseenter', () => {
+          barCols.forEach((c, i) => {
+            const rect = c.querySelector('.bar-rect');
+            const lbl = c.querySelector('.bar-value-label');
+            if (i === idx) {
+              rect.style.opacity = '1';
+              rect.style.transform = 'scaleY(1.03)';
+              lbl.style.opacity = '1';
+            } else {
+              rect.style.opacity = '0.35';
+              lbl.style.opacity = '0';
+            }
+          });
+          const item = data[idx];
+          const totalEl = chartCard.querySelector('#chart-total-metric');
+          if (totalEl) totalEl.textContent = formatCurrency(item.val);
+        });
+
+        col.addEventListener('mouseleave', () => {
+          barCols.forEach(c => {
+            const rect = c.querySelector('.bar-rect');
+            const lbl = c.querySelector('.bar-value-label');
+            rect.style.opacity = '1';
+            rect.style.transform = 'scaleY(1)';
+            lbl.style.opacity = '0';
+          });
+          const totalRev = data.reduce((acc, d) => acc + d.val, 0);
+          const totalEl = chartCard.querySelector('#chart-total-metric');
+          if (totalEl) totalEl.textContent = formatCurrency(totalRev);
+        });
+      });
+    }
+
+    // Donut Chart Hover Scaling & Center Readout Synchronization
+    if (config.type === 'donut') {
+      const slices = chartCard.querySelectorAll('.donut-arc-slice');
+      const legends = chartCard.querySelectorAll('.interactive-donut-legend');
+      const centerLabel = chartCard.querySelector('#donut-center-label');
+      const centerVal = chartCard.querySelector('#donut-center-val');
+
+      function setActiveSlice(idx) {
+        slices.forEach((s, i) => {
+          if (i === idx) {
+            s.style.transform = 'scale(1.06)';
+            s.style.filter = 'drop-shadow(0 4px 12px rgba(0,0,0,0.4))';
+          } else {
+            s.style.transform = 'scale(1)';
+            s.style.opacity = idx >= 0 ? '0.4' : '1';
+            s.style.filter = 'none';
+          }
+        });
+
+        legends.forEach((l, i) => {
+          if (i === idx) {
+            l.style.background = 'var(--surface-2)';
+            l.style.borderColor = 'var(--border-strong)';
+          } else {
+            l.style.background = 'transparent';
+            l.style.borderColor = 'transparent';
+          }
+        });
+
+        if (idx >= 0 && idx < DONUT_DATA.length) {
+          const item = DONUT_DATA[idx];
+          if (centerLabel) centerLabel.textContent = item.label;
+          if (centerVal) centerVal.textContent = formatCurrency(item.val);
+        } else {
+          if (centerLabel) centerLabel.textContent = 'All Channels';
+          if (centerVal) centerVal.textContent = '$33,000';
         }
-      };
-      col.onmouseleave = () => {
-        const barFill = col.querySelector('.bar-fill');
-        if (barFill) barFill.style.background = 'var(--text-muted)';
-        if (infoBox) {
-          infoBox.innerHTML = `
-            <span>Hover cursor over graph points to inspect exact figures</span>
-            <span style="font-family:var(--font-mono); color:var(--text-dim);">Live SVG Renderer</span>
-          `;
-        }
-      };
-    });
+      }
 
-    // Donut hover
-    chartCard.querySelectorAll('.donut-legend-row').forEach(row => {
-      row.onmouseenter = () => {
-        row.style.background = 'var(--bg-hover)';
-        const idx = parseInt(row.dataset.idx, 10);
-        const item = DONUT_DATA[idx];
-        if (infoBox) {
-          infoBox.innerHTML = `
-            <span style="font-weight:600; color:var(--text-main);">${item.label}: ${item.val}</span>
-            <span style="color:var(--text-dim); font-family:var(--font-mono);">${item.percent}% of gross catalog sales</span>
-          `;
-        }
-      };
-      row.onmouseleave = () => {
-        row.style.background = 'transparent';
-        if (infoBox) {
-          infoBox.innerHTML = `
-            <span>Hover cursor over graph points to inspect exact figures</span>
-            <span style="font-family:var(--font-mono); color:var(--text-dim);">Live SVG Renderer</span>
-          `;
-        }
-      };
-    });
-  }
+      slices.forEach(slice => {
+        const idx = parseInt(slice.dataset.idx, 10);
+        slice.addEventListener('mouseenter', () => setActiveSlice(idx));
+        slice.addEventListener('mouseleave', () => setActiveSlice(-1));
+      });
 
-  function updateCode() {
-    const css = `/* HeroUI / shadcn/ui — Interactive Area & Bar Chart Card */
-.chart-card {
-  background: var(--bg-card);
-  border: 1px solid var(--border);
-  border-radius: 12px;
-  padding: 24px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.45);
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 20px;
-}
-
-.chart-metric-value {
-  font-size: 1.85rem;
-  font-weight: 700;
-  color: var(--text-main);
-  letter-spacing: -0.03em;
-}
-
-.chart-area-path {
-  fill: url(#areaGradient);
-}
-
-.chart-line-stroke {
-  fill: none;
-  stroke: var(--text-main);
-  stroke-width: 2.5px;
-  stroke-linecap: round;
-}`;
-
-    const tailwind = `<!-- HeroUI / shadcn/ui Interactive Chart Block -->
-<div class="w-full max-w-xl rounded-xl border border-zinc-800 bg-zinc-900 p-6 shadow-lg">
-  <div class="flex items-start justify-between">
-    <div>
-      <p class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Total Revenue</p>
-      <h3 class="mt-1 text-3xl font-bold tracking-tight text-zinc-100">$4,510</h3>
-    </div>
-    <span class="inline-flex items-center rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-xs font-medium text-emerald-400">
-      +24.8%
-    </span>
-  </div>
-  <!-- SVG / Canvas Area or Bar Chart -->
-</div>`;
-
-    onCodeChange({ css, tailwind });
+      legends.forEach(legend => {
+        const idx = parseInt(legend.dataset.idx, 10);
+        legend.addEventListener('mouseenter', () => setActiveSlice(idx));
+        legend.addEventListener('mouseleave', () => setActiveSlice(-1));
+      });
+    }
   }
 
   function renderControls() {
     controlsStage.innerHTML = '';
 
-    const sec = el('div', { className: 'controls-section' }, [
-      el('div', { className: 'section-title', textContent: 'Chart Archetype' }),
-      el('div', { style: { display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '6px', marginBottom: '16px' } }, [
-        { id: 'area', name: 'Area Trend' },
-        { id: 'bar', name: 'Bar Chart' },
-        { id: 'donut', name: 'Donut Break' }
-      ].map(c => el('button', {
-        className: `btn ${config.type === c.id ? 'btn-primary' : 'btn-outline'}`,
-        style: { fontSize: '0.75rem', padding: '6px' },
-        textContent: c.name,
-        onclick: () => {
-          config.type = c.id;
-          renderControls();
-          renderChart();
-        }
-      }))),
-
-      el('div', { className: 'section-title', textContent: 'Display Options' }),
-      el('div', { style: { display: 'flex', flexDirection: 'column', gap: '8px' } }, [
-        el('label', { style: { display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.8rem', color: 'var(--text-muted)', cursor: 'pointer' } }, [
-          el('input', {
-            type: 'checkbox',
-            checked: config.showGrid,
-            onchange: (e) => {
-              config.showGrid = e.target.checked;
-              renderChart();
-            }
-          }),
-          el('span', { textContent: 'Show Wireframe Grid Lines' })
-        ])
+    // Chart Type Selector
+    const typeSection = el('div', { className: 'controls-section' }, [
+      el('h4', { className: 'section-title', textContent: 'Chart Archetype' }),
+      el('div', { className: 'segmented-pill-bar', style: { width: '100%', justifyContent: 'space-around' } }, [
+        el('button', {
+          className: `segmented-pill-btn ${config.type === 'area' ? 'active' : ''}`,
+          textContent: 'Area Spline',
+          onclick: () => { config.type = 'area'; renderChart(); renderControls(); }
+        }),
+        el('button', {
+          className: `segmented-pill-btn ${config.type === 'bar' ? 'active' : ''}`,
+          textContent: 'Bar Graph',
+          onclick: () => { config.type = 'bar'; renderChart(); renderControls(); }
+        }),
+        el('button', {
+          className: `segmented-pill-btn ${config.type === 'donut' ? 'active' : ''}`,
+          textContent: 'Donut Distribution',
+          onclick: () => { config.type = 'donut'; renderChart(); renderControls(); }
+        })
       ])
     ]);
+    controlsStage.appendChild(typeSection);
 
-    controlsStage.appendChild(sec);
+    // Color Palette Tone
+    const toneSection = el('div', { className: 'controls-section' }, [
+      el('h4', { className: 'section-title', textContent: 'Color Tone Accent' }),
+      el('div', { className: 'segmented-pill-bar', style: { width: '100%', justifyContent: 'space-around' } }, [
+        el('button', {
+          className: `segmented-pill-btn ${config.colorTone === 'zinc' ? 'active' : ''}`,
+          textContent: 'Zinc Monochrome',
+          onclick: () => { config.colorTone = 'zinc'; renderChart(); renderControls(); }
+        }),
+        el('button', {
+          className: `segmented-pill-btn ${config.colorTone === 'emerald' ? 'active' : ''}`,
+          textContent: 'Emerald Growth',
+          onclick: () => { config.colorTone = 'emerald'; renderChart(); renderControls(); }
+        }),
+        el('button', {
+          className: `segmented-pill-btn ${config.colorTone === 'indigo' ? 'active' : ''}`,
+          textContent: 'Indigo Tech',
+          onclick: () => { config.colorTone = 'indigo'; renderChart(); renderControls(); }
+        })
+      ])
+    ]);
+    controlsStage.appendChild(toneSection);
+
+    // Display Feature Toggles
+    if (config.type === 'area') {
+      const toggleSection = el('div', { className: 'controls-section' }, [
+        el('h4', { className: 'section-title', textContent: 'Curve & Projection Options' }),
+        createToggleSwitch('Smooth Spline Curve', config.curved, (v) => { config.curved = v; renderChart(); }),
+        createToggleSwitch('Show Horizontal Grid', config.showGrid, (v) => { config.showGrid = v; renderChart(); }),
+        createToggleSwitch('Compare Previous Period', config.showSecondary, (v) => { config.showSecondary = v; renderChart(); })
+      ]);
+      controlsStage.appendChild(toggleSection);
+    }
   }
 
-  renderControls();
+  function createToggleSwitch(label, initialVal, onChange) {
+    const row = el('div', { className: 'control-group', style: { display: 'flex', alignItems: 'center', justifyContent: 'space-between' } });
+    const lbl = el('span', { style: { fontSize: '0.8rem', color: 'var(--text-muted)' }, textContent: label });
+    const switchBox = el('label', { className: 'switch' });
+    const input = el('input', { type: 'checkbox', checked: initialVal });
+    const slider = el('span', { className: 'slider-toggle' });
+
+    input.addEventListener('change', (e) => {
+      onChange(e.target.checked);
+    });
+
+    switchBox.appendChild(input);
+    switchBox.appendChild(slider);
+    row.appendChild(lbl);
+    row.appendChild(switchBox);
+    return row;
+  }
+
+  function emitCode() {
+    const data = CHART_DATA[config.timeframe] || CHART_DATA['7d'];
+    const totalRev = data.reduce((acc, d) => acc + d.val, 0);
+
+    const cssSnippet = `/* Production Interactive Chart Tokens */
+:root {
+  --chart-line: var(--text-primary);
+  --chart-fill-start: rgba(244, 244, 245, 0.2);
+  --chart-fill-end: rgba(244, 244, 245, 0);
+  --chart-grid: rgba(63, 63, 70, 0.5);
+  --chart-tooltip-bg: var(--surface-2);
+  --chart-tooltip-border: var(--border-strong);
+}
+
+.chart-card {
+  background: var(--surface-1);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: 24px;
+  box-shadow: var(--shadow-md);
+}
+
+.chart-bar {
+  transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.chart-bar:hover {
+  transform: scaleY(1.03);
+}
+
+.donut-slice {
+  cursor: pointer;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  transform-origin: center;
+}
+
+.donut-slice:hover {
+  transform: scale(1.06);
+}`;
+
+    const tailwindSnippet = `<!-- Interactive Chart Card (shadcn / HeroUI Standard) -->
+<div class="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-6 shadow-xl backdrop-blur-xl">
+  <div class="flex items-center justify-between pb-4">
+    <div>
+      <span class="text-xs font-semibold uppercase tracking-wider text-zinc-500">Gross Velocity</span>
+      <h3 class="text-3xl font-bold tracking-tight text-zinc-50 mt-1">${formatCurrency(totalRev)}</h3>
+    </div>
+    <span class="inline-flex items-center gap-1 rounded-full bg-emerald-500/10 px-2.5 py-0.5 text-xs font-semibold text-emerald-400 border border-emerald-500/20">
+      +24.8% vs last month
+    </span>
+  </div>
+  
+  <!-- SVG Viewport -->
+  <svg viewBox="0 0 620 200" class="w-full h-48 overflow-visible">
+    <defs>
+      <linearGradient id="areaGrad" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="currentColor" stop-opacity="0.25" />
+        <stop offset="100%" stop-color="currentColor" stop-opacity="0" />
+      </linearGradient>
+    </defs>
+    <!-- Mathematical Catmull-Rom Path Generated with Huragon -->
+    <path d="M 40.0,165.0 C 78.8,142.0 117.5,158.0 156.2,148.0 ..." class="fill-zinc-400/20 stroke-zinc-100" stroke-width="2.5" />
+  </svg>
+</div>`;
+
+    const reactSnippet = `import React, { useState } from 'react';
+
+export default function InteractiveChart() {
+  const [activeIdx, setActiveIdx] = useState(null);
+
+  return (
+    <div className="rounded-2xl border border-zinc-800 bg-zinc-900 p-6 text-zinc-100 shadow-xl">
+      <div className="flex justify-between items-center mb-4">
+        <div>
+          <span className="text-xs uppercase tracking-wider text-zinc-400">Total Volume</span>
+          <div className="text-3xl font-bold mt-1">${formatCurrency(totalRev)}</div>
+        </div>
+      </div>
+      <svg viewBox="0 0 620 200" className="w-full h-48">
+        {/* Render Catmull-Rom spline curves with crosshairs */}
+      </svg>
+    </div>
+  );
+}`;
+
+    const tokensSnippet = JSON.stringify({
+      "$schema": "https://design-tokens.github.io/community-group/format/v1/schema.json",
+      "chart": {
+        "metric": { "value": totalRev, "type": "number" },
+        "timeframe": { "value": config.timeframe, "type": "string" },
+        "type": { "value": config.type, "type": "string" },
+        "lineColor": { "value": "var(--text-primary)", "type": "color" }
+      }
+    }, null, 2);
+
+    onCodeChange({
+      css: cssSnippet,
+      tailwind: tailwindSnippet,
+      react: reactSnippet,
+      tokens: tokensSnippet
+    });
+  }
 }

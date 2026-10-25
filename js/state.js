@@ -6,7 +6,7 @@ export const state = new Proxy({
   currentTool: 'mesh-gradient',
   deviceMode: 'desktop', // mobile, tablet, laptop, desktop
   theme: localStorage.getItem('huragon_theme') || 'dark',
-  codeTab: 'css', // css, tailwind, html
+  codeTab: 'css', // css, tailwind, react, tokens
   toolStates: {}
 }, {
   set(target, prop, value) {

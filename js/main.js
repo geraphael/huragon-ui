@@ -42,6 +42,8 @@ function initTheme() {
 }
 
 function applyTheme(theme) {
+  document.body.classList.add('theme-transitioning');
+
   const themeIcon = qs('#theme-icon');
   if (theme === 'light') {
     document.body.classList.remove('theme-dark');
@@ -58,6 +60,10 @@ function applyTheme(theme) {
   const landingThemeIcon = qs('#landing-theme-icon');
   if (landingThemeIcon) landingThemeIcon.innerHTML = theme === 'dark' ? ICONS.moon : ICONS.sun;
   window.dispatchEvent(new CustomEvent('huragon:theme-change', { detail: { theme } }));
+
+  setTimeout(() => {
+    document.body.classList.remove('theme-transitioning');
+  }, 160);
 }
 
 function initSidebar() {
@@ -175,7 +181,6 @@ function renderPinnedSection() {
         }
       }
     }, [
-      el('span', { className: 'nav-item-icon', innerHTML: iconSvg }),
       el('span', { className: 'nav-text', textContent: toolData.name }),
       removeBtn
     ]);
@@ -187,22 +192,70 @@ function renderPinnedSection() {
   container.insertBefore(pinnedSection, container.firstChild);
 }
 
+function renderToolNavItem(tool) {
+  const navItem = el('div', {
+    className: 'nav-item',
+    'data-tool-id': tool.id,
+    'data-tooltip': `${tool.name}`,
+    onclick: () => {
+      location.hash = `#${tool.id}`;
+      const sidebar = qs('#sidebar');
+      if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+      }
+    }
+  }, [
+    el('span', { className: 'nav-text', textContent: tool.name })
+  ]);
+
+  // Star / favourite button
+  const favs = getFavourites();
+  const isStarred = favs.includes(tool.id);
+  const starBtn = el('button', {
+    className: 'nav-item-star' + (isStarred ? ' starred' : ''),
+    title: isStarred ? 'Remove from pinned' : 'Pin this tool',
+    innerHTML: isStarred ? ICONS.starFilled : ICONS.star
+  });
+  starBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const currentFavs = getFavourites();
+    const alreadyStarred = currentFavs.includes(tool.id);
+    let newFavs;
+    if (alreadyStarred) {
+      newFavs = currentFavs.filter(id => id !== tool.id);
+    } else {
+      if (currentFavs.length >= 8) return; // max 8
+      newFavs = [...currentFavs, tool.id];
+    }
+    saveFavourites(newFavs);
+    const nowStarred = newFavs.includes(tool.id);
+    starBtn.classList.toggle('starred', nowStarred);
+    starBtn.innerHTML = nowStarred ? ICONS.starFilled : ICONS.star;
+    starBtn.title = nowStarred ? 'Remove from pinned' : 'Pin this tool';
+    renderPinnedSection();
+  });
+  navItem.appendChild(starBtn);
+  return navItem;
+}
+
 function renderSidebar() {
   const container = qs('#sidebar-nav-container');
   if (!container) return;
   container.innerHTML = '';
 
-  // Load per-category collapse state from localStorage
+  // Load per-category and per-group collapse state from localStorage
   let catStates = {};
+  let groupStates = {};
   try {
     catStates = JSON.parse(localStorage.getItem('huragon_cat_states') || '{}');
   } catch (_) { catStates = {}; }
+  try {
+    groupStates = JSON.parse(localStorage.getItem('huragon_group_states') || '{}');
+  } catch (_) { groupStates = {}; }
 
   CATEGORIES.forEach(cat => {
     // Default: all categories expanded
     const isCollapsed = catStates[cat.id] === true;
-
-    const catIconSvg = ICONS[cat.icon] || ICONS.sliders;
 
     // Category header row (accordion toggle)
     const chevronSpan = el('span', {
@@ -210,12 +263,13 @@ function renderSidebar() {
       innerHTML: isCollapsed ? ICONS.chevronRight : ICONS.chevronDown
     });
 
+    const totalCount = cat.tools ? cat.tools.length : (cat.groups ? cat.groups.reduce((acc, g) => acc + g.tools.length, 0) : 0);
+
     const titleRow = el('div', {
       className: 'category-title' + (isCollapsed ? ' cat-collapsed' : ''),
     }, [
-      el('span', { className: 'cat-title-icon', innerHTML: catIconSvg }),
       el('span', { className: 'cat-title-text', textContent: cat.name }),
-      el('span', { className: 'cat-count', textContent: cat.tools.length }),
+      el('span', { className: 'cat-count', textContent: totalCount }),
       chevronSpan
     ]);
 
@@ -224,51 +278,53 @@ function renderSidebar() {
       className: 'nav-tools-list' + (isCollapsed ? ' nav-tools-hidden' : '')
     });
 
-    cat.tools.forEach(tool => {
-      const toolIconSvg = ICONS[tool.icon] || ICONS[cat.icon] || ICONS.sliders;
-      const navItem = el('div', {
-        className: 'nav-item',
-        'data-tool-id': tool.id,
-        'data-tooltip': `${tool.name}`,
-        onclick: () => {
-          location.hash = `#${tool.id}`;
-          qs('#sidebar').classList.remove('open');
-        }
-      }, [
-        el('span', { className: 'nav-item-icon', innerHTML: toolIconSvg }),
-        el('span', { className: 'nav-text', textContent: tool.name })
-      ]);
+    if (cat.groups && cat.groups.length > 0) {
+      cat.groups.forEach(group => {
+        const groupKey = `${cat.id}-${group.label.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+        const isGroupCollapsed = groupStates[groupKey] === true;
 
-      // Star / favourite button
-      const favs = getFavourites();
-      const isStarred = favs.includes(tool.id);
-      const starBtn = el('button', {
-        className: 'nav-item-star' + (isStarred ? ' starred' : ''),
-        title: isStarred ? 'Remove from pinned' : 'Pin this tool',
-        innerHTML: isStarred ? ICONS.starFilled : ICONS.star
-      });
-      starBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        const currentFavs = getFavourites();
-        const alreadyStarred = currentFavs.includes(tool.id);
-        let newFavs;
-        if (alreadyStarred) {
-          newFavs = currentFavs.filter(id => id !== tool.id);
-        } else {
-          if (currentFavs.length >= 8) return; // max 8
-          newFavs = [...currentFavs, tool.id];
-        }
-        saveFavourites(newFavs);
-        const nowStarred = newFavs.includes(tool.id);
-        starBtn.classList.toggle('starred', nowStarred);
-        starBtn.innerHTML = nowStarred ? ICONS.starFilled : ICONS.star;
-        starBtn.title = nowStarred ? 'Remove from pinned' : 'Pin this tool';
-        renderPinnedSection();
-      });
-      navItem.appendChild(starBtn);
+        const groupChevron = el('span', {
+          className: 'group-chevron',
+          innerHTML: isGroupCollapsed ? ICONS.chevronRight : ICONS.chevronDown
+        });
 
-      toolsList.appendChild(navItem);
-    });
+        const groupHeader = el('div', {
+          className: 'nav-group-label' + (isGroupCollapsed ? ' group-collapsed' : '')
+        }, [
+          el('span', { textContent: group.label }),
+          groupChevron
+        ]);
+
+        const groupToolsList = el('div', {
+          className: 'nav-group-tools' + (isGroupCollapsed ? ' group-hidden' : '')
+        });
+
+        group.tools.forEach(tool => {
+          groupToolsList.appendChild(renderToolNavItem(tool));
+        });
+
+        groupHeader.addEventListener('click', (e) => {
+          const sidebar = qs('#sidebar');
+          if (sidebar && sidebar.classList.contains('collapsed')) return;
+          e.stopPropagation();
+
+          const nowGroupCollapsed = !groupToolsList.classList.contains('group-hidden');
+          groupToolsList.classList.toggle('group-hidden', nowGroupCollapsed);
+          groupHeader.classList.toggle('group-collapsed', nowGroupCollapsed);
+          groupChevron.innerHTML = nowGroupCollapsed ? ICONS.chevronRight : ICONS.chevronDown;
+
+          groupStates[groupKey] = nowGroupCollapsed;
+          localStorage.setItem('huragon_group_states', JSON.stringify(groupStates));
+        });
+
+        toolsList.appendChild(groupHeader);
+        toolsList.appendChild(groupToolsList);
+      });
+    } else {
+      cat.tools.forEach(tool => {
+        toolsList.appendChild(renderToolNavItem(tool));
+      });
+    }
 
     // Accordion toggle logic
     titleRow.addEventListener('click', () => {
@@ -297,8 +353,7 @@ function updateBreadcrumbs(toolId) {
   const toolLabel = qs('#bc-tool-label');
   if (!meta) return;
 
-  const currentCategory = CATEGORIES.find(c => c.tools.some(t => t.id === toolId));
-  if (catLabel && currentCategory) catLabel.textContent = currentCategory.name;
+  if (catLabel) catLabel.textContent = meta.groupName ? `${meta.categoryName} / ${meta.groupName}` : meta.categoryName;
   if (toolLabel) toolLabel.textContent = meta.name;
 }
 
@@ -739,6 +794,102 @@ function bindGlobalEvents() {
       copyToClipboard(window.location.href, 'Link copied to clipboard!');
     });
   }
+
+  // AI Skill Modal Triggers
+  const topAiBtn = qs('#top-ai-skill-btn');
+  const landingAiBtn = qs('#landing-ai-skill-btn');
+  const topAiIcon = qs('#top-ai-skill-icon');
+  const landingAiIcon = qs('#landing-ai-skill-icon');
+
+  if (topAiIcon) topAiIcon.innerHTML = ICONS.bot || ICONS.sliders;
+  if (landingAiIcon) landingAiIcon.innerHTML = ICONS.bot || ICONS.sliders;
+
+  if (topAiBtn) topAiBtn.addEventListener('click', openGlobalAiSkillModal);
+  if (landingAiBtn) landingAiBtn.addEventListener('click', openGlobalAiSkillModal);
+}
+
+function openGlobalAiSkillModal() {
+  const existing = qs('#global-ai-skill-modal-overlay');
+  if (existing) existing.remove();
+
+  const overlay = el('div', {
+    id: 'global-ai-skill-modal-overlay',
+    style: 'position:fixed; inset:0; background:rgba(0,0,0,0.65); z-index:1000; display:flex; align-items:center; justify-content:center; backdrop-filter:blur(6px); padding:20px;'
+  });
+
+  const modalBox = el('div', {
+    style: `
+      width: 100%;
+      max-width: 580px;
+      background: var(--surface-1);
+      border: 1px solid var(--border-strong);
+      border-radius: var(--radius-lg);
+      box-shadow: var(--shadow-lg);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    `
+  });
+
+  const skillPrompt = `---
+name: huragon-ui
+description: Design, generate, and style monochromatic zinc web interfaces inspired by HeroUI and shadcn/ui. Use when building web apps, components, cards, tables, navbars, forms, and landing pages with pure CSS, Tailwind, or React JSX.
+---
+
+# Huragon/UI Design System & Agent Skill
+- Monochromatic zinc grayscale palette (50-950)
+- Zero pictographic emojis (monochrome SVG icons only)
+- Global currency formatting with $ USD
+- Pure vanilla CSS custom properties & zero build step
+- Design Tokens format compatible with W3C Design Tokens Community Group`;
+
+  modalBox.innerHTML = `
+    <div style="padding:18px 22px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:10px;">
+        <span style="display:flex; color:var(--text-primary);">${ICONS.bot || ICONS.sliders}</span>
+        <div>
+          <h3 style="font-size:1rem; font-weight:700; color:var(--text-primary); margin:0;">Huragon AI Coding Agent Skill</h3>
+          <p style="font-size:0.72rem; color:var(--text-secondary); margin:0;">For Antigravity, Claude Code, OpenAI Codex, and Cursor</p>
+        </div>
+      </div>
+      <button id="global-skill-close-btn" class="btn btn-ghost btn-icon">✕</button>
+    </div>
+
+    <div style="padding:22px; display:flex; flex-direction:column; gap:14px; max-height:65vh; overflow-y:auto;">
+      <p style="font-size:0.8rem; color:var(--text-secondary); margin:0; line-height:1.5;">
+        Install this skill into your local workspace or project instructions to ensure your AI agents output production-grade Huragon/UI design system components.
+      </p>
+
+      <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:8px; padding:10px 14px; font-size:0.75rem; color:var(--text-primary); display:flex; justify-content:space-between; align-items:center;">
+        <span style="font-weight:600;">Skill File Location:</span>
+        <code style="font-family:var(--font-mono); color:var(--text-secondary); font-size:0.72rem;">skills/huragon-ui/SKILL.md</code>
+      </div>
+
+      <pre style="margin:0; font-family:var(--font-mono); font-size:0.72rem; line-height:1.6; color:var(--text-secondary); background:var(--bg-app); border:1px solid var(--border); border-radius:8px; padding:14px; overflow-x:auto;"><code>${skillPrompt.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')}</code></pre>
+    </div>
+
+    <div style="padding:14px 22px; background:var(--surface-2); border-top:1px solid var(--border); display:flex; justify-content:space-between; align-items:center;">
+      <span style="font-size:0.72rem; color:var(--text-dim);">Ready for instant agent usage</span>
+      <div style="display:flex; gap:10px;">
+        <button class="btn btn-outline" id="global-skill-copy-btn">Copy Skill</button>
+        <button class="btn btn-primary" id="global-skill-done-btn">Done</button>
+      </div>
+    </div>
+  `;
+
+  overlay.appendChild(modalBox);
+  document.body.appendChild(overlay);
+
+  const closeModal = () => overlay.remove();
+  qs('#global-skill-close-btn')?.addEventListener('click', closeModal);
+  qs('#global-skill-done-btn')?.addEventListener('click', closeModal);
+  overlay.addEventListener('click', (e) => {
+    if (e.target === overlay) closeModal();
+  });
+
+  qs('#global-skill-copy-btn')?.addEventListener('click', () => {
+    copyToClipboard(skillPrompt, 'AI Agent Skill copied to clipboard!');
+  });
 }
 
 // ─── Mobile Bottom Navigation ────────────────────────────────────────────────
@@ -1054,17 +1205,17 @@ function buildDeckBlocks() {
       <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
         <div style="font-size:0.68rem; color:var(--text-dim); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">Total Revenue</div>
         <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">$45,231</div>
-        <div style="font-size:0.72rem; color:#22c55e; margin-top:3px;">+20.1% from last month</div>
+        <div style="font-size:0.72rem; color:var(--success); margin-top:3px;">+20.1% from last month</div>
       </div>
       <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
         <div style="font-size:0.68rem; color:var(--text-dim); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">New Orders</div>
         <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">+2,350</div>
-        <div style="font-size:0.72rem; color:#22c55e; margin-top:3px;">+180.1% from last month</div>
+        <div style="font-size:0.72rem; color:var(--success); margin-top:3px;">+180.1% from last month</div>
       </div>
       <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
         <div style="font-size:0.68rem; color:var(--text-dim); letter-spacing:0.05em; text-transform:uppercase; margin-bottom:4px;">Active Users</div>
         <div style="font-size:1.3rem; font-weight:700; color:var(--text-primary);">+12,234</div>
-        <div style="font-size:0.72rem; color:#22c55e; margin-top:3px;">+19% from last month</div>
+        <div style="font-size:0.72rem; color:var(--success); margin-top:3px;">+19% from last month</div>
       </div>
     </div>
     <div style="background:var(--surface-1); border:1px solid var(--border); border-radius:10px; padding:14px 16px;">
@@ -1116,14 +1267,14 @@ function buildDeckComponents() {
         <button style="background:var(--text-primary); color:var(--bg-primary); border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:600; cursor:pointer;">Primary</button>
         <button style="background:transparent; color:var(--text-primary); border:1px solid var(--border); border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:500; cursor:pointer;">Outline</button>
         <button style="background:transparent; color:var(--text-secondary); border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; cursor:pointer;">Ghost</button>
-        <button style="background:#ef4444; color:#fff; border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:600; cursor:pointer;">Danger</button>
+        <button style="background:var(--error); color:#fff; border:none; border-radius:7px; padding:7px 16px; font-size:0.75rem; font-weight:600; cursor:pointer;">Danger</button>
         <button style="background:var(--surface-2); color:var(--text-dim); border:1px solid var(--border); border-radius:7px; padding:7px 16px; font-size:0.75rem; cursor:pointer;" disabled>Disabled</button>
       </div>
       <div style="display:flex; gap:7px; flex-wrap:wrap; align-items:center;">
         <span style="background:var(--surface-2); border:1px solid var(--border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--text-secondary);">Design System</span>
-        <span style="background:#22c55e22; border:1px solid #22c55e44; border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:#22c55e;">Active</span>
-        <span style="background:#ef444422; border:1px solid #ef444444; border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:#ef4444;">Error</span>
-        <span style="background:#f59e0b22; border:1px solid #f59e0b44; border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:#f59e0b;">Pending</span>
+        <span style="background:var(--success-muted); border:1px solid var(--success-border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--success);">Active</span>
+        <span style="background:var(--error-muted); border:1px solid var(--error-border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--error);">Error</span>
+        <span style="background:var(--warning-muted); border:1px solid var(--warning-border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--warning);">Pending</span>
         <span style="background:var(--surface-2); border:1px solid var(--border); border-radius:9999px; padding:3px 10px; font-size:0.7rem; color:var(--text-dim);">Archived</span>
       </div>
       <div style="display:flex; gap:8px;">
@@ -1133,7 +1284,7 @@ function buildDeckComponents() {
         </div>
         <div style="flex:1; background:var(--surface-1); border:1px solid var(--border); border-radius:8px; padding:10px 12px;">
           <div style="font-size:0.68rem; color:var(--text-dim); margin-bottom:4px; text-transform:uppercase; letter-spacing:0.04em;">Plan</div>
-          <div style="display:flex; align-items:center; gap:5px;"><span style="width:7px;height:7px;background:#22c55e;border-radius:50%;display:inline-block;"></span><span style="font-size:0.8rem; color:var(--text-secondary);">Pro · $29/mo</span></div>
+          <div style="display:flex; align-items:center; gap:5px;"><span style="width:7px;height:7px;background:var(--success);border-radius:50%;display:inline-block;"></span><span style="font-size:0.8rem; color:var(--text-secondary);">Pro · $29/mo</span></div>
         </div>
       </div>
     </div>`;

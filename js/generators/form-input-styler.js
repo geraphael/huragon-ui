@@ -239,16 +239,16 @@ export function mount(container, onCodeChange) {
         <!-- Error State Input -->
         <div style="display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
-            <label style="font-size:0.75rem; font-weight:600; color:#ef4444;">Company Work Email</label>
-            <span style="font-size:0.7rem; color:#ef4444; font-weight:500;">Invalid Format</span>
+            <label style="font-size:0.75rem; font-weight:600; color:var(--error);">Company Work Email</label>
+            <span style="font-size:0.7rem; color:var(--error); font-weight:500;">Invalid Format</span>
           </div>
           <div style="position:relative; display:flex; align-items:center;">
-            <input type="email" id="invalid-email-input" value="alex.rivera@invalid" style="width:100%; ${inputStyle} border-color:#ef4444 !important; color:var(--text-main); font-size:0.85rem; outline:none;" />
-            <span style="position:absolute; right:10px; color:#ef4444; display:flex; align-items:center;">
+            <input type="email" id="invalid-email-input" value="alex.rivera@invalid" style="width:100%; ${inputStyle} border-color:var(--error) !important; color:var(--text-main); font-size:0.85rem; outline:none;" />
+            <span style="position:absolute; right:10px; color:var(--error); display:flex; align-items:center;">
               ${ICONS.alertCircle}
             </span>
           </div>
-          <span style="font-size:0.72rem; color:#ef4444; display:flex; align-items:center; gap:4px;">
+          <span style="font-size:0.72rem; color:var(--error); display:flex; align-items:center; gap:4px;">
             Please enter a valid company work email address ending with .com or .org.
           </span>
         </div>
@@ -257,11 +257,11 @@ export function mount(container, onCodeChange) {
         <div style="display:flex; flex-direction:column; gap:6px;">
           <div style="display:flex; justify-content:space-between; align-items:center;">
             <label style="font-size:0.75rem; font-weight:600; color:var(--text-main);">Workspace Subdomain</label>
-            <span style="font-size:0.7rem; color:#22c55e; font-weight:600;">Available</span>
+            <span style="font-size:0.7rem; color:var(--success); font-weight:600;">Available</span>
           </div>
           <div style="position:relative; display:flex; align-items:center;">
-            <input type="text" value="huragon-cloud" style="width:100%; ${inputStyle} border-color:#22c55e !important; color:var(--text-main); font-size:0.85rem; outline:none;" />
-            <span style="position:absolute; right:10px; color:#22c55e; display:flex; align-items:center;">
+            <input type="text" value="huragon-cloud" style="width:100%; ${inputStyle} border-color:var(--success) !important; color:var(--text-main); font-size:0.85rem; outline:none;" />
+            <span style="position:absolute; right:10px; color:var(--success); display:flex; align-items:center;">
               ${ICONS.check}
             </span>
           </div>
@@ -302,10 +302,10 @@ export function mount(container, onCodeChange) {
         <div>
           <div style="display:flex; justify-content:space-between; font-size:0.7rem; color:var(--text-dim); margin-bottom:4px;">
             <span>Password Complexity</span>
-            <span id="pw-strength-label" style="color:#22c55e; font-weight:600;">Strong (85/100)</span>
+            <span id="pw-strength-label" style="color:var(--success); font-weight:600;">Strong (85/100)</span>
           </div>
           <div style="height:5px; width:100%; background:var(--bg-input); border-radius:999px; overflow:hidden;">
-            <div id="pw-meter-bar" style="width:85%; height:100%; background:#22c55e; transition:all 0.2s ease;"></div>
+            <div id="pw-meter-bar" style="width:85%; height:100%; background:var(--success); transition:all 0.2s ease;"></div>
           </div>
         </div>
 
@@ -338,19 +338,19 @@ export function mount(container, onCodeChange) {
           strengthLabel.style.color = 'var(--text-dim)';
         } else if (len < 6) {
           meterBar.style.width = '25%';
-          meterBar.style.background = '#ef4444';
+          meterBar.style.background = 'var(--error)';
           strengthLabel.textContent = 'Weak';
-          strengthLabel.style.color = '#ef4444';
+          strengthLabel.style.color = 'var(--error)';
         } else if (len < 10) {
           meterBar.style.width = '60%';
-          meterBar.style.background = '#eab308';
+          meterBar.style.background = 'var(--warning)';
           strengthLabel.textContent = 'Moderate';
-          strengthLabel.style.color = '#eab308';
+          strengthLabel.style.color = 'var(--warning)';
         } else {
           meterBar.style.width = '100%';
-          meterBar.style.background = '#22c55e';
+          meterBar.style.background = 'var(--success)';
           strengthLabel.textContent = 'Strong (85/100)';
-          strengthLabel.style.color = '#22c55e';
+          strengthLabel.style.color = 'var(--success)';
         }
       };
     }
@@ -407,7 +407,7 @@ export function mount(container, onCodeChange) {
           </div>
         ` : `
           <div style="text-align:center; padding:12px 0;">
-            <div style="width:40px; height:40px; border-radius:50%; background:rgba(34, 197, 94, 0.12); color:#22c55e; display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
+            <div style="width:40px; height:40px; border-radius:50%; background:var(--success-muted); color:var(--success); border:1px solid var(--success-border); display:flex; align-items:center; justify-content:center; margin:0 auto 10px;">
               ${ICONS.checkCircle}
             </div>
             <h4 style="font-size:1rem; font-weight:700; color:var(--text-main); margin:0 0 4px;">Ready to Provision</h4>
