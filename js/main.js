@@ -434,10 +434,53 @@ function initCodeTabs() {
         codeText = latestCode.tailwind || latestCode.css;
       } else if (state.codeTab === 'react') {
         codeText = getReactCodeSnippet();
+      } else if (state.codeTab === 'tokens') {
+        codeText = getTokensJsonSnippet();
       }
       copyToClipboard(codeText);
     });
   }
+}
+
+function getTokensJsonSnippet() {
+  if (latestCode.tokens) {
+    return typeof latestCode.tokens === 'string' ? latestCode.tokens : JSON.stringify(latestCode.tokens, null, 2);
+  }
+  const tokens = {};
+  const css = latestCode.css || '';
+  const lines = css.split('\n');
+  for (const line of lines) {
+    const match = line.match(/^\s*(--[\w-]+)\s*:\s*([^;]+);/);
+    if (match) {
+      const varName = match[1].replace(/^--/, '');
+      const value = match[2].trim();
+      const isColor = varName.includes('color') || value.startsWith('#') || value.startsWith('rgb') || value.startsWith('hsl');
+      const isDim = varName.includes('radius') || varName.includes('width') || varName.includes('size') || varName.includes('gap') || varName.includes('padding') || value.endsWith('px') || value.endsWith('rem');
+      tokens[varName] = {
+        value: value,
+        type: isColor ? 'color' : isDim ? 'dimension' : varName.includes('shadow') ? 'shadow' : 'custom'
+      };
+    }
+  }
+  if (Object.keys(tokens).length === 0) {
+    return JSON.stringify({
+      "$schema": "https://design-tokens.github.io/community-group/format/v1/schema.json",
+      "token": {
+        "component": {
+          "value": state.currentTool || 'huragon-component',
+          "type": "string"
+        },
+        "style": {
+          "value": (latestCode.css || '').trim(),
+          "type": "custom"
+        }
+      }
+    }, null, 2);
+  }
+  return JSON.stringify({
+    "$schema": "https://design-tokens.github.io/community-group/format/v1/schema.json",
+    "token": tokens
+  }, null, 2);
 }
 
 function getReactCodeSnippet() {
@@ -464,6 +507,8 @@ function renderCurrentCode() {
     rawCode = latestCode.tailwind || latestCode.css;
   } else if (state.codeTab === 'react') {
     rawCode = getReactCodeSnippet();
+  } else if (state.codeTab === 'tokens') {
+    rawCode = getTokensJsonSnippet();
   }
   codeBody.innerHTML = `<code>${highlightCSS(rawCode)}</code>`;
   // Keep full-bleed code view in sync
@@ -840,6 +885,8 @@ function initStageCodeView() {
         codeText = latestCode.tailwind || latestCode.css;
       } else if (state.codeTab === 'react') {
         codeText = getReactCodeSnippet();
+      } else if (state.codeTab === 'tokens') {
+        codeText = getTokensJsonSnippet();
       }
       copyToClipboard(codeText);
     });
@@ -860,12 +907,16 @@ function initStageCodeView() {
         codeText = getReactCodeSnippet();
         ext = 'jsx';
         mime = 'text/javascript';
+      } else if (state.codeTab === 'tokens') {
+        codeText = getTokensJsonSnippet();
+        ext = 'json';
+        mime = 'application/json';
       }
       const blob = new Blob([codeText], { type: mime });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
-      a.download = `huragon-component.${ext}`;
+      a.download = `huragon-${state.codeTab === 'tokens' ? 'tokens' : 'component'}.${ext}`;
       a.click();
       URL.revokeObjectURL(url);
     });
@@ -893,6 +944,8 @@ function syncStageCodeContent() {
     rawCode = latestCode.tailwind || latestCode.css;
   } else if (state.codeTab === 'react') {
     rawCode = getReactCodeSnippet();
+  } else if (state.codeTab === 'tokens') {
+    rawCode = getTokensJsonSnippet();
   }
   stageCodeContent.innerHTML = highlightCSS(rawCode);
 }

@@ -2,12 +2,74 @@
 
 > **One suite to build them all.** An all-in-one CSS design system and visual generator suite inspired by shadcn/ui and modern developer tools. Built with vanilla web standards and zero framework dependencies.
 
-Live Deployment: [https://huragon-ui.geraphael100.workers.dev](https://huragon-ui.geraphael100.workers.dev)  
-Repository: [https://github.com/geraphael/huragon-ui](https://github.com/geraphael/huragon-ui)
+[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
+[![Zero Dependencies](https://img.shields.io/badge/Dependencies-0%20(Pure%20Vanilla)-success.svg)]()
+[![PWA Ready](https://img.shields.io/badge/PWA-Offline%20Ready-purple.svg)]()
 
 ---
 
-## Suite Architecture (47 Dedicated Generators)
+## 🚀 Quick Access
+
+* **Live Web App**: [https://huragon-ui.geraphael100.workers.dev](https://huragon-ui.geraphael100.workers.dev)
+* **GitHub Repository**: [https://github.com/geraphael/huragon-ui](https://github.com/geraphael/huragon-ui)
+
+> **No installation required.** Open the link above in any modern desktop or mobile browser to launch the studio immediately.
+
+---
+
+## 📖 How to Use Huragon/ui
+
+Huragon/ui is built for maximum developer speed, visual precision, and zero friction. Follow these steps to generate and export production-ready UI tokens and components:
+
+### 1. Discover & Select a Generator
+* **Sidebar Navigation**: Browse through **47 specialized generators** organized into 10 structured categories in the collapsible sidebar.
+* **Command Palette (`⌘K` / `Ctrl+K`)**: Press `Ctrl+K` (or `⌘K` on Mac) anywhere in the app to open the quick launcher. Type any keyword (e.g. `mesh`, `glass`, `shadow`, `grid`, `navbar`) to jump directly to that tool.
+* **Pinned Tools & Favorites**: Click the star icon next to any generator name to pin it to the top of your sidebar for one-click access.
+
+### 2. Customize Visual Controls in Real Time
+* Adjust sliders, color pickers, cubic-bezier handles, gradient stop managers, and coordinate drag-nodes.
+* All changes update the canvas immediately with sub-millisecond response time.
+* Click the **Randomize / Shuffle** button to generate fresh, harmonious color and geometry presets instantly.
+
+### 3. Test Across Viewports & Surfaces
+* **Device Viewport Switcher**: Toggle preview dimensions at the top bar:
+  * **Full**: Unconstrained full-width canvas
+  * **Laptop**: 980px viewport
+  * **Tablet**: 768px viewport
+  * **Mobile**: 375px viewport
+* **Theme Modes**: Switch between **Dark** and **Light** surfaces using the theme toggle to verify contrast, opacity, and specular reflection states.
+* **Interactive Canvas**: Hover, click, and interact with the specimen directly in the viewport (including 3D tilt and card elevation physics).
+
+### 4. Inspect & Export Code
+* Switch between four production-ready export formats:
+  * **CSS**: Clean custom properties (`--tokens`) and standard stylesheets.
+  * **Tailwind / HTML**: Utility classes ready to paste into React, Next.js, Vue, or static markup.
+  * **React / JSX**: Self-contained component templates with inline styles and props.
+  * **Tokens (JSON)**: W3C Design Token format for Figma, Style Dictionary, and design system pipelines.
+* Click **Copy** to grab code directly to your clipboard, or click **Download** to save `.css`, `.jsx`, `.html`, or `.json` files.
+* Click the **Full-Bleed Code View** icon (`</>` in the top toolbar) to switch from canvas mode to a focused, distraction-free code workspace.
+
+### 5. Share Your Design
+* Click the **Share** button in the top toolbar to generate a permalink with all parameters encoded into the URL hash. Anyone opening the link will see your exact visual configuration.
+
+### 6. Install as an Offline Progressive Web App (PWA)
+* Huragon/ui includes a native Web App Manifest and Service Worker.
+* Click the **Install** button in your browser address bar or desktop app prompt to install Huragon/ui as a standalone desktop or mobile application that works 100% offline.
+
+---
+
+## ⚡ Keyboard Shortcuts
+
+| Shortcut | Action |
+| :--- | :--- |
+| `Ctrl+K` / `⌘K` | Open Command Palette / Quick Search |
+| `Esc` | Close Command Palette, Modals, or Drawers |
+| `Alt+T` | Toggle Dark / Light Theme |
+| `Alt+C` | Copy active code snippet to clipboard |
+
+---
+
+## 🛠️ Suite Architecture (47 Dedicated Generators)
 
 Huragon/ui unifies 47 specialized CSS and design system generators across 10 structured categories:
 
@@ -80,46 +142,30 @@ Huragon/ui unifies 47 specialized CSS and design system generators across 10 str
 
 ---
 
-## Technical Specifications
+## 💻 Local Development
 
-* **Pure Vanilla Architecture**: Zero bundler or framework runtime overhead. Handcrafted with semantic HTML5, CSS3 Custom Properties, and ES Modules.
-* **Progressive Web App (PWA)**: Full offline capability with Service Worker caching, Web App Manifest, maskable vector icons, and native install prompt.
-* **Responsive Simulation**: Live testing container with presets for Full Desktop, Laptop (980px), Tablet (768px), and Mobile (375px).
-* **Code Export**: Instant copyable Vanilla CSS custom properties and matching Tailwind CSS arbitrary classes with tokenized syntax highlighting.
-* **Theme Modes**: Native dark and light themes using high-contrast monochromatic neutral tones.
-
----
-
-## Local Development
-
-Launch Huragon/ui with any local static HTTP server:
+Huragon/ui is 100% vanilla and requires no compilers, build pipelines, or package managers:
 
 ```bash
-# Using Python
+# 1. Clone the repository
+git clone https://github.com/geraphael/huragon-ui.git
+cd huragon-ui
+
+# 2. Start any local HTTP server
+# Option A: Python
 python -m http.server 3000
 
-# Using Node.js
+# Option B: Node.js (npx)
 npx serve .
+
+# Option C: PHP
+php -S localhost:3000
 ```
 
-Open `http://localhost:3000` in any modern web browser.
+Open `http://localhost:3000` in any web browser.
 
 ---
 
-## Cloudflare Pages Deployment
-
-Huragon/ui is structured for direct deployment to Cloudflare Pages:
-
-1. Push to your GitHub repository:
-   ```bash
-   git push origin main
-   ```
-2. Connect the repository in the **Cloudflare Dashboard** under **Workers & Pages**.
-3. Select **None** as the framework preset, leave the build command blank, and set output directory to `/`.
-4. Deploy for edge delivery worldwide with sub-second response times.
-
----
-
-## License
+## 📄 License
 
 MIT License. Free for personal and commercial projects.
