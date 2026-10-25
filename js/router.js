@@ -3,6 +3,9 @@ import { qs } from './utils/dom.js';
 import { getToolMeta } from './tools-registry.js';
 
 const generatorsMap = {
+  // Studio Home Dashboard
+  'overview': () => import('./generators/overview.js'),
+
   // Gradients
   'mesh-gradient': () => import('./generators/mesh-gradient.js'),
   'gradient-builder': () => import('./generators/gradient-builder.js'),
@@ -82,6 +85,29 @@ export async function navigateTo(toolId, onCodeUpdate) {
   const loader = generatorsMap[toolId];
   const meta = getToolMeta(toolId);
 
+  // Toggle Studio Home layout mode on workspace
+  const workspace = qs('#workspace');
+  if (workspace) {
+    workspace.classList.toggle('studio-home-mode', toolId === 'overview');
+  }
+
+  // Record recent activity for generators (exclude overview)
+  if (toolId && toolId !== 'overview') {
+    try {
+      const raw = localStorage.getItem('huragon_recents');
+      let recents = raw ? JSON.parse(raw) : [];
+      if (!Array.isArray(recents)) recents = [];
+      recents = recents.filter(item => (typeof item === 'string' ? item !== toolId : item.id !== toolId));
+      recents.unshift({ id: toolId, timestamp: Date.now() });
+      if (recents.length > 15) recents = recents.slice(0, 15);
+      localStorage.setItem('huragon_recents', JSON.stringify(recents));
+    } catch (_) {}
+  }
+
+  // Reset stage code view if open
+  const stageCodeView = qs('#stage-code-view');
+  if (stageCodeView) stageCodeView.style.display = 'none';
+
   if (meta) {
     const titleEl = qs('#current-tool-title');
     const descEl = qs('#current-tool-desc');
@@ -107,7 +133,7 @@ export async function navigateTo(toolId, onCodeUpdate) {
         <p style="color:var(--text-muted); font-size:0.825rem; line-height:1.5; margin-bottom:20px;">
           This generator is registered in the Huragon catalog and will be available in the next release.
         </p>
-        <button class="btn btn-primary" onclick="location.hash='#mesh-gradient'">Open Mesh Gradient</button>
+        <button class="btn btn-primary" onclick="location.hash='#overview'">Open Studio Home</button>
       </div>
     `;
     controlsStage.innerHTML = `

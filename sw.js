@@ -1,5 +1,5 @@
 // Huragon/ui Service Worker - v5.0.0 (HeroUI & shadcn/ui Blocks Studio)
-const CACHE_NAME = 'huragon-ui-v8';
+const CACHE_NAME = 'huragon-ui-v10';
 
 const STATIC_PRECACHE = [
   './',
@@ -17,6 +17,7 @@ const STATIC_PRECACHE = [
   './css/layout.css',
   './css/components.css',
   './css/landing.css',
+  './css/dashboard.css',
   './js/main.js',
   './js/app.js',
   './js/router.js',
@@ -25,6 +26,7 @@ const STATIC_PRECACHE = [
   './js/utils/dom.js',
   './js/utils/icons.js',
   './js/utils/chart-math.js',
+  './js/generators/overview.js',
   './js/generators/app-canvas.js',
   './js/generators/font-pairing.js',
   './js/generators/blocks-studio.js',

@@ -1,49 +1,6 @@
-// All 47 tools organized into 6 logical developer-workflow groups
+// All 54 tools organized into 6 logical developer-workflow groups
 // Each tool has an individual `icon` field for sidebar display
 export const CATEGORIES = [
-  {
-    id: 'foundations',
-    name: 'Foundations',
-    icon: 'compass',
-    tools: [
-      { id: 'color-palette',      name: 'Color Palette Studio',       icon: 'droplet',  desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
-      { id: 'typography-scale',   name: 'Type Scale System',          icon: 'type',     desc: 'Mathematical font scale generator with Google Fonts' },
-      { id: 'font-pairing',       name: 'Font Pairing Studio',        icon: 'type',     desc: 'Google Fonts browser with live pairing preview and variable typography' },
-      { id: 'contrast-checker',   name: 'WCAG Contrast Checker',      icon: 'contrast', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
-      { id: 'spacing-calculator', name: 'Spacing System (8pt/4pt)',   icon: 'space',    desc: 'Design token spacing scale generator' },
-      { id: 'css-reset',          name: 'CSS Reset Generator',        icon: 'reset',    desc: 'Curated modern CSS resets with customizable rules' }
-    ]
-  },
-  {
-    id: 'visual',
-    name: 'Visual Effects',
-    icon: 'layers',
-    tools: [
-      { id: 'mesh-gradient',       name: 'Mesh Gradient',             icon: 'palette',  desc: 'Organic multi-point radial gradient generator' },
-      { id: 'gradient-builder',    name: 'Linear & Radial Gradient',  icon: 'palette',  desc: 'Linear, radial, and conic gradient designer' },
-      { id: 'animated-gradient',   name: 'Animated Gradient',         icon: 'activity', desc: 'Looping hue-shifting keyframe gradients' },
-      { id: 'aurora-gradient',     name: 'Aurora Borealis Glow',      icon: 'feather',  desc: 'Flowing multi-beam northern lights ambient glow' },
-      { id: 'glassmorphism',       name: 'Glassmorphism',             icon: 'layers',   desc: 'Frosted glass UI with blur, opacity and specular border' },
-      { id: 'neumorphism',         name: 'Neumorphism (Soft UI)',      icon: 'cpu',      desc: 'Dual-shadow soft tactile UI generator' },
-      { id: 'box-shadow',          name: 'Box Shadow Layers',         icon: 'layers',   desc: 'Multi-layer complex shadow builder' },
-      { id: 'css-filters',         name: 'CSS Filters',               icon: 'filter',   desc: 'Visual filter & backdrop-filter chaining studio' },
-      { id: 'background-patterns', name: 'CSS Background Patterns',   icon: 'pattern',  desc: 'Dots, grids, stripes, chevron and geometric textures' },
-      { id: 'noise-texture',       name: 'SVG Noise & Grain',         icon: 'noise',    desc: 'Subtle film grain and rough textures using SVG turbulence' }
-    ]
-  },
-  {
-    id: 'shapes',
-    name: 'Shapes & Layout',
-    icon: 'shapes',
-    tools: [
-      { id: 'svg-wave',          name: 'SVG Wave Divider',      icon: 'wave',   desc: 'Dynamic flowing SVG section dividers with animation' },
-      { id: 'svg-blob',          name: 'SVG Blob Generator',    icon: 'shapes', desc: 'Organic fluid blob shapes with random seeds' },
-      { id: 'clip-path',         name: 'Clip-Path Polygon',     icon: 'shapes', desc: 'Interactive visual polygon & shape clipper' },
-      { id: 'border-radius',     name: 'Fancy Border Radius',   icon: 'shapes', desc: '8-value organic squircle border generator' },
-      { id: 'grid-generator',    name: 'CSS Grid Studio',       icon: 'grid',   desc: 'Visual track and grid-template builder' },
-      { id: 'flexbox-playground',name: 'Flexbox Playground',    icon: 'ratio',  desc: 'Interactive flex alignment and direction tester' }
-    ]
-  },
   {
     id: 'components',
     name: 'Components',
@@ -116,6 +73,49 @@ export const CATEGORIES = [
     ]
   },
   {
+    id: 'foundations',
+    name: 'Foundations',
+    icon: 'compass',
+    tools: [
+      { id: 'color-palette',      name: 'Color Palette Studio',       icon: 'droplet',  desc: 'Harmonious palettes, 50-950 Tailwind shade scales & OKLCH' },
+      { id: 'typography-scale',   name: 'Type Scale System',          icon: 'type',     desc: 'Mathematical font scale generator with Google Fonts' },
+      { id: 'font-pairing',       name: 'Font Pairing Studio',        icon: 'type',     desc: 'Google Fonts browser with live pairing preview and variable typography' },
+      { id: 'contrast-checker',   name: 'WCAG Contrast Checker',      icon: 'contrast', desc: 'Real-time AA/AAA accessibility compliance and APCA scores' },
+      { id: 'spacing-calculator', name: 'Spacing System (8pt/4pt)',   icon: 'space',    desc: 'Design token spacing scale generator' },
+      { id: 'css-reset',          name: 'CSS Reset Generator',        icon: 'reset',    desc: 'Curated modern CSS resets with customizable rules' }
+    ]
+  },
+  {
+    id: 'visual',
+    name: 'Visual Effects',
+    icon: 'layers',
+    tools: [
+      { id: 'mesh-gradient',       name: 'Mesh Gradient',             icon: 'palette',  desc: 'Organic multi-point radial gradient generator' },
+      { id: 'gradient-builder',    name: 'Linear & Radial Gradient',  icon: 'palette',  desc: 'Linear, radial, and conic gradient designer' },
+      { id: 'animated-gradient',   name: 'Animated Gradient',         icon: 'activity', desc: 'Looping hue-shifting keyframe gradients' },
+      { id: 'aurora-gradient',     name: 'Aurora Borealis Glow',      icon: 'feather',  desc: 'Flowing multi-beam northern lights ambient glow' },
+      { id: 'glassmorphism',       name: 'Glassmorphism',             icon: 'layers',   desc: 'Frosted glass UI with blur, opacity and specular border' },
+      { id: 'neumorphism',         name: 'Neumorphism (Soft UI)',      icon: 'cpu',      desc: 'Dual-shadow soft tactile UI generator' },
+      { id: 'box-shadow',          name: 'Box Shadow Layers',         icon: 'layers',   desc: 'Multi-layer complex shadow builder' },
+      { id: 'css-filters',         name: 'CSS Filters',               icon: 'filter',   desc: 'Visual filter & backdrop-filter chaining studio' },
+      { id: 'background-patterns', name: 'CSS Background Patterns',   icon: 'pattern',  desc: 'Dots, grids, stripes, chevron and geometric textures' },
+      { id: 'noise-texture',       name: 'SVG Noise & Grain',         icon: 'noise',    desc: 'Subtle film grain and rough textures using SVG turbulence' }
+    ]
+  },
+  {
+    id: 'shapes',
+    name: 'Shapes & Layout',
+    icon: 'shapes',
+    tools: [
+      { id: 'svg-wave',          name: 'SVG Wave Divider',      icon: 'wave',   desc: 'Dynamic flowing SVG section dividers with animation' },
+      { id: 'svg-blob',          name: 'SVG Blob Generator',    icon: 'shapes', desc: 'Organic fluid blob shapes with random seeds' },
+      { id: 'clip-path',         name: 'Clip-Path Polygon',     icon: 'shapes', desc: 'Interactive visual polygon & shape clipper' },
+      { id: 'border-radius',     name: 'Fancy Border Radius',   icon: 'shapes', desc: '8-value organic squircle border generator' },
+      { id: 'grid-generator',    name: 'CSS Grid Studio',       icon: 'grid',   desc: 'Visual track and grid-template builder' },
+      { id: 'flexbox-playground',name: 'Flexbox Playground',    icon: 'ratio',  desc: 'Interactive flex alignment and direction tester' }
+    ]
+  },
+  {
     id: 'motion',
     name: 'Motion & Text',
     icon: 'activity',
@@ -148,6 +148,16 @@ export const CATEGORIES = [
 ];
 
 export function getToolMeta(toolId) {
+  if (toolId === 'overview') {
+    return {
+      id: 'overview',
+      name: 'Overview',
+      categoryName: 'Workspace',
+      categoryId: 'workspace',
+      icon: 'home',
+      desc: 'Studio Home dashboard, quick start tools, and design system workflow'
+    };
+  }
   for (const cat of CATEGORIES) {
     if (cat.tools) {
       const tool = cat.tools.find(t => t.id === toolId);

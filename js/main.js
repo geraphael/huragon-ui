@@ -109,6 +109,9 @@ function saveFavourites(favs) {
 
 function initFavourites() {
   renderPinnedSection();
+  window.addEventListener('huragon:favourites-changed', () => {
+    renderPinnedSection();
+  });
 }
 
 function renderPinnedSection() {
@@ -133,19 +136,10 @@ function renderPinnedSection() {
   const list = el('div', { className: 'nav-pinned-list' });
 
   favs.forEach(toolId => {
-    let toolData = null;
-    let catData = null;
-    for (const cat of CATEGORIES) {
-      const t = cat.tools.find(item => item.id === toolId);
-      if (t) {
-        toolData = t;
-        catData = cat;
-        break;
-      }
-    }
-    if (!toolData) return;
+    const meta = getToolMeta(toolId);
+    if (!meta) return;
 
-    const iconSvg = ICONS[toolData.icon] || ICONS[catData.icon] || ICONS.sliders;
+    const iconSvg = ICONS[meta.icon] || ICONS.sliders;
     const currentActive = location.hash === `#${toolId}`;
 
     const removeBtn = el('button', {
@@ -159,6 +153,7 @@ function renderPinnedSection() {
       const current = getFavourites().filter(id => id !== toolId);
       saveFavourites(current);
       renderPinnedSection();
+      window.dispatchEvent(new CustomEvent('huragon:favourites-changed', { detail: current }));
       const mainStar = qs(`.nav-item[data-tool-id="${toolId}"] .nav-item-star`);
       if (mainStar) {
         mainStar.classList.remove('starred');
@@ -170,7 +165,7 @@ function renderPinnedSection() {
     const item = el('div', {
       className: 'nav-item' + (currentActive ? ' active' : ''),
       'data-tool-id': toolId,
-      'data-tooltip': `${toolData.name}`,
+      'data-tooltip': `${meta.name}`,
       onclick: () => {
         location.hash = `#${toolId}`;
         const sidebar = qs('#sidebar');
@@ -181,7 +176,7 @@ function renderPinnedSection() {
         }
       }
     }, [
-      el('span', { className: 'nav-text', textContent: toolData.name }),
+      el('span', { className: 'nav-text', textContent: meta.name }),
       removeBtn
     ]);
 
@@ -189,7 +184,14 @@ function renderPinnedSection() {
   });
 
   pinnedSection.appendChild(list);
-  container.insertBefore(pinnedSection, container.firstChild);
+  const overviewItem = qs('#nav-overview-item');
+  if (overviewItem && overviewItem.nextSibling) {
+    container.insertBefore(pinnedSection, overviewItem.nextSibling);
+  } else if (overviewItem) {
+    container.appendChild(pinnedSection);
+  } else {
+    container.insertBefore(pinnedSection, container.firstChild);
+  }
 }
 
 function renderToolNavItem(tool) {
@@ -242,6 +244,30 @@ function renderSidebar() {
   const container = qs('#sidebar-nav-container');
   if (!container) return;
   container.innerHTML = '';
+
+  // Studio Overview fixed entry at top of sidebar
+  const currentRoute = location.hash.replace('#', '') || 'overview';
+  const isOverview = currentRoute === 'overview';
+  const overviewNav = el('div', {
+    id: 'nav-overview-item',
+    className: 'nav-item nav-item-overview' + (isOverview ? ' active' : ''),
+    'data-tool-id': 'overview',
+    'data-tooltip': 'Studio Overview',
+    style: 'margin-bottom: 6px;',
+    onclick: () => {
+      location.hash = '#overview';
+      const sidebar = qs('#sidebar');
+      if (sidebar && window.innerWidth <= 768) {
+        sidebar.classList.remove('open');
+        const backdrop = qs('#sidebar-backdrop');
+        if (backdrop) backdrop.style.display = 'none';
+      }
+    }
+  }, [
+    el('span', { className: 'nav-overview-icon', innerHTML: ICONS.home || ICONS.layout, style: 'display:flex;align-items:center;justify-content:center;color:inherit;margin-right:8px;flex-shrink:0;' }),
+    el('span', { className: 'nav-text', textContent: 'Studio Overview', style: 'font-weight:600;' })
+  ]);
+  container.appendChild(overviewNav);
 
   // Load per-category and per-group collapse state from localStorage
   let catStates = {};
@@ -348,13 +374,29 @@ function renderSidebar() {
 }
 
 function updateBreadcrumbs(toolId) {
-  const meta = getToolMeta(toolId);
   const catLabel = qs('#bc-cat-label');
   const toolLabel = qs('#bc-tool-label');
+  const stageRuntimeTag = qs('#stage-runtime-tag');
+
+  if (toolId === 'overview') {
+    if (catLabel) catLabel.textContent = 'Workspace';
+    if (toolLabel) toolLabel.textContent = 'Overview';
+    if (stageRuntimeTag) {
+      const txt = stageRuntimeTag.querySelector('span:last-child');
+      if (txt) txt.textContent = 'Pure ESM';
+    }
+    return;
+  }
+
+  const meta = getToolMeta(toolId);
   if (!meta) return;
 
   if (catLabel) catLabel.textContent = meta.groupName ? `${meta.categoryName} / ${meta.groupName}` : meta.categoryName;
   if (toolLabel) toolLabel.textContent = meta.name;
+  if (stageRuntimeTag) {
+    const txt = stageRuntimeTag.querySelector('span:last-child');
+    if (txt) txt.textContent = 'Pure CSS';
+  }
 }
 
 function renderLandingCategories() {
@@ -747,12 +789,12 @@ function initSearch() {
 
 function initRouting() {
   window.addEventListener('hashchange', () => {
-    const route = location.hash.replace('#', '') || 'mesh-gradient';
+    const route = location.hash.replace('#', '') || 'overview';
     navigateTo(route, onCodeChange);
     updateBreadcrumbs(route);
   });
 
-  const initialRoute = location.hash.replace('#', '') || 'mesh-gradient';
+  const initialRoute = location.hash.replace('#', '') || 'overview';
   navigateTo(initialRoute, onCodeChange);
   updateBreadcrumbs(initialRoute);
 }
@@ -769,10 +811,20 @@ function closeLanding() {
 
 function bindGlobalEvents() {
   const brandBtn = qs('#brand-home-btn');
-  if (brandBtn) brandBtn.addEventListener('click', openLanding);
+  if (brandBtn) {
+    brandBtn.addEventListener('click', () => {
+      closeLanding();
+      location.hash = '#overview';
+    });
+  }
 
   const bcBrandBtn = qs('#bc-brand-btn');
-  if (bcBrandBtn) bcBrandBtn.addEventListener('click', openLanding);
+  if (bcBrandBtn) {
+    bcBrandBtn.addEventListener('click', () => {
+      closeLanding();
+      location.hash = '#overview';
+    });
+  }
 
   const viewLandingBtn = qs('#view-landing-btn');
   if (viewLandingBtn) viewLandingBtn.addEventListener('click', openLanding);
@@ -781,7 +833,12 @@ function bindGlobalEvents() {
   if (closeLandingBtn) closeLandingBtn.addEventListener('click', closeLanding);
 
   const heroStartBtn = qs('#hero-start-btn');
-  if (heroStartBtn) heroStartBtn.addEventListener('click', closeLanding);
+  if (heroStartBtn) {
+    heroStartBtn.addEventListener('click', () => {
+      closeLanding();
+      location.hash = '#overview';
+    });
+  }
 
   const ghHeaderIcon = qs('#github-header-icon');
   if (ghHeaderIcon) ghHeaderIcon.innerHTML = ICONS.github;

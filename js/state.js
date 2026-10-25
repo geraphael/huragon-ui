@@ -3,7 +3,7 @@
 const listeners = new Map();
 
 export const state = new Proxy({
-  currentTool: 'mesh-gradient',
+  currentTool: 'overview',
   deviceMode: 'desktop', // mobile, tablet, laptop, desktop
   theme: localStorage.getItem('huragon_theme') || 'dark',
   codeTab: 'css', // css, tailwind, react, tokens
