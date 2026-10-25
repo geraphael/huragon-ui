@@ -10,7 +10,7 @@
 
 ## 🚀 Quick Access
 
-* **Live Web App**: [https://huragon-ui.geraphael100.workers.dev](https://huragon-ui.geraphael100.workers.dev)
+* **Live Web App**: [https://ui-design.huragon.com/](https://ui-design.huragon.com/)
 * **GitHub Repository**: [https://github.com/geraphael/huragon-ui](https://github.com/geraphael/huragon-ui)
 
 > **No installation required.** Open the link above in any modern desktop or mobile browser to launch the studio immediately.
